@@ -1,0 +1,509 @@
+﻿<error errorId="972599b0-0a35-45d2-b066-41c396e79a54" application="/LM/W3SVC/2/ROOT" host="DESKTOP-CDLR69T" type="System.Data.SqlClient.SqlException" message="Subquery returned more than 1 value. This is not permitted when the subquery follows =, !=, &lt;, &lt;= , &gt;, &gt;= or when the subquery is used as an expression." source=".Net SqlClient Data Provider" detail="System.Data.SqlClient.SqlException (0x80131904): Subquery returned more than 1 value. This is not permitted when the subquery follows =, !=, &lt;, &lt;= , &gt;, &gt;= or when the subquery is used as an expression.&#xD;&#xA;   at App.Service.EMCS.SvcCipl.InsertCiplItem(List`1 data, String RFC, String Status) in E:\Client Projects\Hendri\EMCS_Staging\Library\App.Service\EMCS\SvcCipl.cs:line 290&#xD;&#xA;   at App.Web.Controllers.EMCS.EmcsController.CiplItemInsert(List`1 data, String RFC, String Status) in E:\Client Projects\Hendri\EMCS_Staging\Web\Controllers\EMCS\TransactionCipl.cs:line 968&#xD;&#xA;   at lambda_method(Closure , ControllerBase , Object[] )&#xD;&#xA;   at System.Web.Mvc.ReflectedActionDescriptor.Execute(ControllerContext controllerContext, IDictionary`2 parameters)&#xD;&#xA;   at System.Web.Mvc.ControllerActionInvoker.InvokeActionMethod(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IDictionary`2 parameters)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.&lt;BeginInvokeSynchronousActionMethod&gt;b__39(IAsyncResult asyncResult, ActionInvocation innerInvokeState)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncResultWrapper.WrappedAsyncResult`2.CallEndDelegate(IAsyncResult asyncResult)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.EndInvokeActionMethod(IAsyncResult asyncResult)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.AsyncInvocationWithFilters.&lt;InvokeActionMethodFilterAsynchronouslyRecursive&gt;b__3d()&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.AsyncInvocationWithFilters.&lt;&gt;c__DisplayClass46.&lt;InvokeActionMethodFilterAsynchronouslyRecursive&gt;b__3f()&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.EndInvokeActionMethodWithFilters(IAsyncResult asyncResult)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.&lt;&gt;c__DisplayClass21.&lt;&gt;c__DisplayClass2b.&lt;BeginInvokeAction&gt;b__1c()&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.&lt;&gt;c__DisplayClass21.&lt;BeginInvokeAction&gt;b__1e(IAsyncResult asyncResult)&#xD;&#xA;ClientConnectionId:1222353d-77a9-4b88-835c-97d5c42b4d47&#xD;&#xA;Error Number:512,State:1,Class:16" user="XUPJ21WDN" time="2022-08-17T15:49:11.7006580Z">
+  <serverVariables>
+    <item name="ALL_HTTP">
+      <value string="HTTP_CONNECTION:keep-alive&#xD;&#xA;HTTP_CONTENT_LENGTH:2755&#xD;&#xA;HTTP_CONTENT_TYPE:application/x-www-form-urlencoded; charset=UTF-8&#xD;&#xA;HTTP_ACCEPT:*/*&#xD;&#xA;HTTP_ACCEPT_ENCODING:gzip, deflate, br&#xD;&#xA;HTTP_ACCEPT_LANGUAGE:en-US,en;q=0.9,gu;q=0.8&#xD;&#xA;HTTP_COOKIE:_ga=GA1.1.1094185988.1657879694; _gcl_au=1.1.1428815844.1657880879; ajs_anonymous_id=4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0; _ga_Y80687Q41G=GS1.1.1659011652.29.1.1659011700.0; .Nop.Customer=cd179d34-4953-4c73-8ad6-de3951c32b8b; ASP.NET_SessionId=um1ohvhvy1pff2umnx21cicf; __RequestVerificationToken=BvilyoXSwViKnYjkD6IaX2TeRiecvoifZhKRYyLZnhoWt2MQ_ukB-IZo1_gHD1JKOrONSm5U_XXjOuyRVuO4j1I7dYPx3RHSKAp41sGSq9o1; .ASPXAUTH=8C2AACC3739CC77EB5847FF1A8933479EE4B2CFFAE9BC3C52CAF2FC69449C5028E003DAEFD3EEBE3DD2FD8F9B66117787F16DE84E637F8A43F606475BB2B46A967D4CE34D68B8721C009D28E207545A82491BB8409CC9803C3F69776D2FFB130; trakindo__pis_localhost1400_202208=356C484786964A3FDD27E6C2F9C1921887592C4E4FB9FCCE75FBCFAA4B16F7E77E0DDF3D4BC736A6951DC51439A1C6F838B7A978C4B2AADEA59B2C5C0D31FA1931B197E350749AFBF0DE8B60B4AE090AE8719A0212B7DA24401F37AB3DAD366B8144411C8610BDF8BCACBC1DFB36224C4F0C050DE4763C1330E6D84C07C51A612BA1E921B95CC42428D89430B1C9C9C554C879DD32107C48CBAB6848927C379ABB13E563F382DC8A72CC827FF901D5954092D371B3BD7822596150D62BE31458B96A525725A3DCB0CDB68DBEF7F0215DF345E59AFAA6A45A2E96F8F018F5C15E8F6372BB2D368AE929AE1582C59DA709A1E500D82E7153F698311A37FB42642DA88753B2FDC94DDD1995E61C927A297B127C07C69A2E531238E6978E2E0EDA193B89FE72D47F1CA3BA40F0C45D9BB0769C7D586B604B49141E6120D4DCE92BB8B96AE4220F7884A334C63DCB17FA9A6EA2E5493B10BE9C31C000F1DBD200CE602F5C837126DD61BF086E2E6743F14A8A; nav-item=1&#xD;&#xA;HTTP_HOST:localhost:1400&#xD;&#xA;HTTP_REFERER:http://localhost:1400/EMCS/CiplEdit?id=53511&amp;rfc=true&#xD;&#xA;HTTP_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36&#xD;&#xA;HTTP_SEC_CH_UA:&quot;Chromium&quot;;v=&quot;104&quot;, &quot; Not A;Brand&quot;;v=&quot;99&quot;, &quot;Google Chrome&quot;;v=&quot;104&quot;&#xD;&#xA;HTTP_X_REQUESTED_WITH:XMLHttpRequest&#xD;&#xA;HTTP_SEC_CH_UA_MOBILE:?0&#xD;&#xA;HTTP_SEC_CH_UA_PLATFORM:&quot;Windows&quot;&#xD;&#xA;HTTP_ORIGIN:http://localhost:1400&#xD;&#xA;HTTP_SEC_FETCH_SITE:same-origin&#xD;&#xA;HTTP_SEC_FETCH_MODE:cors&#xD;&#xA;HTTP_SEC_FETCH_DEST:empty&#xD;&#xA;" />
+    </item>
+    <item name="ALL_RAW">
+      <value string="Connection: keep-alive&#xD;&#xA;Content-Length: 2755&#xD;&#xA;Content-Type: application/x-www-form-urlencoded; charset=UTF-8&#xD;&#xA;Accept: */*&#xD;&#xA;Accept-Encoding: gzip, deflate, br&#xD;&#xA;Accept-Language: en-US,en;q=0.9,gu;q=0.8&#xD;&#xA;Cookie: _ga=GA1.1.1094185988.1657879694; _gcl_au=1.1.1428815844.1657880879; ajs_anonymous_id=4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0; _ga_Y80687Q41G=GS1.1.1659011652.29.1.1659011700.0; .Nop.Customer=cd179d34-4953-4c73-8ad6-de3951c32b8b; ASP.NET_SessionId=um1ohvhvy1pff2umnx21cicf; __RequestVerificationToken=BvilyoXSwViKnYjkD6IaX2TeRiecvoifZhKRYyLZnhoWt2MQ_ukB-IZo1_gHD1JKOrONSm5U_XXjOuyRVuO4j1I7dYPx3RHSKAp41sGSq9o1; .ASPXAUTH=8C2AACC3739CC77EB5847FF1A8933479EE4B2CFFAE9BC3C52CAF2FC69449C5028E003DAEFD3EEBE3DD2FD8F9B66117787F16DE84E637F8A43F606475BB2B46A967D4CE34D68B8721C009D28E207545A82491BB8409CC9803C3F69776D2FFB130; trakindo__pis_localhost1400_202208=356C484786964A3FDD27E6C2F9C1921887592C4E4FB9FCCE75FBCFAA4B16F7E77E0DDF3D4BC736A6951DC51439A1C6F838B7A978C4B2AADEA59B2C5C0D31FA1931B197E350749AFBF0DE8B60B4AE090AE8719A0212B7DA24401F37AB3DAD366B8144411C8610BDF8BCACBC1DFB36224C4F0C050DE4763C1330E6D84C07C51A612BA1E921B95CC42428D89430B1C9C9C554C879DD32107C48CBAB6848927C379ABB13E563F382DC8A72CC827FF901D5954092D371B3BD7822596150D62BE31458B96A525725A3DCB0CDB68DBEF7F0215DF345E59AFAA6A45A2E96F8F018F5C15E8F6372BB2D368AE929AE1582C59DA709A1E500D82E7153F698311A37FB42642DA88753B2FDC94DDD1995E61C927A297B127C07C69A2E531238E6978E2E0EDA193B89FE72D47F1CA3BA40F0C45D9BB0769C7D586B604B49141E6120D4DCE92BB8B96AE4220F7884A334C63DCB17FA9A6EA2E5493B10BE9C31C000F1DBD200CE602F5C837126DD61BF086E2E6743F14A8A; nav-item=1&#xD;&#xA;Host: localhost:1400&#xD;&#xA;Referer: http://localhost:1400/EMCS/CiplEdit?id=53511&amp;rfc=true&#xD;&#xA;User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36&#xD;&#xA;sec-ch-ua: &quot;Chromium&quot;;v=&quot;104&quot;, &quot; Not A;Brand&quot;;v=&quot;99&quot;, &quot;Google Chrome&quot;;v=&quot;104&quot;&#xD;&#xA;X-Requested-With: XMLHttpRequest&#xD;&#xA;sec-ch-ua-mobile: ?0&#xD;&#xA;sec-ch-ua-platform: &quot;Windows&quot;&#xD;&#xA;Origin: http://localhost:1400&#xD;&#xA;Sec-Fetch-Site: same-origin&#xD;&#xA;Sec-Fetch-Mode: cors&#xD;&#xA;Sec-Fetch-Dest: empty&#xD;&#xA;" />
+    </item>
+    <item name="APPL_MD_PATH">
+      <value string="/LM/W3SVC/2/ROOT" />
+    </item>
+    <item name="APPL_PHYSICAL_PATH">
+      <value string="E:\Client Projects\Hendri\EMCS_Staging\Web\" />
+    </item>
+    <item name="AUTH_TYPE">
+      <value string="Forms" />
+    </item>
+    <item name="AUTH_USER">
+      <value string="XUPJ21WDN" />
+    </item>
+    <item name="AUTH_PASSWORD">
+      <value string="*****" />
+    </item>
+    <item name="LOGON_USER">
+      <value string="XUPJ21WDN" />
+    </item>
+    <item name="REMOTE_USER">
+      <value string="XUPJ21WDN" />
+    </item>
+    <item name="CERT_COOKIE">
+      <value string="" />
+    </item>
+    <item name="CERT_FLAGS">
+      <value string="" />
+    </item>
+    <item name="CERT_ISSUER">
+      <value string="" />
+    </item>
+    <item name="CERT_KEYSIZE">
+      <value string="" />
+    </item>
+    <item name="CERT_SECRETKEYSIZE">
+      <value string="" />
+    </item>
+    <item name="CERT_SERIALNUMBER">
+      <value string="" />
+    </item>
+    <item name="CERT_SERVER_ISSUER">
+      <value string="" />
+    </item>
+    <item name="CERT_SERVER_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="CERT_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="CONTENT_LENGTH">
+      <value string="2755" />
+    </item>
+    <item name="CONTENT_TYPE">
+      <value string="application/x-www-form-urlencoded; charset=UTF-8" />
+    </item>
+    <item name="GATEWAY_INTERFACE">
+      <value string="CGI/1.1" />
+    </item>
+    <item name="HTTPS">
+      <value string="off" />
+    </item>
+    <item name="HTTPS_KEYSIZE">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SECRETKEYSIZE">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SERVER_ISSUER">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SERVER_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="INSTANCE_ID">
+      <value string="2" />
+    </item>
+    <item name="INSTANCE_META_PATH">
+      <value string="/LM/W3SVC/2" />
+    </item>
+    <item name="LOCAL_ADDR">
+      <value string="::1" />
+    </item>
+    <item name="PATH_INFO">
+      <value string="/EMCS/CiplItemInsert" />
+    </item>
+    <item name="PATH_TRANSLATED">
+      <value string="E:\Client Projects\Hendri\EMCS_Staging\Web\EMCS\CiplItemInsert" />
+    </item>
+    <item name="QUERY_STRING">
+      <value string="" />
+    </item>
+    <item name="REMOTE_ADDR">
+      <value string="::1" />
+    </item>
+    <item name="REMOTE_HOST">
+      <value string="::1" />
+    </item>
+    <item name="REMOTE_PORT">
+      <value string="53603" />
+    </item>
+    <item name="REQUEST_METHOD">
+      <value string="POST" />
+    </item>
+    <item name="SCRIPT_NAME">
+      <value string="/EMCS/CiplItemInsert" />
+    </item>
+    <item name="SERVER_NAME">
+      <value string="localhost" />
+    </item>
+    <item name="SERVER_PORT">
+      <value string="1400" />
+    </item>
+    <item name="SERVER_PORT_SECURE">
+      <value string="0" />
+    </item>
+    <item name="SERVER_PROTOCOL">
+      <value string="HTTP/1.1" />
+    </item>
+    <item name="SERVER_SOFTWARE">
+      <value string="Microsoft-IIS/10.0" />
+    </item>
+    <item name="URL">
+      <value string="/EMCS/CiplItemInsert" />
+    </item>
+    <item name="HTTP_CONNECTION">
+      <value string="keep-alive" />
+    </item>
+    <item name="HTTP_CONTENT_LENGTH">
+      <value string="2755" />
+    </item>
+    <item name="HTTP_CONTENT_TYPE">
+      <value string="application/x-www-form-urlencoded; charset=UTF-8" />
+    </item>
+    <item name="HTTP_ACCEPT">
+      <value string="*/*" />
+    </item>
+    <item name="HTTP_ACCEPT_ENCODING">
+      <value string="gzip, deflate, br" />
+    </item>
+    <item name="HTTP_ACCEPT_LANGUAGE">
+      <value string="en-US,en;q=0.9,gu;q=0.8" />
+    </item>
+    <item name="HTTP_COOKIE">
+      <value string="_ga=GA1.1.1094185988.1657879694; _gcl_au=1.1.1428815844.1657880879; ajs_anonymous_id=4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0; _ga_Y80687Q41G=GS1.1.1659011652.29.1.1659011700.0; .Nop.Customer=cd179d34-4953-4c73-8ad6-de3951c32b8b; ASP.NET_SessionId=um1ohvhvy1pff2umnx21cicf; __RequestVerificationToken=BvilyoXSwViKnYjkD6IaX2TeRiecvoifZhKRYyLZnhoWt2MQ_ukB-IZo1_gHD1JKOrONSm5U_XXjOuyRVuO4j1I7dYPx3RHSKAp41sGSq9o1; .ASPXAUTH=8C2AACC3739CC77EB5847FF1A8933479EE4B2CFFAE9BC3C52CAF2FC69449C5028E003DAEFD3EEBE3DD2FD8F9B66117787F16DE84E637F8A43F606475BB2B46A967D4CE34D68B8721C009D28E207545A82491BB8409CC9803C3F69776D2FFB130; trakindo__pis_localhost1400_202208=356C484786964A3FDD27E6C2F9C1921887592C4E4FB9FCCE75FBCFAA4B16F7E77E0DDF3D4BC736A6951DC51439A1C6F838B7A978C4B2AADEA59B2C5C0D31FA1931B197E350749AFBF0DE8B60B4AE090AE8719A0212B7DA24401F37AB3DAD366B8144411C8610BDF8BCACBC1DFB36224C4F0C050DE4763C1330E6D84C07C51A612BA1E921B95CC42428D89430B1C9C9C554C879DD32107C48CBAB6848927C379ABB13E563F382DC8A72CC827FF901D5954092D371B3BD7822596150D62BE31458B96A525725A3DCB0CDB68DBEF7F0215DF345E59AFAA6A45A2E96F8F018F5C15E8F6372BB2D368AE929AE1582C59DA709A1E500D82E7153F698311A37FB42642DA88753B2FDC94DDD1995E61C927A297B127C07C69A2E531238E6978E2E0EDA193B89FE72D47F1CA3BA40F0C45D9BB0769C7D586B604B49141E6120D4DCE92BB8B96AE4220F7884A334C63DCB17FA9A6EA2E5493B10BE9C31C000F1DBD200CE602F5C837126DD61BF086E2E6743F14A8A; nav-item=1" />
+    </item>
+    <item name="HTTP_HOST">
+      <value string="localhost:1400" />
+    </item>
+    <item name="HTTP_REFERER">
+      <value string="http://localhost:1400/EMCS/CiplEdit?id=53511&amp;rfc=true" />
+    </item>
+    <item name="HTTP_USER_AGENT">
+      <value string="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36" />
+    </item>
+    <item name="HTTP_SEC_CH_UA">
+      <value string="&quot;Chromium&quot;;v=&quot;104&quot;, &quot; Not A;Brand&quot;;v=&quot;99&quot;, &quot;Google Chrome&quot;;v=&quot;104&quot;" />
+    </item>
+    <item name="HTTP_X_REQUESTED_WITH">
+      <value string="XMLHttpRequest" />
+    </item>
+    <item name="HTTP_SEC_CH_UA_MOBILE">
+      <value string="?0" />
+    </item>
+    <item name="HTTP_SEC_CH_UA_PLATFORM">
+      <value string="&quot;Windows&quot;" />
+    </item>
+    <item name="HTTP_ORIGIN">
+      <value string="http://localhost:1400" />
+    </item>
+    <item name="HTTP_SEC_FETCH_SITE">
+      <value string="same-origin" />
+    </item>
+    <item name="HTTP_SEC_FETCH_MODE">
+      <value string="cors" />
+    </item>
+    <item name="HTTP_SEC_FETCH_DEST">
+      <value string="empty" />
+    </item>
+  </serverVariables>
+  <form>
+    <item name="data[0][ReferenceNo]">
+      <value string="U-00002175" />
+    </item>
+    <item name="data[0][Currency]">
+      <value string="USD" />
+    </item>
+    <item name="data[0][Id]">
+      <value string="190279" />
+    </item>
+    <item name="data[0][IdCustomer]">
+      <value string="" />
+    </item>
+    <item name="data[0][IdCipl]">
+      <value string="53511" />
+    </item>
+    <item name="data[0][IdReference]">
+      <value string="190279" />
+    </item>
+    <item name="data[0][Name]">
+      <value string="CORE GP" />
+    </item>
+    <item name="data[0][Quantity]">
+      <value string="1" />
+    </item>
+    <item name="data[0][UnitUom]">
+      <value string="Pcs" />
+    </item>
+    <item name="data[0][Sn]">
+      <value string="" />
+    </item>
+    <item name="data[0][Ccr]">
+      <value string="" />
+    </item>
+    <item name="data[0][IdNo]">
+      <value string="290" />
+    </item>
+    <item name="data[0][YearMade]">
+      <value string="" />
+    </item>
+    <item name="data[0][PartNumber]">
+      <value string="9Y8890" />
+    </item>
+    <item name="data[0][JCode]">
+      <value string="J22U" />
+    </item>
+    <item name="data[0][UnitPrice]">
+      <value string="1708.97" />
+    </item>
+    <item name="data[0][ExtendedValue]">
+      <value string="1708.97" />
+    </item>
+    <item name="data[0][CoO]">
+      <value string="" />
+    </item>
+    <item name="data[0][AvailableQuantity]">
+      <value string="1" />
+    </item>
+    <item name="data[0][SibNumber]">
+      <value string="" />
+    </item>
+    <item name="data[0][WoNumber]">
+      <value string="" />
+    </item>
+    <item name="data[0][Claim]">
+      <value string="" />
+    </item>
+    <item name="data[0][CaseNumber]">
+      <value string="5150" />
+    </item>
+    <item name="data[0][ASNNumber]">
+      <value string="123" />
+    </item>
+    <item name="data[0][Type]">
+      <value string="Flexi Bag" />
+    </item>
+    <item name="data[0][Length]">
+      <value string="0" />
+    </item>
+    <item name="data[0][Width]">
+      <value string="0" />
+    </item>
+    <item name="data[0][Height]">
+      <value string="0" />
+    </item>
+    <item name="data[0][Volume]">
+      <value string="0" />
+    </item>
+    <item name="data[0][NetWeight]">
+      <value string="0" />
+    </item>
+    <item name="data[0][GrossWeight]">
+      <value string="0" />
+    </item>
+    <item name="data[1][ReferenceNo]">
+      <value string="U-00002179" />
+    </item>
+    <item name="data[1][Currency]">
+      <value string="USD" />
+    </item>
+    <item name="data[1][Id]">
+      <value string="190930" />
+    </item>
+    <item name="data[1][IdCustomer]">
+      <value string="" />
+    </item>
+    <item name="data[1][IdCipl]">
+      <value string="53511" />
+    </item>
+    <item name="data[1][IdReference]">
+      <value string="190930" />
+    </item>
+    <item name="data[1][Name]">
+      <value string="BEARING A" />
+    </item>
+    <item name="data[1][Quantity]">
+      <value string="1" />
+    </item>
+    <item name="data[1][UnitUom]">
+      <value string="Pcs" />
+    </item>
+    <item name="data[1][Sn]">
+      <value string="" />
+    </item>
+    <item name="data[1][Ccr]">
+      <value string="" />
+    </item>
+    <item name="data[1][IdNo]">
+      <value string="60" />
+    </item>
+    <item name="data[1][YearMade]">
+      <value string="" />
+    </item>
+    <item name="data[1][PartNumber]">
+      <value string="0300058" />
+    </item>
+    <item name="data[1][JCode]">
+      <value string="J358" />
+    </item>
+    <item name="data[1][UnitPrice]">
+      <value string="57.59" />
+    </item>
+    <item name="data[1][ExtendedValue]">
+      <value string="57.59" />
+    </item>
+    <item name="data[1][CoO]">
+      <value string="" />
+    </item>
+    <item name="data[1][AvailableQuantity]">
+      <value string="1" />
+    </item>
+    <item name="data[1][SibNumber]">
+      <value string="" />
+    </item>
+    <item name="data[1][WoNumber]">
+      <value string="" />
+    </item>
+    <item name="data[1][Claim]">
+      <value string="" />
+    </item>
+    <item name="data[1][CaseNumber]">
+      <value string="5150" />
+    </item>
+    <item name="data[1][ASNNumber]">
+      <value string="123" />
+    </item>
+    <item name="data[1][Type]">
+      <value string="Flexi Bag" />
+    </item>
+    <item name="data[1][Length]">
+      <value string="0" />
+    </item>
+    <item name="data[1][Width]">
+      <value string="0" />
+    </item>
+    <item name="data[1][Height]">
+      <value string="0" />
+    </item>
+    <item name="data[1][Volume]">
+      <value string="0" />
+    </item>
+    <item name="data[1][NetWeight]">
+      <value string="0" />
+    </item>
+    <item name="data[1][GrossWeight]">
+      <value string="0" />
+    </item>
+    <item name="data[2][ReferenceNo]">
+      <value string="U-00002179" />
+    </item>
+    <item name="data[2][Currency]">
+      <value string="USD" />
+    </item>
+    <item name="data[2][Id]">
+      <value string="190931" />
+    </item>
+    <item name="data[2][IdCustomer]">
+      <value string="" />
+    </item>
+    <item name="data[2][IdCipl]">
+      <value string="53511" />
+    </item>
+    <item name="data[2][IdReference]">
+      <value string="190931" />
+    </item>
+    <item name="data[2][Name]">
+      <value string="CORE" />
+    </item>
+    <item name="data[2][Quantity]">
+      <value string="1" />
+    </item>
+    <item name="data[2][UnitUom]">
+      <value string="Pcs" />
+    </item>
+    <item name="data[2][Sn]">
+      <value string="" />
+    </item>
+    <item name="data[2][Ccr]">
+      <value string="" />
+    </item>
+    <item name="data[2][IdNo]">
+      <value string="760" />
+    </item>
+    <item name="data[2][YearMade]">
+      <value string="" />
+    </item>
+    <item name="data[2][PartNumber]">
+      <value string="0874575" />
+    </item>
+    <item name="data[2][JCode]">
+      <value string="J358" />
+    </item>
+    <item name="data[2][UnitPrice]">
+      <value string="35.15" />
+    </item>
+    <item name="data[2][ExtendedValue]">
+      <value string="35.15" />
+    </item>
+    <item name="data[2][CoO]">
+      <value string="" />
+    </item>
+    <item name="data[2][AvailableQuantity]">
+      <value string="1" />
+    </item>
+    <item name="data[2][SibNumber]">
+      <value string="" />
+    </item>
+    <item name="data[2][WoNumber]">
+      <value string="" />
+    </item>
+    <item name="data[2][Claim]">
+      <value string="" />
+    </item>
+    <item name="data[2][CaseNumber]">
+      <value string="5150" />
+    </item>
+    <item name="data[2][ASNNumber]">
+      <value string="123" />
+    </item>
+    <item name="data[2][Type]">
+      <value string="Flexi Bag" />
+    </item>
+    <item name="data[2][Length]">
+      <value string="0" />
+    </item>
+    <item name="data[2][Width]">
+      <value string="0" />
+    </item>
+    <item name="data[2][Height]">
+      <value string="0" />
+    </item>
+    <item name="data[2][Volume]">
+      <value string="0" />
+    </item>
+    <item name="data[2][NetWeight]">
+      <value string="0" />
+    </item>
+    <item name="data[2][GrossWeight]">
+      <value string="0" />
+    </item>
+    <item name="idCipl">
+      <value string="53511" />
+    </item>
+    <item name="RFC">
+      <value string="true" />
+    </item>
+    <item name="Status">
+      <value string="Created" />
+    </item>
+  </form>
+  <cookies>
+    <item name="_ga">
+      <value string="GA1.1.1094185988.1657879694" />
+    </item>
+    <item name="_gcl_au">
+      <value string="1.1.1428815844.1657880879" />
+    </item>
+    <item name="ajs_anonymous_id">
+      <value string="4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0" />
+    </item>
+    <item name="_ga_Y80687Q41G">
+      <value string="GS1.1.1659011652.29.1.1659011700.0" />
+    </item>
+    <item name=".Nop.Customer">
+      <value string="cd179d34-4953-4c73-8ad6-de3951c32b8b" />
+    </item>
+    <item name="ASP.NET_SessionId">
+      <value string="um1ohvhvy1pff2umnx21cicf" />
+    </item>
+    <item name="__RequestVerificationToken">
+      <value string="BvilyoXSwViKnYjkD6IaX2TeRiecvoifZhKRYyLZnhoWt2MQ_ukB-IZo1_gHD1JKOrONSm5U_XXjOuyRVuO4j1I7dYPx3RHSKAp41sGSq9o1" />
+    </item>
+    <item name=".ASPXAUTH">
+      <value string="8C2AACC3739CC77EB5847FF1A8933479EE4B2CFFAE9BC3C52CAF2FC69449C5028E003DAEFD3EEBE3DD2FD8F9B66117787F16DE84E637F8A43F606475BB2B46A967D4CE34D68B8721C009D28E207545A82491BB8409CC9803C3F69776D2FFB130" />
+    </item>
+    <item name="trakindo__pis_localhost1400_202208">
+      <value string="356C484786964A3FDD27E6C2F9C1921887592C4E4FB9FCCE75FBCFAA4B16F7E77E0DDF3D4BC736A6951DC51439A1C6F838B7A978C4B2AADEA59B2C5C0D31FA1931B197E350749AFBF0DE8B60B4AE090AE8719A0212B7DA24401F37AB3DAD366B8144411C8610BDF8BCACBC1DFB36224C4F0C050DE4763C1330E6D84C07C51A612BA1E921B95CC42428D89430B1C9C9C554C879DD32107C48CBAB6848927C379ABB13E563F382DC8A72CC827FF901D5954092D371B3BD7822596150D62BE31458B96A525725A3DCB0CDB68DBEF7F0215DF345E59AFAA6A45A2E96F8F018F5C15E8F6372BB2D368AE929AE1582C59DA709A1E500D82E7153F698311A37FB42642DA88753B2FDC94DDD1995E61C927A297B127C07C69A2E531238E6978E2E0EDA193B89FE72D47F1CA3BA40F0C45D9BB0769C7D586B604B49141E6120D4DCE92BB8B96AE4220F7884A334C63DCB17FA9A6EA2E5493B10BE9C31C000F1DBD200CE602F5C837126DD61BF086E2E6743F14A8A" />
+    </item>
+    <item name="nav-item">
+      <value string="1" />
+    </item>
+  </cookies>
+</error>

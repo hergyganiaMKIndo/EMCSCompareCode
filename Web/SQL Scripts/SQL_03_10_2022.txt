@@ -1,0 +1,939 @@
+﻿CREATE TABLE [dbo].[CargoItem_Change](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL primary key,
+	[IdCargoItem] bigint not null,
+	[IdCargo] [bigint] NOT NULL,
+	[ContainerNumber] [nvarchar](100) NULL,
+	[ContainerType] [nvarchar](50) NULL,
+	[ContainerSealNumber] [nvarchar](50) NULL,
+	[IdCipl] [bigint] NOT NULL,
+	[IdCiplItem] [bigint] NOT NULL,
+	[InBoundDa] [nvarchar](500) NULL,
+	[Length] [decimal](20, 2) NULL,
+	[Width] [decimal](20, 2) NULL,
+	[Height] [decimal](20, 2) NULL,
+	[Net] [decimal](20, 2) NULL,
+	[Gross] [decimal](20, 2) NULL,
+	[CreateBy] [nvarchar](20) NOT NULL,
+	[CreateDate] [smalldatetime] NOT NULL,
+	[UpdateBy] [nvarchar](20) NULL,
+	[UpdateDate] [smalldatetime] NULL,
+	[isDelete] [bit] NOT NULL,
+	[NewLength] [decimal](20, 2) NULL,
+	[NewWidth] [decimal](20, 2) NULL,
+	[NewHeight] [decimal](20, 2) NULL,
+	[NewNet] [decimal](20, 2) NULL,
+	[NewGross] [decimal](20, 2) NULL,
+	Status nvarchar(100) NULL)
+
+Go
+
+
+create proc sp_delete_cargo_item_Change
+@Id nvarchar(100)
+as
+begin
+delete from CargoItem_Change
+where IdCargo = @Id
+select Cast(@Id as bigint) As Id
+end
+
+GO
+
+Create ProCEDURE [dbo].[sp_insert_update_cargo_item_Change]       
+(      
+@Id nvarchar(100) ,
+ @IdCargoItem nvarchar(100),      
+ @ItemId nvarchar(100),      
+ @IdCargo nvarchar(100),      
+ @ContainerNumber nvarchar(100),      
+ @ContainerType nvarchar(100),      
+ @ContainerSealNumber nvarchar(100),      
+ @ActionBy nvarchar(100),      
+ @Length nvarchar(100) = '0',      
+ @Width nvarchar(100) = '0',      
+ @Height nvarchar(100) = '0',      
+ @GrossWeight nvarchar(100) = '0',      
+ @NetWeight nvarchar(100) = '0',      
+ @isDelete bit = 0,
+ @Status nvarchar(100)
+)      
+AS      
+BEGIN      
+ SET NOCOUNT ON;      
+      
+ --IF @IdCargoItem = 0       
+ --BEGIN     
+ set @Id = (select Id from [CargoItem_Change] where IdCargoItem= @IdCargoItem)
+ set @Id = (select IIF(@Id IS NULL, -1, @Id) As Id)
+ IF @Id <= 0 
+ BEGIN     
+ INSERT INTO [dbo].[CargoItem_Change]      
+         ([IdCargoItem]
+		 ,[ContainerNumber]      
+         ,[ContainerType]      
+         ,[ContainerSealNumber]      
+         ,[IdCipl]      
+         ,[IdCargo]      
+      ,[IdCiplItem]      
+         ,[InBoundDa]      
+         ,[Length]      
+         ,[Width]      
+         ,[Height]      
+         ,[Net]      
+         ,[Gross]      
+         ,[CreateBy]      
+         ,[CreateDate]      
+         ,[UpdateBy]      
+         ,[UpdateDate]      
+         ,[isDelete],
+		 [Status])      
+   select  top 1  
+   @IdCargoItem
+   ,@ContainerNumber      
+   , @ContainerType      
+   , @ContainerSealNumber      
+   , t0.IdCipl      
+   , @IdCargo      
+   , t0.Id      
+   , null as DaNo      
+   , t0.[Length]      
+   , t0.Width      
+   , t0.Height      
+   , t0.NetWeight      
+   , t0.GrossWeight      
+   , @ActionBy CreateBy      
+   , GETDATE()      
+   , @ActionBy UpdateBy      
+   , GETDATE(), @isDelete ,
+   @Status
+   from dbo.ciplItem t0       
+   join dbo.Cipl t1 on t1.id = t0.IdCipl       
+   --join dbo.GoodsReceiveItem t2 on t2.DoNo = t1.EdoNo AND t2.IsDelete = 0      
+   join dbo.ShippingFleetRefrence t2 on  t2.DoNo = t1.EdoNo    
+   where t0.id = @ItemId;      
+ set   @Id = SCOPE_IDENTITY(); 
+  SELECT CAST(@Id as bigint) as Id 
+ END       
+ ELSE       
+ BEGIN      
+        
+  DECLARE @OldLength decimal(20, 2);      
+  DECLARE @OldWidth decimal(20, 2);      
+  DECLARE @OldHeight decimal(20, 2);      
+  DECLARE @OldGrossWeight decimal(20, 2);      
+  DECLARE @OldNetWeight decimal(20, 2);      
+  DECLARE @NewLength decimal(20, 2);      
+  DECLARE @NewWidth decimal(20, 2);      
+  DECLARE @NewHeight decimal(20, 2);      
+  DECLARE @NewGrossWeight decimal(20, 2);      
+  DECLARE @NewNetWeight decimal(20, 2);      
+        
+  SELECT       
+  @OldLength = [Length],       
+  @OldWidth = Width,       
+  @OldHeight = Height,       
+  @OldGrossWeight = Gross,       
+  @OldNetWeight = Net,      
+  @NewLength = ISNULL([NewLength], 0.00),      
+  @NewWidth = ISNULL([NewWidth], 0.00),      
+  @NewHeight = ISNULL([NewHeight], 0.00),      
+  @NewGrossWeight = ISNULL([NewGross], 0.00),      
+  @NewNetWeight = ISNULL([NewNet], 0.00)      
+  FROM [dbo].[CargoItem_Change] WHERE Id = @Id      
+        
+  IF @NewLength = 0.00      
+  BEGIN      
+   IF @OldLength = @Length       
+   BEGIN      
+    SET @Length = null      
+   END      
+  END      
+      
+  IF @NewWidth = 0.00      
+  BEGIN      
+   IF @OldWidth = @Width       
+   BEGIN      
+    SET @Width = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewGrossWeight = 0.00      
+  BEGIN      
+   IF @OldGrossWeight = @GrossWeight       
+   BEGIN      
+    SET @GrossWeight = null      
+   END      
+  END      
+      
+  IF @NewNetWeight = 0.00      
+  BEGIN      
+   IF @OldNetWeight = @NetWeight       
+   BEGIN      
+    SET @NetWeight = null      
+   END      
+  END      
+      
+  UPDATE [dbo].[CargoItem_Change]      
+  SET [NewLength] = @Length      
+   ,[ContainerNumber] = @ContainerNumber      
+   ,[ContainerType] = @ContainerType      
+   ,[ContainerSealNumber] = @ContainerSealNumber      
+      ,[NewHeight] = @Height      
+      ,[NewWidth] = @Width      
+      ,[NewNet] = @NetWeight      
+      ,[NewGross] = @GrossWeight      
+   ,[UpdateBy] = @ActionBy      
+   ,[UpdateDate] = GETDATE()   
+   ,[Status] = @Status
+   ,isDelete = @isDelete
+  WHERE Id = @Id    
+  SELECT CAST(@Id as bigint) as Id 
+ END     
+      
+END     
+
+
+GO
+
+alter PROCEDURE [dbo].[sp_insert_update_cargo_item]       
+(      
+ @Id nvarchar(100),      
+ @ItemId nvarchar(100),      
+ @IdCargo nvarchar(100),      
+ @ContainerNumber nvarchar(100),      
+ @ContainerType nvarchar(100),      
+ @ContainerSealNumber nvarchar(100),      
+ @ActionBy nvarchar(100),      
+ @Length nvarchar(100) = '0',      
+ @Width nvarchar(100) = '0',      
+ @Height nvarchar(100) = '0',      
+ @GrossWeight nvarchar(100) = '0',      
+ @NetWeight nvarchar(100) = '0',      
+ @isDelete bit = 0      
+)      
+AS      
+BEGIN      
+ SET NOCOUNT ON;      
+      
+ IF ISNULL(@Id, 0) = 0       
+ BEGIN      
+  INSERT INTO [dbo].[CargoItem]      
+         ([ContainerNumber]      
+         ,[ContainerType]      
+         ,[ContainerSealNumber]      
+         ,[IdCipl]      
+         ,[IdCargo]      
+      ,[IdCiplItem]      
+         ,[InBoundDa]      
+         ,[Length]      
+         ,[Width]      
+         ,[Height]      
+         ,[Net]      
+         ,[Gross]      
+         ,[CreateBy]      
+         ,[CreateDate]      
+         ,[UpdateBy]      
+         ,[UpdateDate]      
+         ,[isDelete])      
+   select  top 1  
+   @ContainerNumber      
+   , @ContainerType      
+   , @ContainerSealNumber      
+   , t0.IdCipl      
+   , @IdCargo      
+   , t0.Id      
+   , null as DaNo      
+   , t0.[Length]      
+   , t0.Width      
+   , t0.Height      
+   , t0.NetWeight      
+   , t0.GrossWeight      
+   , @ActionBy CreateBy      
+   , GETDATE()      
+   , @ActionBy UpdateBy      
+   , GETDATE(), 0      
+   from dbo.ciplItem t0       
+   join dbo.Cipl t1 on t1.id = t0.IdCipl       
+   --join dbo.GoodsReceiveItem t2 on t2.DoNo = t1.EdoNo AND t2.IsDelete = 0      
+   join dbo.ShippingFleetRefrence t2 on  t2.DoNo = t1.EdoNo    
+   where t0.id = @ItemId;      
+ END       
+ ELSE       
+ BEGIN      
+        
+  DECLARE @OldLength decimal(20, 2);      
+  DECLARE @OldWidth decimal(20, 2);      
+  DECLARE @OldHeight decimal(20, 2);      
+  DECLARE @OldGrossWeight decimal(20, 2);      
+  DECLARE @OldNetWeight decimal(20, 2);      
+  DECLARE @NewLength decimal(20, 2);      
+  DECLARE @NewWidth decimal(20, 2);      
+  DECLARE @NewHeight decimal(20, 2);      
+  DECLARE @NewGrossWeight decimal(20, 2);      
+  DECLARE @NewNetWeight decimal(20, 2);      
+        
+  SELECT       
+  @OldLength = [Length],       
+  @OldWidth = Width,       
+  @OldHeight = Height,       
+  @OldGrossWeight = Gross,       
+  @OldNetWeight = Net,      
+  @NewLength = ISNULL([NewLength], 0.00),      
+  @NewWidth = ISNULL([NewWidth], 0.00),      
+  @NewHeight = ISNULL([NewHeight], 0.00),      
+  @NewGrossWeight = ISNULL([NewGross], 0.00),      
+  @NewNetWeight = ISNULL([NewNet], 0.00)      
+  FROM [dbo].[CargoItem] WHERE Id = @Id      
+        
+  IF @NewLength = 0.00      
+  BEGIN      
+   IF @OldLength = @Length       
+   BEGIN      
+    SET @Length = null      
+   END      
+  END      
+      
+  IF @NewWidth = 0.00      
+  BEGIN      
+   IF @OldWidth = @Width       
+   BEGIN      
+    SET @Width = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewGrossWeight = 0.00      
+  BEGIN      
+   IF @OldGrossWeight = @GrossWeight       
+   BEGIN      
+    SET @GrossWeight = null      
+   END      
+  END      
+      
+  IF @NewNetWeight = 0.00      
+  BEGIN      
+   IF @OldNetWeight = @NetWeight       
+   BEGIN      
+    SET @NetWeight = null      
+   END      
+  END      
+      
+  UPDATE [dbo].[CargoItem]      
+  SET [NewLength] = @Length      
+   ,[ContainerNumber] = @ContainerNumber      
+   ,[ContainerType] = @ContainerType      
+   ,[ContainerSealNumber] = @ContainerSealNumber      
+      ,[NewHeight] = @Height      
+      ,[NewWidth] = @Width      
+      ,[NewNet] = @NetWeight      
+      ,[NewGross] = @GrossWeight      
+   ,[UpdateBy] = @ActionBy      
+   ,[UpdateDate] = GETDATE()
+   ,isDelete = @isDelete
+  WHERE Id = @Id      
+ END     
+      
+ SELECT CAST(@Id as bigint) as ID      
+END      
+      
+  GO
+
+  --DROP PROCEDURE [dbo].[sp_CargoInsert]    
+CREATE PROCEDURE [dbo].[sp_update_cargo]    
+(    
+ @CargoID BIGINT,    
+ @Consignee NVARCHAR(200),    
+ @NotifyParty NVARCHAR(200),    
+ @ExportType NVARCHAR(200),    
+ @Category NVARCHAR(200),    
+ @Incoterms NVARCHAR(200),    
+ @StuffingDateStarted datetime = NULL,--='02-02-2019',    
+ @StuffingDateFinished datetime = NULL,--='12-12-2019',    
+ @ETA datetime = NULL,--='02-02-2019',    
+ @ETD datetime = NULL,--='12-12-2019',    
+ @TotalPackageBy nvarchar(max),  
+ @VesselFlight NVARCHAR(30),--='vessel',    
+ @ConnectingVesselFlight NVARCHAR(30),--='con vessel',    
+ @VoyageVesselFlight NVARCHAR(30),--='voy vessel',    
+ @VoyageConnectingVessel NVARCHAR(30),--='voy con',    
+ @PortOfLoading NVARCHAR(30),--='start',    
+ @PortOfDestination NVARCHAR(30),--='end',    
+ @SailingSchedule datetime = NULL,--='09-09-2019',    
+ @ArrivalDestination datetime = NULL,--='10-10-2019',    
+ @BookingNumber NVARCHAR(20) = '',--='1122',    
+ @BookingDate datetime = NULL,--='11-11-2019',    
+ @Liner NVARCHAR(20) = '',--='linear'    
+ @Status NVARCHAR(20) = '',    
+ @ActionBy NVARCHAR(20) = '',    
+ @Referrence NVARCHAR(MAX) = '',    
+ @CargoType NVARCHAR(50) = '',    
+ @ShippingMethod NVARCHAR(50) = ''    
+)    
+AS    
+BEGIN    
+     
+ declare @ID BIGINT;       
+  UPDATE [dbo].[Cargo]    
+  SET [Consignee] = @Consignee    
+   ,[NotifyParty] = @NotifyParty    
+   ,[ExportType] = @ExportType    
+   ,[Category] = @Category    
+   ,[Incoterms] = @Incoterms    
+   ,[StuffingDateStarted] = @StuffingDateStarted    
+   ,[StuffingDateFinished] = @StuffingDateFinished    
+   ,[ETA] = @ETA    
+   ,[ETD] = @ETD    
+   ,[TotalPackageBy] =@TotalPackageBy  
+   ,[VesselFlight] = @VesselFlight    
+   ,[ConnectingVesselFlight] = @ConnectingVesselFlight    
+   ,[VoyageVesselFlight] = @VoyageVesselFlight    
+   ,[VoyageConnectingVessel] = @VoyageConnectingVessel    
+   ,[PortOfLoading] = @PortOfLoading    
+   ,[PortOfDestination] = @PortOfDestination    
+  ,[SailingSchedule] = @SailingSchedule    
+   ,[ArrivalDestination] = @ArrivalDestination    
+   ,[BookingNumber] = @BookingNumber    
+   ,[BookingDate] = @BookingDate    
+   ,[Liner] = @Liner    
+   ,[UpdateDate] = GETDATE()    
+   ,[UpdateBy] = @ActionBy    
+   ,[Referrence] = @Referrence    
+   ,[ShippingMethod] = @ShippingMethod    
+   ,[CargoType] = @CargoType    
+  WHERE Id = @CargoID    
+    
+  SET @ID = @CargoID    
+    
+  IF (ISNULL(@Referrence, '') <> '')    
+  BEGIN    
+   DELETE FROM dbo.CargoCipl WHERE IdCargo = @ID;    
+    
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)    
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete      
+   from fnSplitString(@Referrence, ',') t0    
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;          
+ END    
+    
+ SELECT CAST(@ID as BIGINT) as ID    
+    
+END 
+
+
+Go
+
+
+alter PROCEDURE [dbo].[SP_get_cipl_item_available] -- SP_get_cipl_item_available 6, 1  
+(  
+ @idCipl nvarchar(max) = '',  
+ @idCargo nvarchar(100) = ''  
+)  
+AS  
+BEGIN  
+ SET NOCOUNT ON;  
+ DECLARE @SQL nvarchar(max);  
+ DECLARE @WHERE nvarchar(max) = '';  
+ IF ISNULL(@idCipl, '') <> ''   
+ BEGIN  
+  SET @WHERE = ' AND t0.IdCipl IN ('+@idCipl+') AND t0.Id NOT IN (select IdCiplItem from dbo.CargoItem where IdCargo = '+@idCargo+' and isDelete = 0)';   
+ END  
+  
+ SET @SQL = 'SELECT t0.*  
+    FROM dbo.CiplItem as t0  
+    JOIN dbo.Cipl as t1 on t1.id = t0.IdCipl  
+    WHERE 1=1 AND t0.IsDelete = 0 '+ @WHERE;   
+  
+ --PRINT @SQL;  
+ EXECUTE(@SQL);  
+END  
+
+Go
+
+
+
+
+Go
+
+
+create proc sp_delete_cargo_item_Change
+@Id nvarchar(100)
+as
+begin
+delete from CargoItem_Change
+where IdCargo = @Id
+select Cast(@Id as bigint) As Id
+end
+
+GO
+
+Create ProCEDURE [dbo].[sp_insert_update_cargo_item_Change]       
+(      
+@Id nvarchar(100) ,
+ @IdCargoItem nvarchar(100),      
+ @ItemId nvarchar(100),      
+ @IdCargo nvarchar(100),      
+ @ContainerNumber nvarchar(100),      
+ @ContainerType nvarchar(100),      
+ @ContainerSealNumber nvarchar(100),      
+ @ActionBy nvarchar(100),      
+ @Length nvarchar(100) = '0',      
+ @Width nvarchar(100) = '0',      
+ @Height nvarchar(100) = '0',      
+ @GrossWeight nvarchar(100) = '0',      
+ @NetWeight nvarchar(100) = '0',      
+ @isDelete bit = 0,
+ @Status nvarchar(100)
+)      
+AS      
+BEGIN      
+ SET NOCOUNT ON;      
+      
+ --IF @IdCargoItem = 0       
+ --BEGIN     
+ set @Id = (select Id from [CargoItem_Change] where IdCargoItem= @IdCargoItem)
+ set @Id = (select IIF(@Id IS NULL, -1, @Id) As Id)
+ IF @Id <= 0 
+ BEGIN     
+ INSERT INTO [dbo].[CargoItem_Change]      
+         ([IdCargoItem]
+		 ,[ContainerNumber]      
+         ,[ContainerType]      
+         ,[ContainerSealNumber]      
+         ,[IdCipl]      
+         ,[IdCargo]      
+      ,[IdCiplItem]      
+         ,[InBoundDa]      
+         ,[Length]      
+         ,[Width]      
+         ,[Height]      
+         ,[Net]      
+         ,[Gross]      
+         ,[CreateBy]      
+         ,[CreateDate]      
+         ,[UpdateBy]      
+         ,[UpdateDate]      
+         ,[isDelete],
+		 [Status])      
+   select  top 1  
+   @IdCargoItem
+   ,@ContainerNumber      
+   , @ContainerType      
+   , @ContainerSealNumber      
+   , t0.IdCipl      
+   , @IdCargo      
+   , t0.Id      
+   , null as DaNo      
+   , t0.[Length]      
+   , t0.Width      
+   , t0.Height      
+   , t0.NetWeight      
+   , t0.GrossWeight      
+   , @ActionBy CreateBy      
+   , GETDATE()      
+   , @ActionBy UpdateBy      
+   , GETDATE(), @isDelete ,
+   @Status
+   from dbo.ciplItem t0       
+   join dbo.Cipl t1 on t1.id = t0.IdCipl       
+   --join dbo.GoodsReceiveItem t2 on t2.DoNo = t1.EdoNo AND t2.IsDelete = 0      
+   join dbo.ShippingFleetRefrence t2 on  t2.DoNo = t1.EdoNo    
+   where t0.id = @ItemId;      
+ set   @Id = SCOPE_IDENTITY(); 
+  SELECT CAST(@Id as bigint) as Id 
+ END       
+ ELSE       
+ BEGIN      
+        
+  DECLARE @OldLength decimal(20, 2);      
+  DECLARE @OldWidth decimal(20, 2);      
+  DECLARE @OldHeight decimal(20, 2);      
+  DECLARE @OldGrossWeight decimal(20, 2);      
+  DECLARE @OldNetWeight decimal(20, 2);      
+  DECLARE @NewLength decimal(20, 2);      
+  DECLARE @NewWidth decimal(20, 2);      
+  DECLARE @NewHeight decimal(20, 2);      
+  DECLARE @NewGrossWeight decimal(20, 2);      
+  DECLARE @NewNetWeight decimal(20, 2);      
+        
+  SELECT       
+  @OldLength = [Length],       
+  @OldWidth = Width,       
+  @OldHeight = Height,       
+  @OldGrossWeight = Gross,       
+  @OldNetWeight = Net,      
+  @NewLength = ISNULL([NewLength], 0.00),      
+  @NewWidth = ISNULL([NewWidth], 0.00),      
+  @NewHeight = ISNULL([NewHeight], 0.00),      
+  @NewGrossWeight = ISNULL([NewGross], 0.00),      
+  @NewNetWeight = ISNULL([NewNet], 0.00)      
+  FROM [dbo].[CargoItem_Change] WHERE Id = @Id      
+        
+  IF @NewLength = 0.00      
+  BEGIN      
+   IF @OldLength = @Length       
+   BEGIN      
+    SET @Length = null      
+   END      
+  END      
+      
+  IF @NewWidth = 0.00      
+  BEGIN      
+   IF @OldWidth = @Width       
+   BEGIN      
+    SET @Width = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewGrossWeight = 0.00      
+  BEGIN      
+   IF @OldGrossWeight = @GrossWeight       
+   BEGIN      
+    SET @GrossWeight = null      
+   END      
+  END      
+      
+  IF @NewNetWeight = 0.00      
+  BEGIN      
+   IF @OldNetWeight = @NetWeight       
+   BEGIN      
+    SET @NetWeight = null      
+   END      
+  END      
+      
+  UPDATE [dbo].[CargoItem_Change]      
+  SET [NewLength] = @Length      
+   ,[ContainerNumber] = @ContainerNumber      
+   ,[ContainerType] = @ContainerType      
+   ,[ContainerSealNumber] = @ContainerSealNumber      
+      ,[NewHeight] = @Height      
+      ,[NewWidth] = @Width      
+      ,[NewNet] = @NetWeight      
+      ,[NewGross] = @GrossWeight      
+   ,[UpdateBy] = @ActionBy      
+   ,[UpdateDate] = GETDATE()   
+   ,[Status] = @Status
+   ,isDelete = @isDelete
+  WHERE Id = @Id    
+  SELECT CAST(@Id as bigint) as Id 
+ END     
+      
+END     
+
+
+GO
+
+alter PROCEDURE [dbo].[sp_insert_update_cargo_item]       
+(      
+ @Id nvarchar(100),      
+ @ItemId nvarchar(100),      
+ @IdCargo nvarchar(100),      
+ @ContainerNumber nvarchar(100),      
+ @ContainerType nvarchar(100),      
+ @ContainerSealNumber nvarchar(100),      
+ @ActionBy nvarchar(100),      
+ @Length nvarchar(100) = '0',      
+ @Width nvarchar(100) = '0',      
+ @Height nvarchar(100) = '0',      
+ @GrossWeight nvarchar(100) = '0',      
+ @NetWeight nvarchar(100) = '0',      
+ @isDelete bit = 0      
+)      
+AS      
+BEGIN      
+ SET NOCOUNT ON;      
+      
+ IF ISNULL(@Id, 0) = 0       
+ BEGIN      
+  INSERT INTO [dbo].[CargoItem]      
+         ([ContainerNumber]      
+         ,[ContainerType]      
+         ,[ContainerSealNumber]      
+         ,[IdCipl]      
+         ,[IdCargo]      
+      ,[IdCiplItem]      
+         ,[InBoundDa]      
+         ,[Length]      
+         ,[Width]      
+         ,[Height]      
+         ,[Net]      
+         ,[Gross]      
+         ,[CreateBy]      
+         ,[CreateDate]      
+         ,[UpdateBy]      
+         ,[UpdateDate]      
+         ,[isDelete])      
+   select  top 1  
+   @ContainerNumber      
+   , @ContainerType      
+   , @ContainerSealNumber      
+   , t0.IdCipl      
+   , @IdCargo      
+   , t0.Id      
+   , null as DaNo      
+   , t0.[Length]      
+   , t0.Width      
+   , t0.Height      
+   , t0.NetWeight      
+   , t0.GrossWeight      
+   , @ActionBy CreateBy      
+   , GETDATE()      
+   , @ActionBy UpdateBy      
+   , GETDATE(), 0      
+   from dbo.ciplItem t0       
+   join dbo.Cipl t1 on t1.id = t0.IdCipl       
+   --join dbo.GoodsReceiveItem t2 on t2.DoNo = t1.EdoNo AND t2.IsDelete = 0      
+   join dbo.ShippingFleetRefrence t2 on  t2.DoNo = t1.EdoNo    
+   where t0.id = @ItemId;      
+ END       
+ ELSE       
+ BEGIN      
+        
+  DECLARE @OldLength decimal(20, 2);      
+  DECLARE @OldWidth decimal(20, 2);      
+  DECLARE @OldHeight decimal(20, 2);      
+  DECLARE @OldGrossWeight decimal(20, 2);      
+  DECLARE @OldNetWeight decimal(20, 2);      
+  DECLARE @NewLength decimal(20, 2);      
+  DECLARE @NewWidth decimal(20, 2);      
+  DECLARE @NewHeight decimal(20, 2);      
+  DECLARE @NewGrossWeight decimal(20, 2);      
+  DECLARE @NewNetWeight decimal(20, 2);      
+        
+  SELECT       
+  @OldLength = [Length],       
+  @OldWidth = Width,       
+  @OldHeight = Height,       
+  @OldGrossWeight = Gross,       
+  @OldNetWeight = Net,      
+  @NewLength = ISNULL([NewLength], 0.00),      
+  @NewWidth = ISNULL([NewWidth], 0.00),      
+  @NewHeight = ISNULL([NewHeight], 0.00),      
+  @NewGrossWeight = ISNULL([NewGross], 0.00),      
+  @NewNetWeight = ISNULL([NewNet], 0.00)      
+  FROM [dbo].[CargoItem] WHERE Id = @Id      
+        
+  IF @NewLength = 0.00      
+  BEGIN      
+   IF @OldLength = @Length       
+   BEGIN      
+    SET @Length = null      
+   END      
+  END      
+      
+  IF @NewWidth = 0.00      
+  BEGIN      
+   IF @OldWidth = @Width       
+   BEGIN      
+    SET @Width = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewHeight = 0.00      
+  BEGIN      
+   IF @OldHeight = @Height       
+   BEGIN      
+    SET @Height = null      
+   END      
+  END      
+      
+  IF @NewGrossWeight = 0.00      
+  BEGIN      
+   IF @OldGrossWeight = @GrossWeight       
+   BEGIN      
+    SET @GrossWeight = null      
+   END      
+  END      
+      
+  IF @NewNetWeight = 0.00      
+  BEGIN      
+   IF @OldNetWeight = @NetWeight       
+   BEGIN      
+    SET @NetWeight = null      
+   END      
+  END      
+      
+  UPDATE [dbo].[CargoItem]      
+  SET [NewLength] = @Length      
+   ,[ContainerNumber] = @ContainerNumber      
+   ,[ContainerType] = @ContainerType      
+   ,[ContainerSealNumber] = @ContainerSealNumber      
+      ,[NewHeight] = @Height      
+      ,[NewWidth] = @Width      
+      ,[NewNet] = @NetWeight      
+      ,[NewGross] = @GrossWeight      
+   ,[UpdateBy] = @ActionBy      
+   ,[UpdateDate] = GETDATE()
+   ,isDelete = @isDelete
+  WHERE Id = @Id      
+ END     
+      
+ SELECT CAST(@Id as bigint) as ID      
+END      
+      
+  GO
+
+  --DROP PROCEDURE [dbo].[sp_CargoInsert]    
+CREATE PROCEDURE [dbo].[sp_update_cargo]    
+(    
+ @CargoID BIGINT,    
+ @Consignee NVARCHAR(200),    
+ @NotifyParty NVARCHAR(200),    
+ @ExportType NVARCHAR(200),    
+ @Category NVARCHAR(200),    
+ @Incoterms NVARCHAR(200),    
+ @StuffingDateStarted datetime = NULL,--='02-02-2019',    
+ @StuffingDateFinished datetime = NULL,--='12-12-2019',    
+ @ETA datetime = NULL,--='02-02-2019',    
+ @ETD datetime = NULL,--='12-12-2019',    
+ @TotalPackageBy nvarchar(max),  
+ @VesselFlight NVARCHAR(30),--='vessel',    
+ @ConnectingVesselFlight NVARCHAR(30),--='con vessel',    
+ @VoyageVesselFlight NVARCHAR(30),--='voy vessel',    
+ @VoyageConnectingVessel NVARCHAR(30),--='voy con',    
+ @PortOfLoading NVARCHAR(30),--='start',    
+ @PortOfDestination NVARCHAR(30),--='end',    
+ @SailingSchedule datetime = NULL,--='09-09-2019',    
+ @ArrivalDestination datetime = NULL,--='10-10-2019',    
+ @BookingNumber NVARCHAR(20) = '',--='1122',    
+ @BookingDate datetime = NULL,--='11-11-2019',    
+ @Liner NVARCHAR(20) = '',--='linear'    
+ @Status NVARCHAR(20) = '',    
+ @ActionBy NVARCHAR(20) = '',    
+ @Referrence NVARCHAR(MAX) = '',    
+ @CargoType NVARCHAR(50) = '',    
+ @ShippingMethod NVARCHAR(50) = ''    
+)    
+AS    
+BEGIN    
+     
+ declare @ID BIGINT;       
+  UPDATE [dbo].[Cargo]    
+  SET [Consignee] = @Consignee    
+   ,[NotifyParty] = @NotifyParty    
+   ,[ExportType] = @ExportType    
+   ,[Category] = @Category    
+   ,[Incoterms] = @Incoterms    
+   ,[StuffingDateStarted] = @StuffingDateStarted    
+   ,[StuffingDateFinished] = @StuffingDateFinished    
+   ,[ETA] = @ETA    
+   ,[ETD] = @ETD    
+   ,[TotalPackageBy] =@TotalPackageBy  
+   ,[VesselFlight] = @VesselFlight    
+   ,[ConnectingVesselFlight] = @ConnectingVesselFlight    
+   ,[VoyageVesselFlight] = @VoyageVesselFlight    
+   ,[VoyageConnectingVessel] = @VoyageConnectingVessel    
+   ,[PortOfLoading] = @PortOfLoading    
+   ,[PortOfDestination] = @PortOfDestination    
+  ,[SailingSchedule] = @SailingSchedule    
+   ,[ArrivalDestination] = @ArrivalDestination    
+   ,[BookingNumber] = @BookingNumber    
+   ,[BookingDate] = @BookingDate    
+   ,[Liner] = @Liner    
+   ,[UpdateDate] = GETDATE()    
+   ,[UpdateBy] = @ActionBy    
+   ,[Referrence] = @Referrence    
+   ,[ShippingMethod] = @ShippingMethod    
+   ,[CargoType] = @CargoType    
+  WHERE Id = @CargoID    
+    
+  SET @ID = @CargoID    
+    
+  IF (ISNULL(@Referrence, '') <> '')    
+  BEGIN    
+   DELETE FROM dbo.CargoCipl WHERE IdCargo = @ID;    
+    
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)    
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete      
+   from fnSplitString(@Referrence, ',') t0    
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;          
+ END    
+    
+ SELECT CAST(@ID as BIGINT) as ID    
+    
+END 
+
+
+Go
+
+
+alter PROCEDURE [dbo].[SP_get_cipl_item_available] -- SP_get_cipl_item_available 6, 1  
+(  
+ @idCipl nvarchar(max) = '',  
+ @idCargo nvarchar(100) = ''  
+)  
+AS  
+BEGIN  
+ SET NOCOUNT ON;  
+ DECLARE @SQL nvarchar(max);  
+ DECLARE @WHERE nvarchar(max) = '';  
+ IF ISNULL(@idCipl, '') <> ''   
+ BEGIN  
+  SET @WHERE = ' AND t0.IdCipl IN ('+@idCipl+') AND t0.Id NOT IN (select IdCiplItem from dbo.CargoItem where IdCargo = '+@idCargo+' and isDelete = 0)';   
+ END  
+  
+ SET @SQL = 'SELECT t0.*  
+    FROM dbo.CiplItem as t0  
+    JOIN dbo.Cipl as t1 on t1.id = t0.IdCipl  
+    WHERE 1=1 AND t0.IsDelete = 0 '+ @WHERE;   
+  
+ --PRINT @SQL;  
+ EXECUTE(@SQL);  
+END  
+
+Go
+
+

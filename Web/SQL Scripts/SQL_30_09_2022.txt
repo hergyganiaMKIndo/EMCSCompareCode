@@ -1,0 +1,9 @@
+﻿
+insert into PartsInformationSystem.dbo.Role_Access_Menu(Id,RoleId,MenuId,IsRead,Iscreate,Isupdated,isdeleted,EntryDate,EntryBy)
+values(12619,8,126,1,1,1,1,GETDATE(),'ict.bpm')
+insert into PartsInformationSystem.dbo.Role_Access_Menu(Id,RoleId,MenuId,IsRead,Iscreate,Isupdated,isdeleted,EntryDate,EntryBy)
+values(12620,8,146,1,1,1,1,GETDATE(),'ict.bpm')
+insert into PartsInformationSystem.dbo.Role_Access_Menu(Id,RoleId,MenuId,IsRead,Iscreate,Isupdated,isdeleted,EntryDate,EntryBy)
+values(12621,8,147,1,1,1,1,GETDATE(),'ict.bpm')
+insert into PartsInformationSystem.dbo.Role_Access_Menu(Id,RoleId,MenuId,IsRead,Iscreate,Isupdated,isdeleted,EntryDate,EntryBy)
+values(12622,8,148,1,1,1,1,GETDATE(),'ict.bpm')

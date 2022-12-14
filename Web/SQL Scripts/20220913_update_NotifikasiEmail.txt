@@ -1,0 +1,4 @@
+﻿-- Auto-generated SQL script #202209131046 
+UPDATE NotifikasiEmail
+	SET IdStep=12
+	WHERE ID IN (171, 172) ;

@@ -1,0 +1,297 @@
+﻿alter PROCEDURE [dbo].[sp_insert_request_data] -- sp_insert_request_data '2', 'CIPL', 'PP', 'Draft', 'Create'    
+(     
+ @ID nvarchar(100), -- CIPL or CL Id    
+ @FlowName nvarchar(100), -- ex : 'CIPL', 'CL'    
+ @Category nvarchar(100), -- ex : 'PP', 'UE', 'PS'    
+ @Status nvarchar(100), -- ex : 'DRAFT' OR 'SUBMIT'    
+ @StepName nvarchar(100) = 'CREATE' -- ex : 'CREATE'     
+)    
+AS    
+BEGIN    
+ -- Insert By Logic Query    
+ DECLARE @IdFlow bigint;    
+ DECLARE @IdStep bigint;    
+ DECLARE @CreateBy nvarchar(100);    
+ DECLARE @CreateDate datetime;    
+    
+ -- Set data to Logic Query Variable    
+ SELECT @IdFlow = Id FROM dbo.Flow where [Name] = @FlowName AND [Type] = @Category;    
+ SELECT @IdStep = Id FROM dbo.FlowStep where [IdFlow] = @IdFlow AND [Step] = @StepName;    
+ SET @CreateDate = GETDATE();    
+     
+ IF (@FlowName = 'CIPL')    
+ BEGIN    
+  SELECT @CreateBy = CreateBy FROM dbo.Cipl WHERE Id = @ID;    
+  IF (ISNULL(@CreateBy, '0') <> '0')     
+  BEGIN    
+   INSERT INTO [dbo].[RequestCipl]    
+    ([IdCipl],[IdFlow],[IdStep],[Status],[Pic],[CreateBy],[CreateDate],[UpdateBy],[UpdateDate],[IsDelete])    
+   VALUES     
+    (@ID,@IdFlow,@IdStep,@Status,@CreateBy,@CreateBy, @CreateDate,@CreateBy,GETDATE(),0)    
+    
+   EXEC [dbo].[sp_insert_cipl_history]@ID, @FlowName, @StepName, @Status, '', @CreateBy, @CreateDate;     
+  END    
+ END    
+    
+ IF (@FlowName = 'CL')    
+ BEGIN     
+  SELECT @CreateBy = CreateBy FROM dbo.Cargo WHERE Id = @ID;    
+  IF (ISNULL(@CreateBy, '0') <> '0')      
+  BEGIN    
+  --select @CreateBy  
+   INSERT INTO [dbo].[RequestCl]    
+    ([IdCl],[IdFlow],[IdStep],[Status],[Pic],[CreateBy],[CreateDate],[UpdateBy],[UpdateDate],[IsDelete])    
+   VALUES    
+    (@ID, @IdFlow, @IdStep, @Status, @CreateBy, @CreateBy, @CreateDate, @CreateBy, GETDATE(), 0)    
+    
+   EXEC [dbo].[sp_insert_cargo_history]@ID, @FlowName, @StepName, @Status, '', @CreateBy, @CreateDate;     
+  END    
+ END    
+    
+ IF (@FlowName = 'GR')    
+ BEGIN     
+  SELECT @CreateBy = CreateBy FROM dbo.GoodsReceive WHERE Id = @ID;    
+  IF (ISNULL(@CreateBy, '0') <> '0')      
+  BEGIN    
+   INSERT INTO [dbo].[RequestGr]    
+    ([IdGr],[IdFlow],[IdStep],[Status],[Pic],[CreateBy],[CreateDate],[UpdateBy],[UpdateDate],[IsDelete])    
+   VALUES    
+    (@ID, @IdFlow, @IdStep, @Status, @CreateBy, @CreateBy, @CreateDate, @CreateBy, GETDATE(), 0)    
+    
+   EXEC [dbo].[sp_insert_gr_history]@ID, @FlowName, @StepName, @Status, '', @CreateBy, @CreateDate;     
+  END    
+ END    
+END 
+
+GO
+
+--DROP PROCEDURE [dbo].[sp_CargoInsert]  
+alter PROCEDURE [dbo].[sp_insert_update_cargo] 
+(  
+ @CargoID BIGINT,  
+ @Consignee NVARCHAR(200),  
+ @NotifyParty NVARCHAR(200),  
+ @ExportType NVARCHAR(200),  
+ @Category NVARCHAR(200),  
+ @Incoterms NVARCHAR(200),  
+ @StuffingDateStarted datetime = NULL,--='02-02-2019',  
+ @StuffingDateFinished datetime = NULL,--='12-12-2019',  
+ @ETA datetime = NULL,--='02-02-2019',  
+ @ETD datetime = NULL,--='12-12-2019',  
+ @VesselFlight NVARCHAR(30),--='vessel',  
+ @ConnectingVesselFlight NVARCHAR(30),--='con vessel',  
+ @VoyageVesselFlight NVARCHAR(30),--='voy vessel',  
+ @VoyageConnectingVessel NVARCHAR(30),--='voy con',  
+ @PortOfLoading NVARCHAR(30),--='start',  
+ @PortOfDestination NVARCHAR(30),--='end',  
+ @SailingSchedule datetime = NULL,--='09-09-2019',  
+ @ArrivalDestination datetime = NULL,--='10-10-2019',  
+ @BookingNumber NVARCHAR(20) = '',--='1122',  
+ @BookingDate datetime = NULL,--='11-11-2019',  
+ @Liner NVARCHAR(20) = '',--='linear'  
+ @Status NVARCHAR(20) = '',  
+ @ActionBy NVARCHAR(20) = '',  
+ @Referrence NVARCHAR(MAX) = '',  
+ @CargoType NVARCHAR(50) = '',  
+ @ShippingMethod NVARCHAR(50) = ''  
+)  
+AS  
+BEGIN  
+   
+ declare @ID BIGINT;  
+   
+ IF @CargoID <= 0  
+ BEGIN     
+  INSERT INTO [dbo].[Cargo]  
+           ([Consignee],  
+      [NotifyParty],  
+   [ExportType],  
+   [Category],  
+   [Incoterms],  
+   [StuffingDateStarted],  
+   [StuffingDateFinished],  
+   [ETA],  
+   [ETD],  
+   [VesselFlight],  
+   [ConnectingVesselFlight],  
+   [VoyageVesselFlight],  
+   [VoyageConnectingVessel],  
+   [PortOfLoading],  
+   [PortOfDestination],  
+   [SailingSchedule],  
+   [ArrivalDestination],  
+   [BookingNumber],  
+   [BookingDate],  
+   [Liner],  
+   [Status],  
+   [CreateBy]  
+           ,[CreateDate]  
+           ,[UpdateBy]  
+           ,[UpdateDate]  
+           ,[IsDelete]  
+     ,[Referrence]  
+     ,[ShippingMethod]  
+     ,[CargoType]  
+           )  
+     VALUES  
+           (@Consignee,  
+      @NotifyParty,  
+   @ExportType,  
+   @Category,  
+   @Incoterms,  
+   @StuffingDateStarted,  
+   @StuffingDateFinished,  
+   @ETA,  
+   @ETD,  
+   @VesselFlight,  
+   @ConnectingVesselFlight,  
+   @VoyageVesselFlight,  
+   @VoyageConnectingVessel,  
+   @PortOfLoading,  
+   @PortOfDestination,  
+   @SailingSchedule,  
+   @ArrivalDestination,  
+   @BookingNumber,  
+   @BookingDate,  
+   @Liner,  
+   0  
+           ,@ActionBy  
+           ,GETDATE()  
+           ,@ActionBy  
+           ,GETDATE()  
+           ,0  
+     ,@Referrence  
+     ,@ShippingMethod  
+     ,@CargoType)  
+  
+  SET @ID = CAST(SCOPE_IDENTITY() as bigint);  
+  
+  IF (ISNULL(@Referrence, '') <> '')  
+  BEGIN  
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)  
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete    
+   from fnSplitString(@Referrence, ',') t0  
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;  
+  END  
+  
+  EXEC [dbo].[GenerateCargoNumber] @ID;  
+  EXEC sp_insert_request_data @ID, 'CL', '', @Status, 'Create';  
+  
+ END  
+ ELSE  
+ BEGIN  
+  UPDATE [dbo].[Cargo]  
+  SET [Consignee] = @Consignee  
+   ,[NotifyParty] = @NotifyParty  
+   ,[ExportType] = @ExportType  
+   ,[Category] = @Category  
+   ,[Incoterms] = @Incoterms  
+   ,[StuffingDateStarted] = @StuffingDateStarted  
+   ,[StuffingDateFinished] = @StuffingDateFinished  
+   ,[ETA] = @ETA  
+   ,[ETD] = @ETD  
+   ,[VesselFlight] = @VesselFlight  
+   ,[ConnectingVesselFlight] = @ConnectingVesselFlight  
+   ,[VoyageVesselFlight] = @VoyageVesselFlight  
+   ,[VoyageConnectingVessel] = @VoyageConnectingVessel  
+   ,[PortOfLoading] = @PortOfLoading  
+   ,[PortOfDestination] = @PortOfDestination  
+   ,[SailingSchedule] = @SailingSchedule  
+   ,[ArrivalDestination] = @ArrivalDestination  
+   ,[BookingNumber] = @BookingNumber  
+   ,[BookingDate] = @BookingDate  
+   ,[Liner] = @Liner  
+   ,[UpdateDate] = GETDATE()  
+   ,[UpdateBy] = @ActionBy  
+   ,[Referrence] = @Referrence  
+   ,[ShippingMethod] = @ShippingMethod  
+   ,[CargoType] = @CargoType  
+  WHERE Id = @CargoID  
+  
+  SET @ID = @CargoID  
+  
+  IF (ISNULL(@Referrence, '') <> '')  
+  BEGIN  
+   DELETE FROM dbo.CargoCipl WHERE IdCargo = @ID;  
+  
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)  
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete    
+   from fnSplitString(@Referrence, ',') t0  
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;  
+  END  
+  
+  EXEC [sp_update_request_cl] @ID, @ActionBy, @Status  
+ END  
+  
+ SELECT CAST(@ID as BIGINT) as ID  
+  
+END  
+  
+
+Go
+
+alter PROCEDURE [dbo].[sp_get_cargo_data] -- sp_get_cargo_data 1      
+(      
+ @Id bigint      
+)      
+AS      
+BEGIN      
+ --DECLARE @Id bigint = 2;      
+ SELECT       
+  t0.Id              
+  , t0.ClNo              
+  , t0.Consignee              
+  , t0.NotifyParty              
+  , t0.ExportType              
+  , t0.Category              
+  , t0.IncoTerms      
+  , CONCAT(t0.IncoTerms, ' - ', t6.[Name]) [IncotermsDesc]              
+  , t0.StuffingDateStarted              
+  , t0.StuffingDateFinished              
+  , t0.VesselFlight              
+  , t0.ConnectingVesselFlight              
+  , t0.VoyageVesselFlight              
+  , t0.VoyageConnectingVessel              
+  , t0.PortOfLoading              
+  , t0.PortOfDestination              
+  , t0.SailingSchedule              
+  , t0.ArrivalDestination              
+  , t0.BookingNumber              
+  , t0.BookingDate              
+  , t0.Liner              
+  , t0.ETA              
+  , t0.ETD      
+  , t0.Referrence      
+  , t0.CreateDate      
+  , t0.CreateBy      
+  , t0.UpdateDate      
+  , t0.UpdateBy      
+  , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Employee_Name ELSE t3.FullName END PreparedBy      
+  , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Email ELSE t3.Email END Email      
+  , t4.Step      
+  , t5.[Status]      
+  , t5.ViewByUser [StatusViewByUser]      
+  , t0.CargoType      
+  , t0.ShippingMethod        
+  , t7.[Name] CargoTypeName      
+  , STUFF((SELECT ', '+ISNULL(tx1.EdoNo, '-')      
+   FROM dbo.CargoItem tx0      
+   JOIN dbo.Cipl tx1 on tx1.id = tx0.IdCipl      
+   WHERE tx0.IdCargo = @Id      
+   GROUP BY tx1.EdoNo      
+   FOR XML PATH(''),type).value('.','nvarchar(max)'),1,1,'') [RefEdo]      
+  , t8.SlNo Si_No      
+  , t8.[Description] Si_Description      
+  , t8.DocumentRequired Si_DocumentRequired      
+  , t8.SpecialInstruction Si_SpecialInstruction      
+ FROM Cargo t0            
+ JOIN dbo.RequestCl as t1 on t1.IdCl = t0.Id      
+ JOIN PartsInformationSystem.dbo.[UserAccess] t3 on t3.UserID = t0.CreateBy      
+ LEFT JOIN employee t2 on t2.AD_User = t0.CreateBy      
+ JOIN dbo.FlowStep t4 on t4.Id = t1.IdStep      
+ JOIN dbo.FlowStatus t5 on t5.[Status] = t1.[Status] AND t5.IdStep = t1.IdStep      
+ LEFT JOIN dbo.MasterIncoTerms t6 on t6.Number = t0.Incoterms      
+ LEFT JOIN dbo.MasterParameter t7 on t7.[Group] = 'CargoType' AND t7.Value = ISNULL(t0.CargoType,0)      
+ LEFT JOIN dbo.ShippingInstruction t8 on t8.IdCL = t0.Id      
+ WHERE 1=1 AND t0.Id = @Id;      
+END 

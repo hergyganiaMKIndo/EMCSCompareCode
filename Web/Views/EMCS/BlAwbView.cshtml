@@ -1,0 +1,459 @@
+﻿@model  App.Web.Models.EMCS.BlAwbModel
+@{
+    ViewBag.Title = "View Bl Awb";
+    ViewBag.TypeReq = "NpePeb";
+    ViewBag.IdReq = Model.Request.IdCl;
+    ViewBag.Id = Model.Request.IdCl.ToString();
+    ViewBag.IdStep = Model.Request.IdStep;
+}
+
+@Styles.Render("~/Content/EMCS/Custom.css")
+@Styles.Render("~/Content/EMCS/SweetAlert/sweetalert2.min.css")
+<style>
+    .help-block {
+        color: #a94442;
+        display: inline;
+        font-weight: bolder;
+    }
+</style>
+<div class="col-md-12">
+    @Html.Partial("~/Views/EMCS/Wizard.cshtml")
+</div>
+<div class="col-md-12">
+    <div class="tab" role="tabpanel" style="box-shadow:none !important;background:none;">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a style="z-index:5" href="#invoice" aria-controls="home" role="tab" data-toggle="tab">BL / AWB </a>
+            </li>
+            <li role="presentation">
+                <a style="z-index:4" href="#history" aria-controls="profile" role="tab" data-toggle="tab">Action History</a>
+            </li>
+            <li role="presentation">
+                <a style="z-index:3" href="#changehistory" aria-controls="profile" role="tab" data-toggle="tab">Change History</a>
+            </li>
+            <li role="presentation">
+                <a style="z-index:2" href="#problemhistory" aria-controls="profile" role="tab" data-toggle="tab">Problem History</a>
+            </li>
+        </ul>
+
+        <div class="tab-content tabs-custom">
+            <div role="tabpanel" class="tab-pane active" id="invoice">
+                <form id="FormUploadBlAwb">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-xs-12 table-responsive">
+                                        <input type="hidden" name="idCargo" id="idCargo" value="@Model.Data.Id" />
+                                        <table id="tableBlAwbItems" data-toolbar=".toolbar" class="table table-bordered"></table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <iframe title="File Name Cipl File" id="framePreview" name="framePreview" src="" style="width:100%;height:800px;"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            @Html.HiddenFor(m => m.BlAwb.Id, new { @class = "form-control disabled", @id = "BLAWBID" })
+            <div role="tabpanel" class="tab-pane" id="history">
+                <div class="row">
+                    <div class="col-xs-12 table-responsive">
+                        <input type="hidden" name="idCargo" id="idCargo" value="@Model.Data.Id" />
+                        <table id="tableCargoHistory" data-toolbar=".toolbar" class="table table-bordered"></table>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="changehistory">
+                <div class="row">
+                    <div class="col-xs-12 table-responsive">
+                        <input type="hidden" name="idCargo" id="idCargo" value="@Model.Data.Id" />
+                        <table id="tableBlHistory" data-toolbar=".toolbar" class="table table-bordered"></table>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="problemhistory">
+                <div class="row">
+                    <div class="col-xs-12 table-responsive">
+                        <table id="tableCargoProblemHistory" data-toolbar=".toolbar" class="table table-bordered"></table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id='myModalUploadPreview1' class='modal fade in'>
+    <div class="modal-dialog" style="width:800px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i>&nbsp;Preview File Document</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group hidden">
+                    <label class="control-label col-md-3 col-xs-12">IdDocument</label>
+                    <div class="input-group col-md-9 col-xs-12">
+                        <input type="text" class="form-control" id="IdDocument" name="IdDocument">
+                    </div>
+                </div>
+                <div class="form-group hidden">
+                    <label class="control-label col-md-3 col-xs-12">Filename</label>
+                    <div class="input-group col-md-9 col-xs-12">
+                        <input type="text" class="form-control" id="Filename" name="Filename">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <iframe title="File Name Cipl File" id="framePreview1" name="framePreview" src="" style="width:100%;height:800px;"></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Url.Content("~/Content/EMCS/DropZone/dropzone.js")"></script>
+<script src="@Url.Content("~/Content/EMCS/SweetAlert/sweetalert2.min.js")"></script>
+<script src="@Url.Content("~/Scripts.app/EMCS/Custom.js")"></script>
+@Scripts.Render("~/Scripts.app/EMCS/function.cshtml.js")
+<script src="@Url.Content("~/Scripts.app/EMCS/transaction/CargoHistory.cshtml.js")"></script>
+@*<script src="@Url.Content("~/Scripts.app/EMCS/mytask/BlAwb.cshtml.js")"></script>*@
+<script>
+        var wizardState = "@ViewBag.WizardData.Progress";
+        var CargoTypeName = "@Model.Data.CargoTypeName";
+</script>
+@section scripts{
+    <script>
+        var $table = $('#tableBlAwbItems');
+        var $tableBlHistory = $('#tableBlHistory');
+        var $AllowDelete = true;
+        var $AllowUpdate = true;
+        $(function () {
+            var blawbcolumns = [
+                {
+                    field: 'Number',
+                    title: 'Master BL/AWB Number',
+                    halign: 'center',
+                    align: 'center',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    field: 'MasterBlDate',
+                    title: 'Master Bl Date',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true,
+                    formatter: function (data, row, index) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
+                    field: 'HouseBlNumber',
+                    title: 'House Bl Number',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true
+                },
+                {
+                    field: 'HouseBlDate',
+                    title: 'House Bl Date',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true,
+                    formatter: function (data, row, index) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
+                    field: 'Publisher',
+                    title: 'Publish',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true
+                },
+                {
+                    field: 'FileName',
+                    title: 'Attachment',
+                    align: 'center',
+                    valign: 'center',
+                    halign: "center",
+                    class: 'text-nowrap',
+                    sortable: true,
+                    events: operateEventBlAWbUploaded,
+                    formatter: function (data, row) {
+                        var btnUpload = '';
+                        if (row.FileName !== "") {
+                            var btnDownload = "<button class='btn btn-xs btn-success download' type='button'><i class='fa fa-download'></i></button>";
+                            var btnPreview = "<button class='btn btn-xs btn-primary btn-outline showDocument' type='button' data-toggle='modal' data-target='#myModalUploadPreview'><i class='fa fa-file-pdf-o'></i></button>";
+                            return [btnUpload, btnDownload, btnPreview].join(' ');
+                        } else {
+                            return [btnUpload].join('-');;
+                        }
+                    },
+                    class: 'text-nowrap'
+                }
+            ]
+
+            $table.bootstrapTable(
+                {
+                    url: "/EMCS/GetBlAwbListByCargo",
+                    columns: blawbcolumns,
+                    cache: false,
+                    pagination: true,
+                    search: false,
+                    striped: true,
+                    clickToSelect: true,
+                    reorderableColumns: true,
+                    toolbar: '.toolbar',
+                    toolbarAlign: 'left',
+                    onClickRow: selectRow,
+                    sidePagination: 'server',
+                    showColumns: true,
+                    showRefresh: true,
+                    smartDisplay: false,
+                    pageSize: '5',
+                    queryParams: function (params) {
+                        return {
+                            limit: params.limit,
+                            offset: params.offset,
+                            Cargoid: $("#idCargo").val(),
+                            sort: params.sort,
+                            order: params.order,
+                        };
+                    },
+                    responseHandler: function (resp) {
+                        var data = {};
+                        $.map(resp, function (value, key) {
+                            data[value.Key] = value.Value;
+                        });
+                        return data;
+                    },
+                    formatNoMatches: function () {
+                        return '<span class="noMatches">No Data Found</span>';
+                    },
+
+                });
+            var blawbcolumnHistory = [
+                {
+                    field: 'Number',
+                    title: 'Master BL/AWB Number',
+                    halign: 'center',
+                    align: 'center',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    field: 'MasterBlDate',
+                    title: 'Master Bl Date',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true,
+                    formatter: function (data, row, index) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
+                    field: 'HouseBlNumber',
+                    title: 'House Bl Number',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true
+                },
+                {
+                    field: 'HouseBlDate',
+                    title: 'House Bl Date',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true,
+                    formatter: function (data, row, index) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
+                    field: 'Publisher',
+                    title: 'Publish',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true
+                },
+                {
+                    field: 'Status',
+                    title: 'Status',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true
+                },
+                {
+                    field: 'FileName',
+                    title: 'Attachment',
+                    align: 'center',
+                    valign: 'center',
+                    halign: "center",
+                    class: 'text-nowrap',
+                    sortable: true,
+                    events: operateEventBlAWbUploadedHisrtory,
+                    formatter: function (data, row) {
+                        var btnUpload = '';
+                        if (row.FileName !== "") {
+                            var btnDownload = "<button class='btn btn-xs btn-success download' type='button'><i class='fa fa-download'></i></button>";
+                            var btnPreview = "<button class='btn btn-xs btn-primary btn-outline showDocument' type='button' data-toggle='modal' data-target='#myModalUploadPreview1'><i class='fa fa-file-pdf-o'></i></button>";
+                            return [btnUpload, btnDownload, btnPreview].join(' ');
+                        } else {
+                            return [btnUpload].join('-');;
+                        }
+                    },
+                    class: 'text-nowrap'
+                }
+            ]
+
+            $tableBlHistory.bootstrapTable(
+                {
+                    url: "/EMCS/GetBlAwbListByCargoForSaveAndApprove",
+                    columns: blawbcolumnHistory,
+                    cache: false,
+                    pagination: true,
+                    search: false,
+                    striped: true,
+                    clickToSelect: true,
+                    reorderableColumns: true,
+                    queryParams: function (params) {
+                        return {
+                            limit: params.limit,
+                            offset: params.offset,
+                            Cargoid: $("#idCargo").val(),
+                            sort: params.sort,
+                            order: params.order,
+                        };
+                    },
+                    toolbar: '.toolbar',
+                    toolbarAlign: 'left',
+                    sidePagination: 'server',
+                    showColumns: true,
+                    showRefresh: true,
+                    smartDisplay: false,
+                    pageSize: '5',
+                    formatNoMatches: function () {
+                        return '<span class="noMatches">-</span>';
+                    },
+                    responseHandler: function (resp) {
+                        debugger;
+                        var data = {};
+                        $.map(resp.row, function (value, key) {
+                            data[value.Key] = value.Value;
+                        });
+                        return data;
+                    },
+                    //url: "/EMCS/GetBlAwbListByCargoForSaveAndApprove",
+                    //columns: blawbcolumnHistory,
+                    //cache: false,
+                    //pagination: true,
+                    //search: false,
+                    //striped: true,
+                    //clickToSelect: true,
+                    //reorderableColumns: true,
+                    //toolbar: '.toolbar',
+                    //toolbarAlign: 'left',
+                    //onClickRow: selectRow,
+                    //sidePagination: 'server',
+                    //showColumns: true,
+                    //showRefresh: true,
+                    //smartDisplay: false,
+                    //pageSize: '5',
+                    //queryParams: function (params) {
+                    //    return {
+                    //        limit: params.limit,
+                    //        offset: params.offset,
+                    //        Cargoid: $("#idCargo").val(),
+                    //        sort: params.sort,
+                    //        order: params.order,
+                    //    };
+                    //},
+                    //responseHandler: function (resp) {
+                    //    debugger;
+                    //    //var data = {};
+                    //    //$.map(resp, function (value, key) {
+                    //    //    data[value.Key] = value.Value;
+                    //    //});
+                    //    return resp;
+                    //},
+                    //formatNoMatches: function () {
+                    //    return '<span class="noMatches">No Data Found</span>';
+                    //},
+
+                });
+
+            /* $("#mySearch").insertBefore($("[name=refresh]"));*/
+
+        });
+
+        window.operateEventBlAWbUploaded = {
+            'click .download': function (e, value, row) {
+                location.href = "/EMCS/BlAWBDocument/" + row.Id;
+            },
+            'click .showDocument': function (e, value, row) {
+                document.getElementById('framePreview').src = myApp.fullPath + "Upload/EMCS/BLAWB/" + row.FileName;
+            }
+        };
+        window.operateEventBlAWbUploadedHisrtory = {
+            'click .download': function (e, value, row) {
+                location.href = "/EMCS/BlAWBHistoryDocument/" + row.Id;
+            },
+            'click .showDocument': function (e, value, row) {
+                document.getElementById('framePreview1').src = myApp.fullPath + "Upload/EMCS/BLAWB/" + row.FileName;
+            }
+        };
+        function getbyid(row) {
+            $('#BLAWBID').val(row.Id);
+            $('#idCargo').val(row.IdCl);
+        }
+        $("#FormUploadBlAwb").validate({
+            onkeyup: false,
+            errorClass: "error",
+            ignore: ':hidden:not(.do-not-ignore)',
+
+            //put error message behind each form element
+            errorPlacement: function (error, element) {
+                if (element.hasClass("select2") && element.hasClass("input-validation-error")) {
+                    element.next("span").addClass("input-validation-error");
+                } else if (element.hasClass("select2-hidden-accessible")) {
+                    error.insertAfter(element.parent('span.select2'));
+                }
+            },
+            errorElement: 'span',
+            onError: function () {
+                $('.input-group.error').find('.help-block.form-error').each(function () {
+                    $(this).closest('.form-group').addClass('error-class').append($(this));
+                });
+            },
+            highlight: function (element, errorClass, valCargoIDass) {
+                $(element).addClass(errorClass); //.removeClass(errorClass);
+                $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+            },
+            //When removing make the same adjustments as when adding
+            unhighlight: function (element, errorClass, valCargoIDass) {
+                $(element).removeClass(errorClass); //.addClass(valCargoIDass);
+                $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+                $(element).next("span").removeClass("input-validation-error");
+            },
+        });
+
+
+    </script>
+}

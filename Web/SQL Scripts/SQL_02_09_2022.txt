@@ -1,0 +1,440 @@
+﻿create table ShippingFleetRefrence(
+	Id bigint primary Key Identity(1,1) not null,
+	IdShippingFleet bigint not null,
+	IdGr bigint not null,
+	IdCipl bigint Not null,
+	DoNo nvarchar(max) not null,
+	CreateDate DateTime
+
+	)
+GO
+
+
+CREATE procedure sp_AddArmadaRefrence(  
+ @Id bigint = 0,  
+ @IdShippingFleet bigint ,  
+ @IdGr bigint,  
+ @IdCipl bigint = 0,  
+ @DoNo nvarchar(max)  
+ )  
+ AS  
+ begin  
+ Set @IdCipl = (Select Id from Cipl where EdoNo = @DoNo)  
+ insert into ShippingFleetRefrence(IdShippingFleet,IdGr,IdCipl,DoNo,CreateDate)  
+ values (@IdShippingFleet,@IdGr,@IdCipl,@DoNo,GETDATE())  
+ SET @Id = SCOPE_IDENTITY()     
+ SELECT CAST(@Id as bigint) as Id    
+ end
+
+ GO
+
+
+ alter procedure SP_deleteArmada(  
+  @id nvarchar(100))        
+  as        
+  begin        
+  delete From ShippingFleet        
+  where Id = @id      
+  delete From ShippingFleetRefrence  
+  where IdShippingFleet = @id        
+  end 
+
+  GO
+
+
+  Alter PROCEDURE [dbo].[SP_get_cipl_available] -- SP_get_cipl_available '', '1', '1' select * from dbo.Cipl    
+(    
+ @Search nvarchar(100) = '',    
+ @CargoId nvarchar(10) = '0',    
+ @CiplList nvarchar(max) = '',    
+ @Consignee nvarchar(max) = '',    
+ @Notify nvarchar(max) = '',    
+ @ExportType nvarchar(max) = '',    
+ @Category nvarchar(max) = '',    
+ @Incoterms nvarchar(max) = '',    
+ @ShippingMethod nvarchar(max) = ''    
+)    
+AS    
+BEGIN    
+ SET NOCOUNT ON;    
+ DECLARE @sql nvarchar(max);    
+    
+ SET @sql = 'SELECT     
+     --t0.*    
+  distinct t0.IdCipl As Id  
+  ,t0.DoNo  
+  ,t0.IdGr  
+  ,null As DaNo  
+  ,null As FileName  
+  ,t1.CreateDate  
+  ,t1.CreateBy  
+  ,t1.UpdateDate  
+  ,t1.UpdateBy  
+  ,t1.IsDelete  
+  , t1.CiplNo    
+     , t1.Category    
+     , t1.CategoriItem    
+     , t1.ExportType    
+     , t1.ExportTypeItem    
+     , t1.ConsigneeName    
+     , t1.ConsigneeCountry    
+     , t1.NotifyName    
+     , t1.IncoTerm    
+     , t1.ShippingMethod    
+     , t1.id CiplId    
+     , t2.[Status] RequestStatus   
+    --FROM dbo.ShippingFleet t0  
+ FROM dbo.ShippingFleetRefrence t0    
+    JOIN dbo.Cipl t1 ON t1.id = t0.IdCipl    
+    JOIN dbo.RequestGr t2 ON t2.IdGr = t0.IdGr    
+    WHERE     
+    --t0.isdelete = 0 AND    
+    t2.Status = ''Approve'' ';    
+ SET @sql = @sql + CASE WHEN ISNULL(@Consignee, '') <> '' THEN 'AND t1.ConsigneeName like ''%'+@Consignee+'%''' ELSE '' END +     
+    CASE WHEN ISNULL(@Consignee, '') <> '' THEN 'AND t1.NotifyName like ''%'+@Notify+'%''' ELSE '' END +      
+    CASE WHEN ISNULL(@Consignee, '') <> '' THEN 'AND t1.ExportType like ''%'+@ExportType+'%''' ELSE '' END +     
+    CASE WHEN ISNULL(@Consignee, '') <> '' THEN 'AND UPPER(RTRIM(LTRIM(t1.Category))) like ''%'+UPPER(RTRIM(LTRIM(@Category)))+'%''' ELSE '' END +    
+    CASE WHEN ISNULL(@Consignee, '') <> '' THEN 'AND UPPER(RTRIM(LTRIM(t1.IncoTerm))) like ''%'+UPPER(RTRIM(LTRIM(@Incoterms)))+'%''' ELSE '' END +    
+    CASE WHEN ISNULL(@Consignee, '') <> '' THEN 'AND UPPER(RTRIM(LTRIM(t1.ShippingMethod))) like ''%'+UPPER(RTRIM(LTRIM(@ShippingMethod)))+'%''' ELSE '' END +    
+    ' AND t1.id NOT IN (    
+     SELECT IdCipl FROM dbo.cargocipl WHERE 1=1 AND isDelete = 0 '+ CASE WHEN @CargoId <> '0' THEN 'AND IdCargo <> '+@CargoId ELSE '' END +    
+    ')' +    
+    'AND (t1.CiplNo like ''%'+@Search+'%'' OR   
+ --t0.DaNo like ''%'+@Search+'%'' OR  
+ t0.DoNo like ''%'+@Search+'%'') ' +    
+    CASE WHEN ISNULL(@CiplList, '') <> '' THEN 'AND t1.id NOT IN ('+@CiplList+')' ELSE '' END;    
+ --SELECT @sql;    
+ EXECUTE(@sql);    
+END    
+    
+
+    GO
+
+
+    alter PROCEDURE [dbo].[sp_AddArmada]      
+(      
+ @Id nvarchar(100),      
+ @IdCipl nvarchar(100),      
+ @IdGr nvarchar(100),      
+ @DoNo nvarchar(100),      
+ @DaNo nvarchar(100),      
+ @PicName  nvarchar(100),      
+    @PhoneNumber nvarchar(100),      
+    @KtpNumber  nvarchar(100),      
+ @SimNumber  nvarchar(100),      
+    @SimExpiryDate  nvarchar(100),      
+    @KirNumber   nvarchar(100),       
+    @KirExpire   nvarchar(100),      
+    @NopolNumber nvarchar(100),       
+    @StnkNumber   nvarchar(100),      
+    @EstimationTimePickup nvarchar(100),      
+    @Apar   nvarchar(100),      
+    @Apd   nvarchar(100) ,    
+ @Bast nvarchar(100)    
+      
+)      
+AS      
+BEGIN      
+ SET NOCOUNT ON;      
+ IF @Id = 0      
+      
+ BEGIN      
+        
+  INSERT INTO [dbo].[ShippingFleet]      
+           ([IdGr],[IdCipl],[DoNo],[DaNo],[PicName],PhoneNumber,KtpNumber,SimNumber,SimExpiryDate,KirNumber,KirExpire,NopolNumber,StnkNumber,EstimationTimePickup,Apar,Apd,Bast)      
+  VALUES      
+           (@IdGr, @IdCipl, @DoNo, @DaNo, @PicName, @PhoneNumber, @KtpNumber, @SimNumber, @SimExpiryDate, @KirNumber,@KirExpire,@NopolNumber,@StnkNumber,@EstimationTimePickup,@Apar,@Apd,@Bast)      
+     SET @Id = SCOPE_IDENTITY()       
+ END      
+ ELSE       
+ BEGIN      
+  UPDATE [dbo].[ShippingFleet] SET       
+    IdGr = @IdGr      
+     , IdCipl = @IdCipl      
+     , DoNo = @DoNo      
+     , DaNo = @DaNo      
+     ,PicName= @PicName        
+     ,PhoneNumber = @PhoneNumber       
+     ,KtpNumber= @KtpNumber        
+     ,SimNumber= @SimNumber        
+     ,SimExpiryDate = @SimExpiryDate        
+     ,KirNumber = @KirNumber         
+     ,KirExpire = @KirExpire         
+     ,NopolNumber = @NopolNumber       
+     ,StnkNumber = @StnkNumber         
+     ,EstimationTimePickup = @EstimationTimePickup      
+     ,Apar = @Apar         
+     ,Apd = @Apd      
+  ,Bast = @Bast    
+  WHERE Id = @Id   
+  delete From ShippingFleetRefrence  
+  where IdShippingFleet = @Id   
+--declare @EdoNo nvarchar(max)      
+--set @EdoNo = (select DoNo From  ShippingFleet where Id = @Id)      
+--delete from ShippingFleetItem      
+--where IdCipl not In (select id from Cipl      
+--where EdoNo IN (select * from [SDF_SplitString](@EdoNo ,','))) and IdGr = @IdGr and IdShippingFleet = @Id      
+ END      
+ SELECT CAST(@Id as bigint) as Id      
+END 
+
+
+GO
+
+
+alter PROCEDURE [dbo].[sp_insert_update_cargo_item]   
+(  
+ @Id nvarchar(100),  
+ @ItemId nvarchar(100),  
+ @IdCargo nvarchar(100),  
+ @ContainerNumber nvarchar(100),  
+ @ContainerType nvarchar(100),  
+ @ContainerSealNumber nvarchar(100),  
+ @ActionBy nvarchar(100),  
+ @Length nvarchar(100) = '0',  
+ @Width nvarchar(100) = '0',  
+ @Height nvarchar(100) = '0',  
+ @GrossWeight nvarchar(100) = '0',  
+ @NetWeight nvarchar(100) = '0',  
+ @isDelete bit = 0  
+)  
+AS  
+BEGIN  
+ SET NOCOUNT ON;  
+  
+ IF ISNULL(@Id, 0) = 0   
+ BEGIN  
+  INSERT INTO [dbo].[CargoItem]  
+         ([ContainerNumber]  
+         ,[ContainerType]  
+         ,[ContainerSealNumber]  
+         ,[IdCipl]  
+         ,[IdCargo]  
+      ,[IdCiplItem]  
+         ,[InBoundDa]  
+         ,[Length]  
+         ,[Width]  
+         ,[Height]  
+         ,[Net]  
+         ,[Gross]  
+         ,[CreateBy]  
+         ,[CreateDate]  
+         ,[UpdateBy]  
+         ,[UpdateDate]  
+         ,[isDelete])  
+   select   
+   @ContainerNumber  
+   , @ContainerType  
+   , @ContainerSealNumber  
+   , t0.IdCipl  
+   , @IdCargo  
+   , t0.Id  
+   , null as DaNo  
+   , t0.[Length]  
+   , t0.Width  
+   , t0.Height  
+   , t0.NetWeight  
+   , t0.GrossWeight  
+   , @ActionBy CreateBy  
+   , GETDATE()  
+   , @ActionBy UpdateBy  
+   , GETDATE(), 0  
+   from dbo.ciplItem t0   
+   join dbo.Cipl t1 on t1.id = t0.IdCipl   
+   --join dbo.GoodsReceiveItem t2 on t2.DoNo = t1.EdoNo AND t2.IsDelete = 0  
+   join dbo.ShippingFleetRefrence t2 on t2.DoNo = t1.EdoNo
+   where t0.id = @ItemId;  
+ END   
+ ELSE   
+ BEGIN  
+    
+  DECLARE @OldLength decimal(20, 2);  
+  DECLARE @OldWidth decimal(20, 2);  
+  DECLARE @OldHeight decimal(20, 2);  
+  DECLARE @OldGrossWeight decimal(20, 2);  
+  DECLARE @OldNetWeight decimal(20, 2);  
+  DECLARE @NewLength decimal(20, 2);  
+  DECLARE @NewWidth decimal(20, 2);  
+  DECLARE @NewHeight decimal(20, 2);  
+  DECLARE @NewGrossWeight decimal(20, 2);  
+  DECLARE @NewNetWeight decimal(20, 2);  
+    
+  SELECT   
+  @OldLength = [Length],   
+  @OldWidth = Width,   
+  @OldHeight = Height,   
+  @OldGrossWeight = Gross,   
+  @OldNetWeight = Net,  
+  @NewLength = ISNULL([NewLength], 0.00),  
+  @NewWidth = ISNULL([NewWidth], 0.00),  
+  @NewHeight = ISNULL([NewHeight], 0.00),  
+  @NewGrossWeight = ISNULL([NewGross], 0.00),  
+  @NewNetWeight = ISNULL([NewNet], 0.00)  
+  FROM [dbo].[CargoItem] WHERE Id = @Id  
+    
+  IF @NewLength = 0.00  
+  BEGIN  
+   IF @OldLength = @Length   
+   BEGIN  
+    SET @Length = null  
+   END  
+  END  
+  
+  IF @NewWidth = 0.00  
+  BEGIN  
+   IF @OldWidth = @Width   
+   BEGIN  
+    SET @Width = null  
+   END  
+  END  
+  
+  IF @NewHeight = 0.00  
+  BEGIN  
+   IF @OldHeight = @Height   
+   BEGIN  
+    SET @Height = null  
+   END  
+  END  
+  
+  IF @NewHeight = 0.00  
+  BEGIN  
+   IF @OldHeight = @Height   
+   BEGIN  
+    SET @Height = null  
+   END  
+  END  
+  
+  IF @NewGrossWeight = 0.00  
+  BEGIN  
+   IF @OldGrossWeight = @GrossWeight   
+   BEGIN  
+    SET @GrossWeight = null  
+   END  
+  END  
+  
+  IF @NewNetWeight = 0.00  
+  BEGIN  
+   IF @OldNetWeight = @NetWeight   
+   BEGIN  
+    SET @NetWeight = null  
+   END  
+  END  
+  
+  UPDATE [dbo].[CargoItem]  
+  SET [NewLength] = @Length  
+   ,[ContainerNumber] = @ContainerNumber  
+   ,[ContainerType] = @ContainerType  
+   ,[ContainerSealNumber] = @ContainerSealNumber  
+      ,[NewHeight] = @Height  
+      ,[NewWidth] = @Width  
+      ,[NewNet] = @NetWeight  
+      ,[NewGross] = @GrossWeight  
+   ,[UpdateBy] = @ActionBy  
+   ,[UpdateDate] = GETDATE()  
+  WHERE Id = @Id  
+ END  
+  
+ SELECT CAST(@Id as bigint) as ID  
+END  
+
+
+Go
+
+
+alter Procedure [dbo].[sp_get_edi_available] -- [dbo].[sp_get_edi_available] '1241', 'xupj21hbk'      
+(      
+       @area nvarchar(100),      
+       @pic nvarchar(100) = '',
+	   @IdGr bigint = 0
+)      
+AS  
+
+select        
+       t0.[id] Id   
+      ,t0.[CiplNo]      
+      ,t0.[ClNo]      
+      ,t0.[EdoNo]      
+      ,t0.[Category]      
+      ,t0.[CategoriItem]      
+      ,t0.[ExportType]      
+      ,t0.[ExportTypeItem]      
+      ,t0.[SoldToName]      
+      ,t0.[SoldToAddress]      
+      ,t0.[SoldToCountry]      
+      ,t0.[SoldToTelephone]      
+      ,t0.[SoldToFax]      
+      ,t0.[SoldToPic]      
+      ,t0.[SoldToEmail]      
+      ,t0.[ConsigneeName]      
+      ,t0.[ConsigneeAddress]      
+      ,t0.[ConsigneeCountry]      
+      ,t0.[ConsigneeTelephone]      
+      ,t0.[ConsigneeFax]      
+      ,t0.[ConsigneePic]      
+      ,t0.[ConsigneeEmail]      
+      ,t0.[NotifyName]      
+      ,t0.[NotifyAddress]      
+      ,t0.[NotifyCountry]      
+      ,t0.[NotifyTelephone]      
+      ,t0.[NotifyFax]      
+      ,t0.[NotifyPic]      
+      ,t0.[NotifyEmail]      
+      ,t0.[ConsigneeSameSoldTo]      
+      ,t0.[NotifyPartySameConsignee]      
+      ,t0.[Area]      
+      ,t0.[Branch]      
+      ,t0.[PaymentTerms]      
+      ,t0.[ShippingMethod]      
+      ,t0.[CountryOfOrigin]      
+      ,t0.[Da]      
+      ,t0.[LcNoDate]      
+      ,t0.[IncoTerm]      
+      ,t0.[FreightPayment]      
+      ,t0.[Forwader]      
+      ,t0.[ShippingMarks]      
+      ,t0.[Remarks]      
+      ,t0.[SpecialInstruction]      
+      ,t0.[LoadingPort]      
+      ,t0.[DestinationPort]      
+      ,t0.[ETD]      
+      ,t0.[ETA]      
+      ,t0.[CreateBy]      
+      ,t0.[CreateDate]      
+      ,t0.[UpdateBy]      
+      ,t0.[UpdateDate]      
+      ,t0.[IsDelete]      
+      ,t0.[SoldConsignee]      
+      ,t0.[ShipDelivery]      
+      ,t0.[Rate]      
+      ,t0.[Currency]      
+      ,t0.[PickUpPic]      
+      ,t0.[PickUpArea]      
+      ,t0.[CategoryReference]      
+      ,t0.[ReferenceNo]      
+      ,t0.[Consolidate]      
+from dbo.Cipl t0      
+left join dbo.RequestCipl t1 on t1.IdCipl = t0.id AND t1.IsDelete = 0       
+left join dbo.fn_get_cipl_request_list_all() t2 on t2.IdCipl = t0.id   
+
+where       
+t2.IdNextStep IN (14, 10024, 10028, 30057)       
+AND RIGHT(t0.PickUpArea,3) = RIGHT(@area,3)      
+--AND t0.PickUpPic = @pic      
+--AND t2.BAreaUser = @area      
+AND t1.[Status] = 'Approve'       
+AND EdoNo IS NOT NULL    
+AND t0.Id not  IN (      
+    select gi.IdCipl       
+ from dbo.ShippingFleetRefrence gi      
+ join RequestGr rg ON gi.idgr = rg.idgr 
+  and gi.Idgr <> @IdGr 
+ where  rg.[status] != 'Reject'  
+) 
+
+
+Go
+
+
+  
+  
+  

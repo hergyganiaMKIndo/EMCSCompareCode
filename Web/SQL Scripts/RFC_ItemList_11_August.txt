@@ -1,0 +1,497 @@
+ALTER PROCEDURE [dbo].[SP_CiplGetById_For_RFC]  
+(  
+  @id BIGINT  
+)  
+AS  
+BEGIN  
+  SELECT distinct C.id  
+        , C.CiplNo  
+        , C.ClNo  
+        , C.EdoNo  
+        , C.Category  
+        , C.CategoriItem  
+        , C.ExportType  
+        , C.ExportTypeItem  
+  --, (SELECT C.CategoryReference+'-'+MP.Name FROM MasterParameter MP inner join Cipl C ON C.CategoryReference = MP.Value WHERE C.id=@id) AS CategoryReference  
+        , C.CategoryReference  
+  , C.SoldConsignee  
+        , C.SoldToName  
+        , C.SoldToAddress  
+        , C.SoldToCountry  
+        , C.SoldToTelephone  
+        , C.SoldToFax  
+        , C.SoldToPic  
+        , C.SoldToEmail  
+        , C.ShipDelivery  
+        , C.ConsigneeName  
+        , C.ConsigneeAddress  
+        , C.ConsigneeCountry  
+        , C.ConsigneeTelephone  
+        , C.ConsigneeFax  
+        , C.ConsigneePic  
+        , C.ConsigneeEmail  
+        , C.NotifyName  
+        , C.NotifyAddress  
+        , C.NotifyCountry  
+        , C.NotifyTelephone  
+        , C.NotifyFax  
+        , C.NotifyPic  
+        , C.NotifyEmail  
+        , C.ConsigneeSameSoldTo  
+        , C.NotifyPartySameConsignee  
+        , C.Area AS Area  
+        , C.Branch AS Branch  
+		, C.Currency  
+		, C.Rate  
+        , C.PaymentTerms  
+        , C.ShippingMethod  
+        , C.CountryOfOrigin  
+        , C.Da  
+        , C.LcNoDate  
+        , C.IncoTerm  
+        , C.FreightPayment  
+        , C.ShippingMarks  
+        , C.Remarks  
+        , C.SpecialInstruction  
+        , C.LoadingPort  
+        , C.DestinationPort
+		,C.PickUpArea
+		,C.PickUpPic
+  , (SELECT DISTINCT Fn.BAreaCode+' - '+Fn.BAreaName FROM [dbo].fn_get_cipl_businessarea_list('') Fn  
+ INNER JOIN Cipl C ON IIF(C.PickUpArea = '', NULL, right(C.PickUpArea,4)) = right(Fn.BAreaCode ,4) WHERE C.id=@id) AS PickUpArea  
+  --, (SELECT DISTINCT Fn.Business_Area+' - '+Fn.BAreaName FROM [dbo].[fn_get_employee_internal_ckb]() Fn INNER JOIN Cipl C ON IIF(C.PickUpArea = '', NULL, C.PickUpArea) = Fn.Business_Area WHERE C.id=@id) AS PickUpArea  
+  --, (SELECT Fn.BAreaCode+' - '+Fn.BAreaName FROM [dbo].[fn_get_plant_barea_user]() Fn INNER JOIN Cipl C ON RIGHT(C.PickUpPic,3) = RIGHT(Fn.UserID, 3) WHERE C.id=@id) AS PickUpArea  
+  , (SELECT Fn.AD_User+'-'+Fn.Employee_Name+ '-'+Fn.BAreaName FROM [dbo].[fn_get_employee_internal_ckb]() Fn INNER JOIN Cipl C ON C.PickUpPic = Fn.AD_User WHERE C.id=@id) AS PickUpPic  
+  , C.ETD  
+        , C.ETA  
+        , C.CreateBy  
+        , C.CreateDate  
+        , C.UpdateBy  
+        , C.UpdateDate  
+        , C.IsDelete  
+  , C.ReferenceNo  
+  , ISNULL(C.Consolidate, 0) Consolidate  
+  FROM dbo.Cipl C  
+  WHERE C.id = @id  
+END  
+
+GO
+
+
+
+
+USE [EMCS]
+GO
+/****** Object:  Table [dbo].[CiplItem_Change]    Script Date: 11-08-2022 2.09.53 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CiplItem_Change](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[IdCiplItem] [int] NULL,
+	[IdCipl] [bigint] NULL,
+	[IdReference] [bigint] NOT NULL,
+	[ReferenceNo] [nvarchar](100) NOT NULL,
+	[IdCustomer] [nvarchar](50) NULL,
+	[Name] [nvarchar](200) NOT NULL,
+	[Uom] [nvarchar](50) NOT NULL,
+	[PartNumber] [nvarchar](50) NOT NULL,
+	[Sn] [nvarchar](50) NOT NULL,
+	[JCode] [nvarchar](50) NOT NULL,
+	[Ccr] [nvarchar](50) NOT NULL,
+	[CaseNumber] [nvarchar](50) NOT NULL,
+	[Type] [nvarchar](50) NOT NULL,
+	[IdNo] [nvarchar](50) NULL,
+	[YearMade] [nvarchar](50) NULL,
+	[Quantity] [int] NOT NULL,
+	[UnitPrice] [decimal](20, 2) NOT NULL,
+	[ExtendedValue] [decimal](20, 2) NOT NULL,
+	[Length] [decimal](20, 2) NULL,
+	[Width] [decimal](20, 2) NULL,
+	[Height] [decimal](20, 2) NULL,
+	[Volume] [decimal](18, 6) NULL,
+	[GrossWeight] [decimal](18, 3) NULL,
+	[NetWeight] [decimal](18, 3) NULL,
+	[Currency] [nvarchar](3) NOT NULL,
+	[CreateBy] [nvarchar](50) NOT NULL,
+	[CreateDate] [smalldatetime] NOT NULL,
+	[UpdateBy] [nvarchar](50) NULL,
+	[UpdateDate] [smalldatetime] NULL,
+	[IsDelete] [bit] NOT NULL,
+	[CoO] [nvarchar](100) NULL,
+	[IdParent] [bigint] NOT NULL,
+	[SIBNumber] [nvarchar](200) NOT NULL,
+	[WONumber] [nvarchar](200) NOT NULL,
+	[Claim] [nvarchar](100) NOT NULL,
+	[ASNNumber] [nvarchar](255) NULL,
+	[Status] [nvarchar](100) NULL,
+ CONSTRAINT [PK__CiplItem__3214EC0762BE9466] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+GO
+	
+create  PROCEDURE [dbo].[SP_CiplItemInsert_RFC]
+(
+	@IdCipl BIGINT,
+	@IdReference BIGINT = '',
+	@ReferenceNo NVARCHAR(50) = '',
+	@IdCustomer NVARCHAR(50) = '',
+	@Name NVARCHAR(200) = '',
+	@Uom NVARCHAR(50) = '',
+	@PartNumber NVARCHAR(50) = '',
+	@Sn NVARCHAR(50) = '',
+	@JCode NVARCHAR(50) = '',
+	@Ccr NVARCHAR(50) = '',
+	@CaseNumber NVARCHAR(50) = '',
+	@Type NVARCHAR(100) = '',
+	@IdNo NVARCHAR(200) = '',
+	@YearMade NVARCHAR(200) = '',
+	@Quantity INT = 0,
+	@UnitPrice DECIMAL(20, 2) = 0,
+	@ExtendedValue DECIMAL(20, 2) = 0,
+	@Length DECIMAL(18, 2) = 0,
+	@Width DECIMAL(18, 2) = 0,
+	@Height DECIMAL(18, 2) = 0,
+	@Volume DECIMAL(18, 6) = 0,
+	@GrossWeight DECIMAL(20,2) = 0,
+	@NetWeight DECIMAL(20,2) = 0,
+	@Currency NVARCHAR(200) = '',
+	@CoO NVARCHAR(200) = '',
+	@CreateBy NVARCHAR(50),
+	@CreateDate datetime,
+	@UpdateBy NVARCHAR(50),
+	@UpdateDate datetime,
+	@IsDelete BIT,
+	@IdItem BIGINT,
+	@IdParent BIGINT,
+	@SIBNumber NVARCHAR(200),
+	@WONumber NVARCHAR(200),
+	@Claim NVARCHAR(200),
+	@ASNNumber NVARCHAR(50) = '',
+	@Status Nvarchar(max)
+)
+AS
+BEGIN
+    DECLARE @LASTID bigint
+	DECLARE @Country NVARCHAR(100);
+	declare @OID Nvarchar(max);
+	set @OID = (select Id from CiplItem_Change where IdCiplItem = @IdItem)
+	-- SELECT TOP 1 @Country = MC.CountryCode from MasterCountry MC WHERE MC.CountryCode = IIF(ISNULL(@CoO, '') = '', MC.CountryCode, @CoO ) OR MC.Description = IIF(ISNULL(@CoO, '') = '', MC.CountryCode, @CoO )
+
+	SELECT TOP 1 @Country = MC.CountryCode from MasterCountry MC WHERE MC.CountryCode = ISNULL(@CoO, '') OR MC.Description = ISNULL(@CoO, '')
+ 
+IF CHARINDEX(':AA',@PartNumber) > 0
+ BEGIN
+ SET @PartNumber = LEFT(@PartNumber+':AA', CHARINDEX(':AA',@PartNumber+':AA')-1)
+ END
+	
+	IF (@OID Is Null Or @OID = 0)
+	BEGIN
+	INSERT INTO [dbo].[CiplItem_Change]
+           ([IdCiplItem]
+		   ,[IdCipl]
+		   ,[IdReference]
+           ,[ReferenceNo]
+		   ,[IdCustomer]
+           ,[Name]
+           ,[Uom]
+           ,[PartNumber]
+           ,[Sn]
+           ,[JCode]
+           ,[Ccr]
+           ,[CaseNumber]
+           ,[Type]
+           ,[IdNo]
+           ,[YearMade]
+		   ,[Quantity]
+           ,[UnitPrice]
+           ,[ExtendedValue]
+           ,[Length]
+           ,[Width]
+           ,[Height]
+		   ,[Volume]
+		   ,[GrossWeight]
+		   ,[NetWeight]
+           ,[Currency]
+		   ,[CoO]
+           ,[CreateBy]
+           ,[CreateDate]
+           ,[UpdateBy]
+           ,[UpdateDate]
+           ,[IsDelete]
+		   ,[IdParent]
+		   ,[SIBNumber]
+		   ,[WONumber]
+		   ,[Claim]
+		   ,[ASNNumber]
+		   ,[Status]
+           )
+     VALUES
+           (@IdItem
+		   ,@IdCipl
+		   ,@IdReference
+           ,@ReferenceNo
+		   ,@IdCustomer
+           ,@Name
+           ,@Uom
+           ,@PartNumber
+           ,@Sn
+           ,@JCode
+           ,@Ccr
+           ,@CaseNumber
+           ,@Type
+           ,@IdNo
+           ,@YearMade
+		   ,@Quantity
+           ,@UnitPrice
+           ,@ExtendedValue
+           ,@Length
+           ,@Width
+           ,@Height
+		   ,@Volume
+		   ,@GrossWeight
+		   ,@NetWeight
+           ,@Currency
+		   ,@Country
+           ,@CreateBy
+           ,@CreateDate
+           ,@UpdateBy
+           ,@UpdateDate
+           ,@IsDelete
+		   ,@IdParent
+		   ,@SIBNumber
+		   ,@WONumber
+		   ,@Claim
+		   ,@ASNNumber
+		   ,@Status)
+
+	END
+	ELSE 
+	BEGIN
+	UPDATE dbo.CiplItem_Change
+	SET [Name] = @Name
+		   ,[Uom] = @Uom
+		   ,[Quantity] = @Quantity
+           ,[CaseNumber] = @CaseNumber
+		   ,[Sn] = @Sn
+		   ,[PartNumber] = @PartNumber
+           ,[Type] = @Type
+           ,[ExtendedValue] = @ExtendedValue
+           ,[Length] = @Length
+           ,[Width] = @Width
+           ,[Height] = @Height
+		   ,[Volume] = @Volume
+		   ,[GrossWeight] = @GrossWeight
+		   ,[NetWeight] = @NetWeight
+           ,[Currency] = @Currency
+		   ,[CoO] = @Country
+		   ,[YearMade] = @YearMade
+		   ,[IdParent] = @IdParent
+		   ,[SIBNumber] = @SIBNumber
+		   ,[WONumber] = @WONumber
+		   ,[Claim] = @Claim
+		   ,[ASNNumber] = @ASNNumber
+		   ,[Status] = @Status
+	WHERE IdCiplItem = @IdItem;
+	END
+
+END
+
+GO
+
+ALTER PROCEDURE [dbo].[SP_CiplDelete] (
+	@id BIGINT
+	,@UpdateBy NVARCHAR(50)
+	,@UpdateDate DATETIME
+	,@Status NVARCHAR(50)
+	,@IsDelete BIT
+	,@RFC nvarchar(max)
+	)
+AS
+BEGIN
+	UPDATE R
+	SET R.AvailableQuantity = R.AvailableQuantity + CI.Quantity
+	FROM Reference R
+	INNER JOIN (
+		SELECT CI.IdReference
+			,SUM(CI.Quantity) Quantity
+		FROM CiplItem CI
+		WHERE CI.IdCipl = @id
+			AND CI.IsDelete = 0
+		GROUP BY CI.IdReference
+		) CI ON CI.IdReference = R.Id
+
+	IF (@Status = 'ALL')
+	BEGIN
+		UPDATE dbo.Cipl
+		SET UpdateBy = @UpdateBy
+			,UpdateDate = @UpdateDate
+			,IsDelete = @IsDelete
+		WHERE id = @id;
+
+		UPDATE dbo.RequestCipl
+		SET UpdateBy = @UpdateBy
+			,UpdateDate = @UpdateDate
+			,IsDelete = @IsDelete
+		WHERE IdCipl = @id;
+
+		UPDATE dbo.CiplForwader
+		SET UpdateBy = @UpdateBy
+			,UpdateDate = @UpdateDate
+			,IsDelete = @IsDelete
+		WHERE IdCipl = @id;
+
+		UPDATE dbo.CiplItem
+		SET UpdateBy = @UpdateBy
+			,UpdateDate = @UpdateDate
+			,IsDelete = @IsDelete
+		WHERE IdCipl = @id
+	END
+	ELSE IF (@Status = 'CIPLITEM')
+	BEGIN
+		UPDATE dbo.CiplItem
+		SET UpdateBy = @UpdateBy
+			,UpdateDate = @UpdateDate
+			,IsDelete = @IsDelete
+		WHERE IdCipl = @id
+	END
+	ELSE IF (@Status = 'CIPLITEMID')
+	BEGIN
+	if(@RFC = 'true')
+
+	begin
+		declare @OID Nvarchar(max);
+	set @OID = (select IdCiplItem from CiplItem_Change where IdCiplItem = @id)
+	if(@OID Is Null)
+	begin
+	INSERT INTO [dbo].[CiplItem_Change](IdCiplItem,[IdCipl],[IdReference],[ReferenceNo],[IdCustomer],[Name],[Uom],[PartNumber],[Sn],[JCode],[Ccr],[CaseNumber],[Type],[IdNo],[YearMade],[Quantity]
+           ,[UnitPrice],[ExtendedValue],[Length],[Width],[Height],[Volume],[GrossWeight],[NetWeight],[Currency],[CoO],[CreateBy],[CreateDate],[UpdateBy],[UpdateDate],[IsDelete]
+		   ,[IdParent],[SIBNumber],[WONumber],[Claim],[ASNNumber],[Status]
+           )
+   select [Id],[IdCipl],[IdReference],[ReferenceNo],[IdCustomer],[Name],[Uom],[PartNumber],[Sn],[JCode],[Ccr],[CaseNumber],[Type],[IdNo],[YearMade],[Quantity]
+           ,[UnitPrice],[ExtendedValue],[Length],[Width],[Height],[Volume],[GrossWeight],[NetWeight],[Currency],[CoO],[CreateBy],[CreateDate],[UpdateBy],[UpdateDate],[IsDelete]
+		   ,[IdParent],[SIBNumber],[WONumber],[Claim],[ASNNumber],'Deleted' from CiplItem where Id = @id
+	end
+	else	
+	begin
+	UPDATE dbo.CiplItem_Change
+	SET [Status] = 'Deleted',
+	IsDelete = 'true'
+	WHERE IdCiplItem = @id;
+	end
+	
+	end
+	else
+	begin
+		UPDATE dbo.CiplItem
+		SET UpdateBy = @UpdateBy
+			,UpdateDate = @UpdateDate
+			,IsDelete = @IsDelete
+		WHERE Id = @id
+
+		UPDATE dbo.CiplItem
+		SET UpdateBy = @UpdateBy
+			,UpdateDate = @UpdateDate
+			,IsDelete = @IsDelete
+		WHERE IdParent = @id
+	end
+
+		
+	END
+END
+
+
+GO
+
+Go
+
+create procedure [dbo].[sp_CiplItemChangeList]
+(
+@Id nvarchar(50)
+)
+as 
+begin
+select * from CiplItem_Change
+where IdCipl = @Id
+END
+
+GO
+
+create procedure [dbo].[sp_CiplItemChange]
+(
+@Id nvarchar(50),
+@IdCipl nvarchar(50),
+@Status nvarchar(50),
+@CreateDate nvarchar(50)
+)
+as 
+begin
+if @Status = 'Created'
+begin
+	INSERT INTO [dbo].[CiplItem]([IdCipl],[IdReference],[ReferenceNo],[IdCustomer],[Name],[Uom],[PartNumber],[Sn],[JCode],[Ccr],[CaseNumber],[Type],[IdNo],[YearMade],[Quantity]
+           ,[UnitPrice],[ExtendedValue],[Length],[Width],[Height],[Volume],[GrossWeight],[NetWeight],[Currency],[CoO],[CreateBy],[CreateDate],[UpdateBy],[UpdateDate],[IsDelete]
+		   ,[IdParent],[SIBNumber],[WONumber],[Claim],[ASNNumber])
+   select [IdCipl],[IdReference],[ReferenceNo],[IdCustomer],[Name],[Uom],[PartNumber],[Sn],[JCode],[Ccr],[CaseNumber],[Type],[IdNo],[YearMade],[Quantity]
+           ,[UnitPrice],[ExtendedValue],[Length],[Width],[Height],[Volume],[GrossWeight],[NetWeight],[Currency],[CoO],[CreateBy],[CreateDate],[UpdateBy],[UpdateDate],[IsDelete]
+		   ,[IdParent],[SIBNumber],[WONumber],[Claim],[ASNNumber] from CiplItem_Change where Id = @id and CreateDate = @CreateDate  
+		   delete From CiplItem_Change where Id = @id and CreateDate = @CreateDate  and IdCipl = @IdCipl
+
+end
+else if @Status = 'Updated'
+begin
+Update CiplItem
+set [IdCipl]	= (select [IdCipl] from CiplItem_Change where Id = @Id and IdCipl = @IdCipl),
+[IdReference]	= (select  [IdReference] from CiplItem_Change where Id = @Id and IdCipl = @IdCipl),
+[ReferenceNo]	= (select [ReferenceNo]  from CiplItem_Change where Id = @Id and IdCipl = @IdCipl),
+[IdCustomer]	= (select [IdCustomer]  from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Name]			= (select  [Name] from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Uom]			= (select [Uom]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[PartNumber]	= (select [PartNumber]	from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Sn]			= (select [Sn]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[JCode]			= (select [JCode]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Ccr]			= (select [Ccr]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[CaseNumber]	= (select [CaseNumber]	from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Type]			= (select [Type]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[IdNo]			= (select [IdNo]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[YearMade]		= (select [YearMade]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Quantity]		= (select [Quantity]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[UnitPrice]		= (select [UnitPrice]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[ExtendedValue]	= (select [ExtendedValue]	from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Length]		= (select [Length]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Width]			= (select [Width]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Height]		= (select [Height]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Volume]		= (select [Volume]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[GrossWeight]	= (select [GrossWeight]	from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[NetWeight]		= (select [NetWeight]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Currency]		= (select [Currency]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[CoO]			= (select [CoO]			from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[CreateBy]		= (select [CreateBy]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[CreateDate]	= (select [CreateDate]	from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[UpdateBy]		= (select [UpdateBy]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[UpdateDate]	= (select [UpdateDate]	from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[IsDelete]		= (select [IsDelete]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[IdParent]		= (select [IdParent]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[SIBNumber]		= (select [SIBNumber]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[WONumber]		= (select [WONumber]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[Claim]			= (select [Claim]		from CiplItem_Change where Id = @Id and Idcipl = @IdCipl),
+[ASNNumber]		= (select [ASNNumber]	from CiplItem_Change where Id = @Id and Idcipl = @IdCipl)
+where Id = @Id and IdCipl = @IdCipl
+delete From CiplItem_Change where Id = @id   and IdCipl = @IdCipl
+end
+else
+begin
+ 
+update CiplItem
+set [IsDelete]	= (select [IsDelete] from CiplItem_Change where Id = @Id and Idcipl = @IdCipl)
+where Id = (select IdCiplItem from CiplItem_Change where Id = @Id) and IdCipl = @IdCipl
+delete From CiplItem_Change where Id = @id and IdCipl = @IdCipl
+end
+
+
+
+end

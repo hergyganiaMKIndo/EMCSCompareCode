@@ -1,0 +1,97 @@
+﻿update Master_Menu
+set URL = 'EMCS/Vendor'
+where ID = 247
+
+Go
+
+alter PROCEDURE [dbo].[SP_CiplGetList]  
+(      
+ @ConsigneeName NVARCHAR(200),  
+ @CreateBy NVARCHAR(200)  
+)  
+AS  
+BEGIN  
+ DECLARE @Sql nvarchar(max);  
+ DECLARE @WhereSql nvarchar(max) = '';  
+ DECLARE @RoleID bigint;  
+ DECLARE @area NVARCHAR(max);  
+ DECLARE @role NVARCHAR(max);  
+ DECLARE @usertype NVARCHAR(max);  
+  
+ SELECT @area = U.Business_Area  
+  ,@role = U.[Role],@usertype = UserType  
+ FROM dbo.fn_get_employee_internal_ckb() U  
+ WHERE U.AD_User = @CreateBy;  
+  
+   
+ if @role !=''  
+ BEGIN  
+ IF (@role !='EMCS IMEX' and @CreateBy !='xupj21fig' and @CreateBy !='ict.bpm' and @usertype !='ext-imex' )  
+ BEGIN  
+  SET @WhereSql = ' AND c.CreateBy='''+@CreateBy+''' ';  
+ END  
+  
+ IF @ConsigneeName <> ''  
+ BEGIN  
+  SET @WhereSql = ' AND (C.CiplNo LIKE ''%'+@ConsigneeName+'%'' OR C.ConsigneeName LIKE ''%'+@ConsigneeName+'%'')';  
+ END  
+ IF @usertype ='ext-imex'  
+ BEGIN  
+  SET @WhereSql = @WhereSql + ' AND ((fnReqCl.IdNextStep is NULL  AND RC.[Status]=''Approve'')  OR (fnReqCl.IdNextStep = 10021 AND RC.[Status]=''Approve'')) ';  
+ END  
+  
+ SET @sql = 'SELECT DISTINCT C.id,C.EdoNo  
+    , C.CiplNo  
+    , C.Category  
+    , C.ConsigneeName  
+    , C.ShippingMethod  
+    , CF.Forwader  
+    , C.CreateDate  
+    ,ISNULL((Select SUM(CI.GrossWeight) FROM dbo.CiplItem CI WHERE CI.idcipl = C.id),0) GrossWeight  
+    , RC.[Status]  
+    ,  CASE       
+     WHEN fnreq.NextStatusViewByUser =''Pickup Goods''  
+      THEN  
+        CASE WHEN   
+        (fnReqGr.Status=''DRAFT'') OR (fnReq.Status=''APPROVE'' AND (fnReqGr.Status is null OR fnReqGr.Status = ''Waiting Approval'') AND RC.Status =''APPROVE'')   
+        THEN ''Waiting for Pickup Goods''  
+       WHEN (fnReqGr.IdFlow = 14 AND (fnReqGr.Status =''Submit'' OR fnReqGr.Status =''APPROVE'' ) AND (fnReqCl.Status is Null OR (fnReqCl.Status=''Submit'' AND fnReqCl.IdStep != 10017)))  
+        THEN ''On process Pickup Goods''  
+       WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep not in (10022))  
+        THEN ''Preparing for export''  
+       WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep = 10022)  
+        THEN ''Finish''   
+       END     
+       WHEN fnReq.Status =''Reject''  
+       THEN ''Reject''  
+     WHEN fnReq.NextStatusViewByUser = ''Waiting for superior approval''  
+      THEN fnReq.NextStatusViewByUser +'' (''+ emp.Employee_Name +'')''  
+     WHEN fnReq.Status =''Reject''  
+     THEN ''Reject''  
+     ELSE fnReq.NextStatusViewByUser  
+      END AS [StatusViewByUser]  
+  FROM dbo.Cipl C    
+  INNER JOIN dbo.RequestCipl RC ON RC.IdCipl = C.id  
+  INNER JOIN dbo.CiplForwader CF ON CF.IdCipl = C.id  
+  INNER JOIN dbo.FlowStatus FS on FS.IdStep = RC.IdStep AND FS.[Status] = RC.Status  
+  INNER JOIN PartsInformationSystem.dbo.UserAccess PIS on PIS.UserID = c.CreateBy  
+  INNER JOIN dbo.[fn_get_cipl_request_list_all]() as fnReq on fnReq.Id = rc.Id   
+  --LEFT JOIN GoodsReceiveItem as GR on GR.IdCipl = C.id AND GR.isdelete = 0  
+  LEFT JOIN ShippingFleetRefrence as sfr on sfr.IdCipl = C.id  
+  LEFT JOIN CargoCipl as CC on CC.IdCipl = C.id AND CC.Isdelete = 0  
+  LEFT JOIN dbo.[fn_get_gr_request_list_all]() as fnReqGr on fnReqGr.IdGr = sfr.IdGr  
+  LEFT JOIN dbo.[fn_get_cl_request_list_all]() as fnReqCl on fnReqCl.IdCl = CC.IdCargo  
+  left join employee emp on emp.AD_User = fnReq.NextAssignTo  
+  WHERE 1=1 '+@WhereSql+'  
+  AND C.IsDelete = 0   
+  ORDER BY C.id DESC';  
+  print (@WhereSql);  
+  print (@sql);  
+ exec(@sql);   
+ END  
+END
+
+
+GO
+
+

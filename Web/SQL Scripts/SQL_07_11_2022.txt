@@ -1,0 +1,284 @@
+﻿CREATE TABLE [dbo].[BlAwb_History](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[IdBlAwb] [bigint] NOT NULL,
+	[IdCl] [bigint] NOT NULL,
+	[Number] [nvarchar](200) NOT NULL,
+	[MasterBlDate] [datetime] NULL,
+	[HouseBlNumber] [nvarchar](200) NULL,
+	[HouseBlDate] [datetime] NULL,
+	[Description] [nvarchar](max) NOT NULL,
+	[FileName] [nvarchar](200) NULL,
+	[Publisher] [nvarchar](50) NOT NULL,
+	[BlAwbDate] [smalldatetime] NULL,
+	[CreateDate] [smalldatetime] NOT NULL,
+	[CreateBy] [nvarchar](50) NOT NULL,
+	[IsDelete] [bit] NOT NULL,
+	[Status] [nvarchar](max) NULL,
+)
+
+go
+
+          
+create  PROCEDURE [dbo].[SP_Insert_BlAwbHistory]                  
+(                
+@Id BigInt = 0,          
+ @IdBlAwb NVARCHAR(100) = '',                  
+ @Number NVARCHAR(100) = '',                  
+ @MasterBlDate  NVARCHAR(max) ,                  
+ @HouseBlNumber NVARCHAR(200) = '',                  
+ @HouseBlDate  NVARCHAR(max),                  
+ @Description NVARCHAR(50) = '',                  
+ @FileName NVARCHAR(max) = '',                  
+ @Publisher NVARCHAR(50) = '',                  
+ @CreateBy NVARCHAR(50) = '',                            
+ @IsDelete BIT,                  
+ @IdCl NVARCHAR(100) = '',                  
+ @Status NVARCHAR(100) = ''                  
+)                  
+ AS                  
+BEGIN            
+--if @IdBlAwb = 0        
+--begin        
+ INSERT INTO [dbo].[BlAwb_History]                  
+           ([Number]                  
+     ,[MasterBlDate]                  
+     ,[HouseBlNumber]                  
+     ,[HouseBlDate]                  
+           ,[Description]                  
+     ,[FileName]                  
+     ,[Publisher]                  
+     ,[CreateBy]                             
+           ,[IsDelete]                  
+     ,[IdCl]          
+  ,[IdBlAwb]          
+  ,[Status]        
+           )                  
+     VALUES                  
+           (@Number                  
+     ,@MasterBlDate                  
+     ,@HouseBlNumber                  
+     ,@HouseBlDate                  
+           ,@Description                  
+     ,@FileName                  
+     ,@Publisher                  
+           ,@CreateBy                             
+           ,@IsDelete                  
+     ,@IdCl          
+  ,@IdBlAwb        
+  ,@Status)                  
+--end        
+--else         
+--begin        
+--set @Id = (select MAX( Id) from BlAwb_History where IdBlAwb = @IdBlAwb)        
+--If @Id Is Null And @Id <> '' And @Id = 0      
+--begin      
+--INSERT INTO [dbo].[BlAwb_History]                  
+--           ([Number]                  
+--     ,[MasterBlDate]                  
+--     ,[HouseBlNumber]                  
+--     ,[HouseBlDate]                  
+--           ,[Description]                  
+--     ,[FileName]                  
+--     ,[Publisher]                  
+--     ,[CreateBy]                             
+--           ,[IsDelete]                  
+--     ,[IdCl]          
+--  ,[IdBlAwb]          
+--  ,[Status]        
+--           )                  
+--     VALUES                  
+--           (@Number                  
+--     ,@MasterBlDate                  
+--     ,@HouseBlNumber                  
+--     ,@HouseBlDate                  
+--           ,@Description                  
+--     ,@FileName                  
+--     ,@Publisher                  
+--           ,@CreateBy                             
+--           ,@IsDelete                  
+--     ,@IdCl          
+--  ,@IdBlAwb        
+--  ,@Status)            
+--end      
+--else       
+--begin      
+--update BlAwb_History        
+--set Number          =@Number,        
+--     [MasterBlDate]   = @MasterBlDate       ,        
+--     [HouseBlNumber]  = @HouseBlNumber,                
+--     [HouseBlDate]    = @HouseBlDate,        
+--     [Description]    = @Description,              
+--     [FileName]          =@FileName,        
+--     [Publisher]          =@Publisher,        
+--     [CreateBy]                     =@CreateBy,        
+--     [IsDelete]          =@IsDelete,        
+--     [IdCl]  = @IdCl,        
+--  [IdBlAwb]  = @IdBlAwb,        
+--  [Status] = @Status        
+--  where Id = @Id and IdBlAwb = @IdBlAwb        
+--end        
+--end      
+      
+ SELECT @Id = CAST(SCOPE_IDENTITY() as bigint)                            
+END
+
+GO
+
+CREATE TABLE [dbo].[BlAwbDocumentHistory](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[IdBlAwb] [bigint] NOT NULL,
+	[FileName] [nvarchar](max) NOT NULL,
+	[CreateDate] [datetime] NOT NULL,
+)
+
+
+GO
+CREATE procedure SP_UpdateFileForHistoryBlAwb    
+(    
+@IdBlAwb bigint,    
+@FileName nvarchar(max) = ''    
+)    
+as    
+begin    
+declare @Id  bigint     
+insert  into [BlAwbDocumentHistory](IdBlAwb,FileName,CreateDate)    
+values (@IdBlAwb,@FileName,GETDATE())    
+set @Id = SCOPE_IDENTITY()    
+select @Id As Id    
+end
+
+GO
+
+
+          
+alter PROCEDURE [dbo].[SP_Insert_BlAwb]        
+(        
+ @Id BIGINT,        
+ @Number NVARCHAR(100),        
+ @MasterBlDate datetime,        
+ @HouseBlNumber NVARCHAR(200),        
+ @HouseBlDate datetime,        
+ @Description NVARCHAR(50),        
+ @FileName NVARCHAR(max),        
+ @Publisher NVARCHAR(50),        
+ @CreateBy NVARCHAR(50),        
+ @CreateDate datetime,        
+ @UpdateBy NVARCHAR(50),        
+ @UpdateDate datetime,        
+ @IsDelete BIT,        
+ @IdCl BIGINT,        
+ @Status NVARCHAR(50)        
+)        
+AS        
+BEGIN        
+ DECLARE @LASTID bigint        
+ IF @Id <= 0        
+ BEGIN        
+ INSERT INTO [dbo].[BlAwb]        
+           ([Number]        
+     ,[MasterBlDate]        
+     ,[HouseBlNumber]        
+     ,[HouseBlDate]        
+           ,[Description]        
+     ,[FileName]        
+     ,[Publisher]        
+     ,[CreateBy]        
+           ,[CreateDate]        
+           ,[UpdateBy]        
+           ,[UpdateDate]        
+           ,[IsDelete]        
+     ,[IdCl]        
+           )        
+     VALUES        
+           (@Number        
+     ,@MasterBlDate        
+     ,@HouseBlNumber        
+     ,@HouseBlDate        
+           ,@Description        
+     ,@FileName        
+     ,@Publisher        
+           ,@CreateBy        
+           ,@CreateDate        
+           ,@UpdateBy        
+           ,@UpdateDate        
+           ,@IsDelete        
+     ,@IdCl)        
+        
+ set @Id = SCOPE_IDENTITY()  
+ SELECT @Id AS Id
+  --SELECT C.Id as ID, CONVERT(nvarchar(5), C.IdCl) as [NO], C.CreateDate as CREATEDATE FROM BlAwb C WHERE C.id = @LASTID    
+ END        
+ ELSE         
+ BEGIN        
+ UPDATE [dbo].[BlAwb]        
+  SET [Number] = @Number         
+     ,[MasterBlDate] = @MasterBlDate        
+     ,[HouseBlNumber] = @HouseBlNumber        
+     ,[HouseBlDate] = @HouseBlDate        
+           ,[Description] = @Description        
+     ,[Publisher] = @Publisher        
+     ,[CreateBy] = @CreateBy        
+           ,[CreateDate] = @CreateDate        
+           ,[UpdateBy] = @UpdateBy        
+           ,[UpdateDate] = @UpdateDate        
+     WHERE Id = @Id       
+ SELECT  @Id  as Id
+     --SELECT C.Id as ID, CONVERT(nvarchar(5), C.IdCl) as [NO], C.CreateDate as CREATEDATE FROM BlAwb C WHERE C.id = @Id        
+ END        
+         
+ IF(@Status <> 'Draft')    
+ BEGIN    
+  SET @Status = 'Create BL AWB'  
+  EXEC [sp_update_request_cl] @IdCl, @CreateBy, @Status, ''    
+ END    
+END 
+
+GO
+      
+Create PROCEDURE [dbo].[sp_get_blawb_list_idcl_history]      -- exec [sp_get_blawb_list_idcl_history] 11374   
+(      
+ @IdCargo NVARCHAR(10),      
+ @IsTotal bit = 0,      
+ @sort nvarchar(100) = 'Id',      
+ @order nvarchar(100) = 'ASC',      
+ @offset nvarchar(100) = '0',      
+ @limit nvarchar(100) = '10'      
+)       
+AS      
+BEGIN      
+ DECLARE @sql nvarchar(max);        
+ SET @sql = 'SELECT ';      
+ SET @sort = 't0.'+@sort;      
+      
+ IF (@IsTotal <> 0)      
+ BEGIN      
+  SET @sql += 'count(*) total'      
+ END       
+ ELSE      
+ BEGIN      
+  SET @sql += ' t0.Id ,
+  t0.IdBlAwb      
+      ,t0.IdCl      
+      ,t0.Number      
+      ,t0.MasterBlDate      
+      ,t0.HouseBlNumber      
+      ,t0.HouseBlDate      
+      ,t0.Description      
+      ,t0.FileName      
+      ,t0.Publisher          
+      ,t0.CreateDate    
+   ,t0.CreateBy 
+   ,t0.Status
+   ,t0.IsDelete'            
+ END      
+ SET @sql +=' FROM BlAwb_History t0       
+  WHERE  t0.IsDelete = 0 AND t0.IdCl = '+@IdCargo;      
+IF @isTotal = 0 
+	BEGIN
+		SET @sql += ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY';
+	END 
+ --print(@sql)
+ EXECUTE(@sql); 
+ 
+ --select @sql;      
+END 

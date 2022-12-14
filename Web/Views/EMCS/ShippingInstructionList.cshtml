@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "Shipping Instruction List";
+}
+
+@using System.Web.Mvc
+<style type="text/css">
+    .form-horizontal .control-label {
+        text-align: left !important;
+    }
+</style>
+@{
+    if (ViewBag.AllowDelete)
+    {
+        <input type="hidden" name="AllowDelete" id="AllowDelete" class="form-control" value="True">
+    }
+
+    if (ViewBag.AllowUpdate)
+    {
+        <input type="hidden" name="AllowUpdate" id="AllowUpdate" class="form-control" value="True">
+    }
+
+
+}
+@*<button type="button" class="btn btn-info information" title="Info"><i class="fa fa-search"></i></button>*@
+<a data-modal="" href="/EMCS/ShippingInstructionView?cargoid=@ViewBag.Id" class="information" style="display:none;">
+    <i class="fa fa-edit"></i> ShippingInstructionView
+</a>
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-warning">
+            @*<div class="box-header"><h3 class="box-title">@ViewBag.Title</h3></div>*@
+            <form role="form">
+                <div class="box-body">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="toolbar">
+                                <a class="btn btn-success" href="/Download/DownloadUserGuide?menuname=Si"><i class="fa fa-download" aria-hidden="true"></i>  Download User Guide SI</a>
+                                <div class="fa-pull-left" id="mySearch" style="padding-right:2px">
+                                    <input name="searchText" class="form-control" type="text" placeholder="Search..." style="height: 32px;">
+                                </div>
+                            </div>
+                            <table class="table table-bordered" id="tableShippingInstruction"></table>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="@Url.Content("~/Scripts.app/EMCS/transaction/ShippingInstruction.cshtml.js")"></script>
+    <script src="@Url.Content("~/Scripts.app/EMCS/Custom.js")"></script>
+
+}

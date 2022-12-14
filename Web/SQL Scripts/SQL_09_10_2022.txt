@@ -1,0 +1,287 @@
+﻿ALTER FUNCTION [dbo].[fn_get_next_approval]  
+(    
+ -- Add the parameters for the function here    
+ @Type nvarchar(100),    
+ @LastUser nvarchar(100),    
+ @GroupID nvarchar(100),    
+ @Creator nvarchar(100),    
+ @IdRequest nvarchar(100) = '0'    
+)    
+RETURNS nvarchar(100)    
+AS    
+BEGIN    
+ -- Declare the return variable here    
+ DECLARE @Result nvarchar(100);    
+ DECLARE @BArea nvarchar(100);    
+ DECLARE @SuperiorUsername nvarchar(500);    
+ SELECT @BArea = Business_Area FROM employee WHERE AD_User = @LastUser;    
+    
+ -- Add the T-SQL statements to compute the return value here    
+ IF @Type = 'Superior'     
+ BEGIN    
+  SELECT @SuperiorUsername = SuperiorUsername FROM mastersuperior WHERE IsDeleted = 0 AND employeeUsername = @Creator;    
+  IF ISNULL(@SuperiorUsername, '') = ''    
+  BEGIN    
+   SELECT @Result = t1.AD_User from employee as t0    
+   inner join employee as t1 on t1.Employee_Id = t0.Superior_ID    
+   WHERE t0.AD_User = @Creator    
+  END    
+  ELSE    
+  BEGIN    
+   SET @Result = @SuperiorUsername;    
+  END    
+      
+ END     
+     
+ IF @Type = 'Group'     
+ BEGIN    
+	SELECT @SuperiorUsername = SuperiorUsername FROM mastersuperior WHERE IsDeleted = 0 AND employeeUsername = @Creator;    
+	IF ISNULL(@SuperiorUsername, '') = ''   
+	BEGIN
+		IF EXISTS	(SELECT	TOP	1 *
+					FROM	employee
+					WHERE	Organization_Name LIKE '%' + @GroupID +'%'
+							AND Employee_Name LIKE '%Asmat%')
+			BEGIN
+				SELECT	@Result = AD_User 
+				FROM	employee
+				WHERE	Organization_Name LIKE '%Import Export%'
+						AND Employee_Name LIKE '%Asmat%' 
+			END
+		ELSE
+			BEGIN
+			SET @Result = @GroupID 
+			END
+	END  
+ END    
+    
+ IF @Type = 'Requestor'     
+ BEGIN    
+  SET @Result = @Creator    
+ END    
+    
+ IF @Type IN ('Region Manager', 'Area Manager')    
+ BEGIN    
+  SET @Result = @BArea;    
+ END    
+    
+ IF @Type = 'PPJK'    
+ BEGIN    
+  DECLARE @UserName nvarchar(100);    
+  SELECT TOP 1 @UserName = Username FROM dbo.MasterAreaUserCKB where BAreaCode = @BArea AND IsActive = 1;    
+  SELECT @Result = @UserName FROM PartsInformationSystem.dbo.UserAccess where UserID =  @UserName;    
+ END     
+    
+ IF @Type = 'AreaCipl'    
+ BEGIN    
+  DECLARE @RequestorName nvarchar(50);    
+  DECLARE @DataId bigint;    
+  select @DataId = IdGr from dbo.RequestGr where Id = @IdRequest    
+  select @Result = PickupPic FROM dbo.GoodsReceive where Id = @DataId;    
+ END     
+    
+ RETURN @Result;    
+    
+END 
+
+
+
+CREATE FUNCTION [dbo].[fn_get_cl_request_list_all_report] ()      
+RETURNS TABLE       
+AS      
+RETURN       
+(      
+ -- Add the SELECT statement with parameter references here      
+ select * from (      
+   select t0.[Id]        
+   ,t0.IdCl       
+   ,t0.[IdFlow]       
+   ,t0.[IdStep]       
+   ,t0.[Status]       
+   ,t0.[Pic]        
+   ,t6.SlNo      
+   ,t0.[CreateBy]       
+   ,t0.[CreateDate]       
+   ,t0.[UpdateBy]        
+   ,t0.[UpdateDate]       
+   ,t0.[IsDelete]        
+   ,t3.Name FlowName      
+   ,t3.Type SubFlowType      
+   , [dbo].[fn_get_next_step_id](      
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id      
+     ) as IdNextStep       
+   , [dbo].[fn_get_step_name](      
+     [dbo].[fn_get_next_step_id](      
+      t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id      
+     )      
+     ) as NextStepName      
+   , [dbo].[fn_get_next_assignment_type](t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id) NextAssignType      
+   , CASE WHEN t0.IdStep= 30076 THEN 'Cancelled'    
+   WHEN t0.IdStep= 30075 THEN 'waiting for beacukai approval'    
+   WHEN t0.IdStep= 30074 THEN 'Request Cancel'   
+   WHEN t0.IdStep = 30071 Then 'Waiting approval NPE'  
+   WHEN t11.Step = 'System' THEN t8.ViewByUser ELSE t1.ViewByUser END as StatusViewByUser      
+   , t1.CurrentStep      
+   , t2.ClNo      
+   , t2.SailingSchedule ETD      
+   , t2.ArrivalDestination ETA      
+   , t2.BookingNumber      
+   , t2.BookingDate      
+   , t2.PortOfLoading      
+   , t2.PortOfDestination      
+   , t2.Liner      
+   , t2.SailingSchedule      
+   , t2.ArrivalDestination      
+   , t2.VesselFlight      
+   , t2.Consignee      
+   , t2.StuffingDateStarted      
+   , t2.StuffingDateFinished      
+   , CASE WHEN ISNULL(t5.AD_User, '') <> '' THEN t4.FullName ELSE CASE WHEN ISNULL(t5.Employee_Name, '') <> '' THEN t5.Employee_Name ELSE t4.FullName END END PreparedBy       
+   , t7.AssignType as AssignmentType      
+   , t7.AssignTo as AssignTo  
+   , [dbo].[fn_get_next_approval] (t7.AssignType, t0.Pic, t7.AssignTo, t0.CreateBy, t0.Id) as NextAssignTo      
+   , t6.SpecialInstruction      
+   , t6.Description      
+   , t6.DocumentRequired      
+  from dbo.RequestCl t0      
+  left join (      
+   select       
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,       
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,       
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,      
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName      
+   from dbo.FlowNext nx      
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus      
+   join dbo.FlowStep np on np.Id = ns.IdStep      
+   join dbo.Flow nf on nf.Id = np.IdFlow      
+   join dbo.FlowStep nt on nt.Id = nx.IdStep      
+  ) as t1 on 
+  t1.IdFlow = t0.IdFlow AND 
+  t1.IdCurrentStep = t0.IdStep 
+  AND t1.Status = t0.Status      
+  inner join dbo.Cargo t2 on t2.id = t0.IdCl       
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow      
+  left join PartsInformationSystem.dbo.UserAccess t4 on t4.UserID = t2.CreateBy      
+  left join employee t5 on t5.AD_User = t2.CreateBy      
+  left join dbo.ShippingInstruction t6 on t6.IdCL = t0.IdCl        
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](      
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id      
+     ) and t7.IdFlow = t1.IdFlow      
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](      
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id      
+     )      
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep      
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id      
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep     
+  RIGHT JOIN CargoCipl t12 ON t0.Id = t12.IdCargo
+  RIGHT JOIN RequestCipl t13 ON t12.IdCipl = t13.Id 
+  WHERE t2.CreateBy <> 'System' 
+		AND t0.CreateBy <> 'System' 
+ ) as tab0       
+ --WHERE (tab0.NextAssignTo = @Username OR tab0.NextAssignTo = @GroupId)      
+)  
+
+
+ALTER PROCEDURE [dbo].[SP_ActivityReport_TotalExport] --'2022'  
+    @year INT  
+AS  
+BEGIN  
+    DECLARE @invoice TABLE (Month INT, COUNT INT, peb INT)  
+    INSERT INTO @invoice  
+    SELECT   
+		Month(CreatedDate),   
+        COUNT(DISTINCT IdCipl),   
+        COUNT(DISTINCT AjuNumber)   
+        FROM	(SELECT   
+						ci.IdCargo,   
+						ci.Id AS IdCargoItem,   
+						cpi.Id AS IdCiplItem,   
+						cp.id AS IdCipl,   
+						peb.AjuNumber,   
+						CONVERT(VARCHAR(10), rc.CreateDate, 120) AS CreatedDate
+				FROM	fn_get_cl_request_list_all_report() rc  
+						LEFT JOIN NpePeb peb ON rc.IdCl = peb.IdCl  
+						LEFT JOIN CargoItem ci ON rc.IdCl = ci.IdCargo  
+						LEFT JOIN CiplItem cpi ON ci.IdCiplItem = cpi.Id  
+						LEFT JOIN Cipl cp ON cpi.IdCipl = cp.id  
+						LEFT JOIN MasterParameter p ON cp.ExportType = p.Name  
+				WHERE	(YEAR(rc.CreateDate) = @year) 
+						AND ((rc.IdStep = 10020 AND rc.Status = 'Approve')
+						OR rc.IdStep = 10021 
+						OR (rc.IdStep = 10022 AND (rc.Status = 'Submit' OR rc.Status = 'Approve')))
+						AND peb.NpeNumber IS NOT NULL
+						AND cp.IsDelete = 0)
+		DATA GROUP BY Month(CreatedDate)  
+  
+    DECLARE @outstanding TABLE (month int, count int)  
+    INSERT INTO @outstanding  
+    SELECT 
+		Month(CreatedDate), 
+		COUNT(DISTINCT IdCipl) 
+		FROM	(SELECT   
+						ci.IdCargo,   
+						ci.Id AS IdCargoItem,   
+						cpi.Id AS IdCiplItem,   
+						cp.id AS IdCipl,
+						rc.IdCl, 
+						rc.Status,
+						CONVERT(VARCHAR(10), rc.CreateDate, 120) AS CreatedDate,
+						CONVERT(VARCHAR(10), rc.UpdateDate, 120) AS UpdateDate  
+						, fs.Step
+						, fs.Id  
+				FROM	fn_get_cl_request_list_all_report() rc  
+						--RequestCl rc   
+						LEFT JOIN NpePeb peb ON rc.IdCl = peb.IdCl  
+						INNER JOIN FlowStep fs ON rc.IdStep = fs.Id  
+						LEFT JOIN CargoItem ci ON rc.IdCl = ci.IdCargo  
+						LEFT JOIN CiplItem cpi ON ci.IdCiplItem = cpi.Id  
+						LEFT JOIN Cipl cp ON cpi.IdCipl = cp.id  
+						LEFT JOIN CiplHistory chis ON chis.IdCipl = cp.id 
+				WHERE	(YEAR(rc.CreateDate) = @year OR @year = 0)
+						AND ((rc.IdStep = 10020 AND (rc.Status NOT IN ('Approve', 'Reject'))) 
+						OR (rc.IdStep NOT IN (10020, 10021, 10022) AND rc.Status <> 'Reject'))
+						AND ((peb.NpeNumber IS NULL OR peb.NpeNumber = '') OR (peb.NpeNumber IS NOT NULL OR peb.NpeNumber <> '' AND MONTH(rc.CreateDate) <= MONTH(GETDATE())))
+						AND chis.Step = 'Approval By Superior'
+						AND cp.IsDelete = 0
+						AND rc.IdCl NOT IN (SELECT	npe.IdCl
+							FROM	CargoCipl cc
+									INNER JOIN NpePeb npe ON npe.IdCl = cc.Id
+							WHERE	YEAR(npe.CreateDate) = @year)
+		)DATA GROUP BY Month(CreatedDate)  
+  
+    DECLARE @monthly_tbl table(MonthNumber int, MonthName nvarchar(10))  
+    DECLARE @month int = 1  
+    WHILE @month <= 12  
+    BEGIN  
+        INSERT INTO @monthly_tbl   
+        SELECT @month, LEFT(DATENAME(MONTH , DATEADD(MONTH, @month , -1)), 3)  
+        SET @month = @month + 1;
+    END;
+  
+    SELECT  m.MonthName AS Month,   
+            ISNULL(i.count, 0) AS Invoice,   
+            ISNULL(i.peb, 0) AS PEB,   
+            ISNULL(o.count, 0) AS Outstanding   
+    FROM	@monthly_tbl m  
+			LEFT JOIN @invoice i ON m.MonthNumber = i.month  
+			LEFT JOIN @outstanding o ON m.MonthNumber = o.month  
+  
+END
+
+UPDATE	NotifikasiEmail
+SET		Template = '<body style="font-family:verdana,helvetica,sans-serif;font-size:10pt"><span>Dear @RequestorName,</span><br><br><span>We have submitted Shipping Instruction to you with detail:</span><br><br><table border="0" style="font-family:verdana,helvetica,sans-serif;font-size:10pt"><tr><td>CIPL Number&nbsp;&nbsp;</td><td>: @CiplNo</td></tr><tr><td>Cargo List Number</td><td>: @RequestNo</td></tr><tr><td>SI Number</td><td>: @si_number</td></tr><tr><td>SI Date</td><td>: @CreatedDate</td></tr></table><br><p>Please input the AWB by details.</p><br><span>To view the detail, please Log to:</span><br><br><ol type="a"><li>By mobile/Smart phone (Internet connection) click<a href="@MobileLink">here</a>for further action<li>By desktop click<a href="@DesktopLink">here</a>for further action</ol><br><span>Best regards,</span><br><span>EMCS Application</span><br><br><span style="font-size:9pt"><i>Do not reply this email, this email is automatically generated by system</i></span></body>'
+WHERE	ID = 211
+
+UPDATE	NotifikasiEmail
+SET		Template = '<body style="font-family:verdana,helvetica,sans-serif;font-size:10pt"><span>Dear @RequestorName,</span><br><br><span>We have approve your PEB & NPE with detail:</span><br><br><table border="0" style="font-family:verdana,helvetica,sans-serif;font-size:10pt"><tr><td>AJU Number&nbsp;&nbsp;</td><td>: @AJU_Number</td></tr><tr><td>Reg Number</td><td>: @RequestNo</td></tr><tr><td>NPE Number</td><td>: @npe_number</td></tr><tr><td>NPE Date</td><td>: @npe_date</td></tr></table><br><p>Please to create detail BL/AWB.</p><br><span>To view the detail, please Log to:</span><br><br><ol type="a"><li>By mobile/Smart phone (Internet connection) click<a href="@MobileLink">here</a>for further action<li>By desktop click<a href="@DesktopLink">here</a>for further action</ol><br><span>Best regards,</span><br><span>EMCS Application</span><br><br><span style="font-size:9pt"><i>Do not reply this email, this email is automatically generated by system</i></span></body>'
+WHERE	ID = 210
+
+UPDATE	FlowStep
+SET		AssignTo = 'Import Export'
+WHERE	Id = 30071
+
+INSERT INTO FlowNext (Id, IdStatus, IdStep, CreateDate, CreateBy, UpdateDate, UpdateBy, IsDelete)
+VALUES		(40125, 40151, 30074, GETDATE(), 'System', GETDATE(), 'System', 0),
+			(40126, 40152, 30075, GETDATE(), 'System', GETDATE(), 'System', 0),
+			(40127, 40153, 30076, GETDATE(), 'System', GETDATE(), 'System', 0),
+			(40129, 40146, 30072, GETDATE(), 'System', GETDATE(), 'System', 0)

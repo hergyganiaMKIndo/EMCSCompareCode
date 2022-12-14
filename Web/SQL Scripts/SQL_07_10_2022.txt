@@ -1,0 +1,235 @@
+﻿create proc sp_update_RFCSI  -- sp_update_RFCSI '977','','',''  
+(    
+@IdCl nvarchar(100),    
+@SpecialInstruction nvarchar(100) = null,    
+@DocumentRequired   nvarchar(100) = null,    
+@PicBlAwb      nvarchar(100) = null    
+)    
+as    
+begin    
+if  @SpecialInstruction <> ''  
+begin  
+update ShippingInstruction    
+set SpecialInstruction = @SpecialInstruction  
+where IdCL = @IdCl    
+end  
+if  @DocumentRequired <> ''  	
+begin  
+update ShippingInstruction    
+set DocumentRequired = @DocumentRequired   
+where IdCL = @IdCl    
+end  
+if  @PicBlAwb <> ''  
+begin  
+update ShippingInstruction    
+set PicBlAwb = @PicBlAwb    
+where IdCL = @IdCl    
+end  
+end
+
+Go
+
+
+CREATE PROCEDURE [dbo].[sp_AddArmadaForRFC]                    
+(                    
+@Id nvarchar(100),              
+ @IdShippingFleet  nvarchar(100),                    
+ @IdCipl    nvarchar(100),                    
+ @IdGr     nvarchar(100),                    
+ @DoNo     nvarchar(100),                    
+ @DaNo     nvarchar(100),                    
+ @PicName    nvarchar(100),                    
+ @PhoneNumber    nvarchar(100),                    
+ @KtpNumber    nvarchar(100),                    
+ @SimNumber    nvarchar(100),                    
+ @SimExpiryDate     nvarchar(100),                    
+ @KirNumber    nvarchar(100),                     
+ @KirExpire    nvarchar(100),                    
+ @NopolNumber   nvarchar(100),                     
+ @StnkNumber     nvarchar(100),                    
+ @EstimationTimePickup  nvarchar(100),                    
+ @Apar     nvarchar(100),                    
+ @Apd      nvarchar(100) ,         
+ @Bast     nvarchar(100)   ,          
+ @Status    nvarchar(100)   ,      
+ @FileName     nvarchar(max)       
+                    
+)                    
+AS                    
+BEGIN                    
+ SET NOCOUNT ON   
+ --  if(@IdShippingFleet <> 0)      
+ --begin
+ if( @FileName  IS NULL or @FileName = '')      
+ begin      
+ set @FileName = (select [FileName] From ShippingFleet where Id = @IdShippingFleet)      
+ end
+
+ --SELECT @FileName
+
+ --end      
+  if(@IdShippingFleet <> 0)      
+ begin     
+ set @Id = (select Id from ShippingFleet_Change where IdShippingFleet= @IdShippingFleet)      
+ set @Id = (select IIF(@Id IS NULL, -1, @Id) As Id)      
+ end    
+ IF @Id <= 0       
+   begin      
+  INSERT INTO [dbo].[ShippingFleet_Change]                    
+           ([IdShippingFleet],[IdGr],[IdCipl],[DoNo],[DaNo],[PicName],PhoneNumber,KtpNumber,SimNumber,SimExpiryDate,KirNumber,KirExpire,NopolNumber,StnkNumber,EstimationTimePickup              
+     ,Apar,Apd,Bast,[Status],[FileName])                    
+  VALUES                    
+           (@IdShippingFleet,@IdGr, @IdCipl, @DoNo, @DaNo, @PicName, @PhoneNumber, @KtpNumber, @SimNumber, @SimExpiryDate, @KirNumber,@KirExpire,@NopolNumber,@StnkNumber,        
+     @EstimationTimePickup,@Apar,@Apd,@Bast,@Status,@FileName)                    
+     SET @Id = SCOPE_IDENTITY()                         
+  end      
+  else      
+  begin      
+  update ShippingFleet_Change      
+  set  IdShippingFleet  = @IdShippingFleet ,      
+  IdCipl    = @IdCipl     ,      
+  IdGr     = @IdGr     ,      
+  DoNo     = @DoNo     ,      
+  DaNo     = @DaNo     ,      
+  PicName    = @PicName    ,      
+  PhoneNumber   = @PhoneNumber   ,      
+  KtpNumber    = @KtpNumber   ,       
+  SimNumber    = @SimNumber   ,       
+  SimExpiryDate   = @SimExpiryDate  ,       
+  KirNumber    = @KirNumber   ,       
+  KirExpire    = @KirExpire   ,       
+  NopolNumber   = @NopolNumber   ,      
+  StnkNumber   = @StnkNumber    ,      
+  EstimationTimePickup = @EstimationTimePickup ,      
+  Apar     = @Apar     ,      
+  Apd     = @Apd     ,      
+  Bast     = @Bast     ,      
+  [FileName]    = @FileName    ,      
+  [Status]    = @Status          
+  where Id = @Id      
+  end      
+ SELECT CAST(@Id as bigint) as Id                    
+END 
+
+GO
+
+
+
+CREATE  PROCEDURE [dbo].[SP_ArmadaDocumentUpdateFileForRFC]      
+(      
+ @Id BIGINT,      
+ @Filename NVARCHAR(MAX) = '' ,  
+ @buttonRFC bit  
+)      
+AS      
+BEGIN      
+    if @buttonRFC = 0  
+    begin  
+    UPDATE dbo.ShippingFleet_Change      
+    SET [FileName] = @Filename       
+    WHERE IdShippingFleet = @Id;      
+    end  
+ else  
+ begin  
+ update ShippingFleet_Change  
+ set FileName = @Filename  
+ where Id = @Id  
+ end  
+END 
+
+GO
+
+
+CREATE procedure SP_deleteArmadaChange(    
+  @id nvarchar(100))          
+  as          
+  begin          
+  delete From ShippingFleet_Change          
+  where Id = @id             
+  end 
+
+
+  Go
+
+
+CREATE proc sp_update_RFCGR  --sp_update_RFCGR '','','',''      
+(        
+@Id nvarchar(100),        
+@Vendor nvarchar(100) = null,         
+@VehicleType nvarchar(100) = null,     
+@VehicleMerk nvarchar(100) = null,      
+@PickupPoint nvarchar(100) = null,    
+@PickupPic nvarchar(100) = null,    
+@Notes nvarchar(100) = null        
+)        
+as        
+begin        
+if  @Vendor <> ''    
+begin      
+update GoodsReceive        
+set Vendor = @Vendor      
+where Id = @Id        
+end      
+if  @VehicleType <> ''    
+begin      
+update GoodsReceive        
+set VehicleType = @VehicleType      
+where Id = @Id        
+end    
+if  @VehicleMerk <> ''      
+begin      
+update GoodsReceive        
+set VehicleMerk = @VehicleMerk      
+where Id = @Id        
+end    
+if  @PickupPoint <> ''      
+begin      
+update GoodsReceive        
+set PickupPoint = @PickupPoint      
+where Id = @Id        
+end    
+if  @PickupPic <> ''    
+begin      
+update GoodsReceive        
+set PickupPic = @PickupPic      
+where Id = @Id        
+end    
+if  @Notes <> ''    
+begin      
+update GoodsReceive        
+set Notes = @Notes      
+where Id = @Id        
+end    
+end
+
+
+Go
+
+
+CREATE TABLE [dbo].[ShippingFleet_Change](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[IdShippingFleet] [bigint] NOT NULL,
+	[IdGr] [bigint] NOT NULL,
+	[IdCipl] [nvarchar](max) NULL,
+	[DoNo] [nvarchar](max) NULL,
+	[DaNo] [nvarchar](50) NOT NULL,
+	[PicName] [nvarchar](100) NOT NULL,
+	[PhoneNumber] [nvarchar](100) NULL,
+	[KtpNumber] [nvarchar](100) NULL,
+	[SimNumber] [nvarchar](100) NULL,
+	[SimExpiryDate] [datetime] NULL,
+	[StnkNumber] [nvarchar](100) NULL,
+	[KirNumber] [nvarchar](50) NULL,
+	[KirExpire] [datetime] NULL,
+	[NopolNumber] [nvarchar](100) NULL,
+	[EstimationTimePickup] [datetime] NULL,
+	[Apar] [bit] NULL,
+	[Apd] [bit] NULL,
+	[FileName] [nvarchar](max) NULL,
+	[Bast] [nvarchar](max) NULL,
+	[Status] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]

@@ -1,0 +1,241 @@
+﻿--DROP PROCEDURE [dbo].[sp_CargoInsert]  
+alter PROCEDURE [dbo].[sp_insert_update_cargo]  
+(  
+ @CargoID BIGINT,  
+ @Consignee NVARCHAR(200),  
+ @NotifyParty NVARCHAR(200),  
+ @ExportType NVARCHAR(200),  
+ @Category NVARCHAR(200),  
+ @Incoterms NVARCHAR(200),  
+ @StuffingDateStarted datetime = NULL,--='02-02-2019',  
+ @StuffingDateFinished datetime = NULL,--='12-12-2019',  
+ @ETA datetime = NULL,--='02-02-2019',  
+ @ETD datetime = NULL,--='12-12-2019',  
+ @VesselFlight NVARCHAR(30),--='vessel',  
+ @ConnectingVesselFlight NVARCHAR(30),--='con vessel',  
+ @VoyageVesselFlight NVARCHAR(30),--='voy vessel',  
+ @VoyageConnectingVessel NVARCHAR(30),--='voy con',  
+ @PortOfLoading NVARCHAR(30),--='start',  
+ @PortOfDestination NVARCHAR(30),--='end',  
+ @SailingSchedule datetime = NULL,--='09-09-2019',  
+ @ArrivalDestination datetime = NULL,--='10-10-2019',  
+ @BookingNumber NVARCHAR(20) = '',--='1122',  
+ @BookingDate datetime = NULL,--='11-11-2019',  
+ @Liner NVARCHAR(20) = '',--='linear'  
+ @Status NVARCHAR(20) = '',  
+ @ActionBy NVARCHAR(20) = '',  
+ @Referrence NVARCHAR(MAX) = '',  
+ @CargoType NVARCHAR(50) = '',  
+ @ShippingMethod NVARCHAR(50) = ''  
+)  
+AS  
+BEGIN  
+   
+ declare @ID BIGINT;  
+   
+ IF @CargoID <= 0  
+ BEGIN     
+  INSERT INTO [dbo].[Cargo]  
+           ([Consignee],  
+      [NotifyParty],  
+   [ExportType],  
+   [Category],  
+   [Incoterms],  
+   [StuffingDateStarted],  
+   [StuffingDateFinished],  
+   [ETA],  
+   [ETD],  
+   [VesselFlight],  
+   [ConnectingVesselFlight],  
+   [VoyageVesselFlight],  
+   [VoyageConnectingVessel],  
+   [PortOfLoading],  
+   [PortOfDestination],  
+   [SailingSchedule],  
+   [ArrivalDestination],  
+   [BookingNumber],  
+   [BookingDate],  
+   [Liner],  
+   [Status],  
+   [CreateBy]  
+           ,[CreateDate]  
+           ,[UpdateBy]  
+           ,[UpdateDate]  
+           ,[IsDelete]  
+     ,[Referrence]  
+     ,[ShippingMethod]  
+     ,[CargoType]  
+           )  
+     VALUES  
+           (@Consignee,  
+      @NotifyParty,  
+   @ExportType,  
+   @Category,  
+   @Incoterms,  
+   @StuffingDateStarted,  
+   @StuffingDateFinished,  
+   @ETA,  
+   @ETD,  
+   @VesselFlight,  
+   @ConnectingVesselFlight,  
+   @VoyageVesselFlight,  
+   @VoyageConnectingVessel,  
+   @PortOfLoading,  
+   @PortOfDestination,  
+   @SailingSchedule,  
+   @ArrivalDestination,  
+   @BookingNumber,  
+   @BookingDate,  
+   @Liner,  
+   0  
+           ,@ActionBy  
+           ,GETDATE()  
+           ,@ActionBy  
+           ,GETDATE()  
+           ,0  
+     ,@Referrence  
+     ,@ShippingMethod  
+     ,@CargoType)  
+  
+  SET @ID = CAST(SCOPE_IDENTITY() as bigint);  
+  
+  IF (ISNULL(@Referrence, '') <> '')  
+  BEGIN  
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)  
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete    
+   from fnSplitString(@Referrence, ',') t0  
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;  
+  END  
+  
+  EXEC [dbo].[GenerateCargoNumber] @ID;  
+  EXEC sp_insert_request_data @ID, 'CL', '', @Status, 'Create';  
+  EXEC [sp_update_request_cl] @ID , @ActionBy, @Status
+  
+ END  
+ ELSE  
+ BEGIN  
+  UPDATE [dbo].[Cargo]  
+  SET [Consignee] = @Consignee  
+   ,[NotifyParty] = @NotifyParty  
+   ,[ExportType] = @ExportType  
+   ,[Category] = @Category  
+   ,[Incoterms] = @Incoterms  
+   ,[StuffingDateStarted] = @StuffingDateStarted  
+   ,[StuffingDateFinished] = @StuffingDateFinished  
+   ,[ETA] = @ETA  
+   ,[ETD] = @ETD  
+   ,[VesselFlight] = @VesselFlight  
+   ,[ConnectingVesselFlight] = @ConnectingVesselFlight  
+   ,[VoyageVesselFlight] = @VoyageVesselFlight  
+   ,[VoyageConnectingVessel] = @VoyageConnectingVessel  
+   ,[PortOfLoading] = @PortOfLoading  
+   ,[PortOfDestination] = @PortOfDestination  
+   ,[SailingSchedule] = @SailingSchedule  
+   ,[ArrivalDestination] = @ArrivalDestination  
+   ,[BookingNumber] = @BookingNumber  
+   ,[BookingDate] = @BookingDate  
+   ,[Liner] = @Liner  
+   ,[UpdateDate] = GETDATE()  
+   ,[UpdateBy] = @ActionBy  
+   ,[Referrence] = @Referrence  
+   ,[ShippingMethod] = @ShippingMethod  
+   ,[CargoType] = @CargoType  
+  WHERE Id = @CargoID  
+  
+  SET @ID = @CargoID  
+  
+  IF (ISNULL(@Referrence, '') <> '')  
+  BEGIN  
+   DELETE FROM dbo.CargoCipl WHERE IdCargo = @ID;  
+  
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)  
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete    
+   from fnSplitString(@Referrence, ',') t0  
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;  
+  END  
+  
+  EXEC [sp_update_request_cl] @ID, @ActionBy, @Status  
+ END  
+  
+ SELECT CAST(@ID as BIGINT) as ID  
+  
+END  
+  
+
+Go
+
+
+update NotifikasiEmail
+set IdStep = 12
+where ID in	(171,172)
+
+Go
+
+CREATE TABLE [dbo].[ShippingFleet_History](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[IdShippingFleet] [bigint] NOT NULL,
+	[IdGr] [bigint] NOT NULL,
+	[IdCipl] [nvarchar](max) NULL,
+	[DoNo] [nvarchar](max) NULL,
+	[DaNo] [nvarchar](50) NOT NULL,
+	[PicName] [nvarchar](100) NOT NULL,
+	[PhoneNumber] [nvarchar](100) NULL,
+	[KtpNumber] [nvarchar](100) NULL,
+	[SimNumber] [nvarchar](100) NULL,
+	[SimExpiryDate] [datetime] NULL,
+	[StnkNumber] [nvarchar](100) NULL,
+	[KirNumber] [nvarchar](50) NULL,
+	[KirExpire] [datetime] NULL,
+	[NopolNumber] [nvarchar](100) NULL,
+	[EstimationTimePickup] [datetime] NULL,
+	[Apar] [bit] NULL,
+	[Apd] [bit] NULL,
+	[FileName] [nvarchar](max) NULL,
+	[Bast] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+
+CREATE PROCEDURE [dbo].[sp_AddArmadaHistory]        
+(        
+@Id nvarchar(100),  
+ @IdShippingFleet nvarchar(100),        
+ @IdCipl nvarchar(100),        
+ @IdGr nvarchar(100),        
+ @DoNo nvarchar(100),        
+ @DaNo nvarchar(100),        
+ @PicName  nvarchar(100),        
+    @PhoneNumber nvarchar(100),        
+    @KtpNumber  nvarchar(100),        
+ @SimNumber  nvarchar(100),        
+    @SimExpiryDate  nvarchar(100),        
+    @KirNumber   nvarchar(100),         
+    @KirExpire   nvarchar(100),        
+    @NopolNumber nvarchar(100),         
+    @StnkNumber   nvarchar(100),        
+    @EstimationTimePickup nvarchar(100),        
+    @Apar   nvarchar(100),        
+    @Apd   nvarchar(100) ,      
+ @Bast nvarchar(100)      
+        
+)        
+AS        
+BEGIN        
+ SET NOCOUNT ON;           
+          
+  INSERT INTO [dbo].[ShippingFleet_History]        
+           ([IdShippingFleet],[IdGr],[IdCipl],[DoNo],[DaNo],[PicName],PhoneNumber,KtpNumber,SimNumber,SimExpiryDate,KirNumber,KirExpire,NopolNumber,StnkNumber,EstimationTimePickup  
+     ,Apar,Apd,Bast)        
+  VALUES        
+           (@IdShippingFleet,@IdGr, @IdCipl, @DoNo, @DaNo, @PicName, @PhoneNumber, @KtpNumber, @SimNumber, @SimExpiryDate, @KirNumber,@KirExpire,@NopolNumber,@StnkNumber,@EstimationTimePickup,@Apar,@Apd,@Bast)        
+     SET @Id = SCOPE_IDENTITY()             
+ SELECT CAST(@Id as bigint) as Id        
+END 
+
+GO
+

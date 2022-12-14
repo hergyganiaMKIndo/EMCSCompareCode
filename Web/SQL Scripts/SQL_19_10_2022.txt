@@ -1,0 +1,247 @@
+﻿alter PROCEDURE [dbo].[SP_CiplGetById]  
+(  
+  @id BIGINT  
+)  
+AS  
+BEGIN  
+  SELECT distinct C.id  
+        , C.CiplNo  
+        , C.ClNo  
+        , C.EdoNo  
+        , C.Category  
+        , C.CategoriItem  
+        , C.ExportType  
+        , C.ExportTypeItem  
+  --, (SELECT C.CategoryReference+'-'+MP.Name FROM MasterParameter MP inner join Cipl C ON C.CategoryReference = MP.Value WHERE C.id=@id) AS CategoryReference  
+        , C.CategoryReference  
+  , C.SoldConsignee  
+        , C.SoldToName  
+        , C.SoldToAddress  
+        , C.SoldToCountry  
+        , C.SoldToTelephone  
+        , C.SoldToFax  
+        , C.SoldToPic  
+        , C.SoldToEmail  
+        , C.ShipDelivery  
+        , C.ConsigneeName  
+        , C.ConsigneeAddress  
+        , C.ConsigneeCountry  
+        , C.ConsigneeTelephone  
+        , C.ConsigneeFax  
+        , C.ConsigneePic  
+        , C.ConsigneeEmail  
+        , C.NotifyName  
+        , C.NotifyAddress  
+        , C.NotifyCountry  
+        , C.NotifyTelephone  
+        , C.NotifyFax  
+        , C.NotifyPic  
+        , C.NotifyEmail  
+        , C.ConsigneeSameSoldTo  
+        , C.NotifyPartySameConsignee  
+        , (SELECT C.Area+' - '+MP.PlantName FROM MasterPlant MP inner join Cipl C ON left(C.Area,4) = left(MP.PlantCode,4) WHERE C.id=@id) AS Area  
+        , (SELECT C.Branch+' - '+MA.BAreaName FROM MasterArea MA inner join Cipl C ON left(C.Branch,4) = left(MA.BAreaCode,4) WHERE C.id=@id) AS Branch  
+  , C.Currency  
+  , C.Rate  
+        , C.PaymentTerms  
+        , C.ShippingMethod  
+        , C.CountryOfOrigin  
+        , C.Da  
+        , C.LcNoDate  
+        , C.IncoTerm  
+        , C.FreightPayment  
+        , C.ShippingMarks  
+        , C.Remarks  
+        , C.SpecialInstruction  
+        , C.LoadingPort  
+        , C.DestinationPort  
+  , (SELECT DISTINCT Fn.BAreaCode+' - '+Fn.BAreaName FROM [dbo].fn_get_cipl_businessarea_list('') Fn  
+ INNER JOIN Cipl C ON IIF(C.PickUpArea = '', NULL, left(C.PickUpArea,4)) = left(Fn.BAreaCode ,4) WHERE C.id=@id) AS PickUpArea  
+  --, (SELECT DISTINCT Fn.Business_Area+' - '+Fn.BAreaName FROM [dbo].[fn_get_employee_internal_ckb]() Fn INNER JOIN Cipl C ON IIF(C.PickUpArea = '', NULL, C.PickUpArea) = Fn.Business_Area WHERE C.id=@id) AS PickUpArea  
+  --, (SELECT Fn.BAreaCode+' - '+Fn.BAreaName FROM [dbo].[fn_get_plant_barea_user]() Fn INNER JOIN Cipl C ON RIGHT(C.PickUpPic,3) = RIGHT(Fn.UserID, 3) WHERE C.id=@id) AS PickUpArea  
+  , (SELECT Fn.AD_User+'-'+Fn.Employee_Name+ '-'+Fn.BAreaName FROM [dbo].[fn_get_employee_internal_ckb]() Fn INNER JOIN Cipl C ON C.PickUpPic = Fn.AD_User WHERE C.id=@id) AS PickUpPic  
+  , C.ETD  
+        , C.ETA  
+        , C.CreateBy  
+        , C.CreateDate  
+        , C.UpdateBy  
+        , C.UpdateDate  
+        , C.IsDelete  
+  , C.ReferenceNo  
+  , ISNULL(C.Consolidate, 0) Consolidate  
+  FROM dbo.Cipl C  
+  WHERE C.id = @id  
+END  
+
+Go
+
+alter ProCEDURE [dbo].[sp_insert_update_cargo_item_Change]         
+(        
+@Id nvarchar(100) ,  
+ @IdCargoItem nvarchar(100),        
+ @ItemId nvarchar(100),        
+ @IdCargo nvarchar(100),        
+ @ContainerNumber nvarchar(100),        
+ @ContainerType nvarchar(100),        
+ @ContainerSealNumber nvarchar(100),        
+ @ActionBy nvarchar(100),        
+ @Length nvarchar(100) = '0',        
+ @Width nvarchar(100) = '0',        
+ @Height nvarchar(100) = '0',        
+ @GrossWeight nvarchar(100) = '0',        
+ @NetWeight nvarchar(100) = '0',        
+ @isDelete bit = 0,  
+ @Status nvarchar(100)  
+)        
+AS        
+BEGIN        
+ SET NOCOUNT ON;        
+        
+ IF @IdCargoItem <> 0         
+ BEGIN       
+ set @Id = (select Id from [CargoItem_Change] where IdCargoItem= @IdCargoItem)  
+ set @Id = (select IIF(@Id IS NULL, -1, @Id) As Id)  
+  end
+ IF @Id <= 0   
+
+ BEGIN       
+ INSERT INTO [dbo].[CargoItem_Change]        
+         ([IdCargoItem]  
+   ,[ContainerNumber]        
+         ,[ContainerType]        
+         ,[ContainerSealNumber]        
+         ,[IdCipl]        
+         ,[IdCargo]        
+      ,[IdCiplItem]        
+         ,[InBoundDa]        
+         ,[Length]        
+         ,[Width]        
+         ,[Height]        
+         ,[Net]        
+         ,[Gross]        
+         ,[CreateBy]        
+         ,[CreateDate]        
+         ,[UpdateBy]        
+         ,[UpdateDate]        
+         ,[isDelete],  
+   [Status])        
+   select  top 1    
+   @IdCargoItem  
+   ,@ContainerNumber        
+   , @ContainerType        
+   , @ContainerSealNumber        
+   , t0.IdCipl        
+   , @IdCargo        
+   , t0.Id        
+   , null as DaNo        
+   , t0.[Length]        
+   , t0.Width        
+   , t0.Height        
+   , t0.NetWeight        
+   , t0.GrossWeight        
+   , @ActionBy CreateBy        
+   , GETDATE()        
+   , @ActionBy UpdateBy        
+   , GETDATE(), @isDelete ,  
+   @Status  
+   from dbo.ciplItem t0         
+   join dbo.Cipl t1 on t1.id = t0.IdCipl         
+   --join dbo.GoodsReceiveItem t2 on t2.DoNo = t1.EdoNo AND t2.IsDelete = 0        
+   join dbo.ShippingFleetRefrence t2 on  t2.DoNo = t1.EdoNo      
+   where t0.id = @ItemId;        
+ set   @Id = SCOPE_IDENTITY();   
+  SELECT CAST(@Id as bigint) as Id   
+ END         
+ ELSE         
+ BEGIN        
+          
+  DECLARE @OldLength decimal(20, 2);        
+  DECLARE @OldWidth decimal(20, 2);        
+  DECLARE @OldHeight decimal(20, 2);        
+  DECLARE @OldGrossWeight decimal(20, 2);        
+  DECLARE @OldNetWeight decimal(20, 2);        
+  DECLARE @NewLength decimal(20, 2);        
+  DECLARE @NewWidth decimal(20, 2);        
+  DECLARE @NewHeight decimal(20, 2);        
+  DECLARE @NewGrossWeight decimal(20, 2);        
+  DECLARE @NewNetWeight decimal(20, 2);        
+          
+  SELECT         
+  @OldLength = [Length],         
+  @OldWidth = Width,         
+  @OldHeight = Height,         
+  @OldGrossWeight = Gross,         
+  @OldNetWeight = Net,        
+  @NewLength = ISNULL([NewLength], 0.00),        
+  @NewWidth = ISNULL([NewWidth], 0.00),        
+  @NewHeight = ISNULL([NewHeight], 0.00),        
+  @NewGrossWeight = ISNULL([NewGross], 0.00),        
+  @NewNetWeight = ISNULL([NewNet], 0.00)        
+  FROM [dbo].[CargoItem_Change] WHERE Id = @Id        
+          
+  IF @NewLength = 0.00        
+  BEGIN        
+   IF @OldLength = @Length         
+   BEGIN        
+    SET @Length = null        
+   END        
+  END        
+        
+  IF @NewWidth = 0.00        
+  BEGIN        
+   IF @OldWidth = @Width         
+   BEGIN        
+    SET @Width = null        
+   END        
+  END        
+        
+  IF @NewHeight = 0.00        
+  BEGIN        
+   IF @OldHeight = @Height         
+   BEGIN        
+    SET @Height = null        
+   END        
+  END        
+        
+  IF @NewHeight = 0.00        
+  BEGIN        
+   IF @OldHeight = @Height         
+   BEGIN        
+    SET @Height = null        
+   END        
+  END        
+        
+  IF @NewGrossWeight = 0.00        
+  BEGIN        
+   IF @OldGrossWeight = @GrossWeight         
+   BEGIN        
+    SET @GrossWeight = null        
+END        
+  END        
+        
+  IF @NewNetWeight = 0.00        
+  BEGIN        
+   IF @OldNetWeight = @NetWeight         
+   BEGIN        
+    SET @NetWeight = null        
+   END        
+  END        
+        
+  UPDATE [dbo].[CargoItem_Change]        
+  SET [NewLength] = @Length        
+   ,[ContainerNumber] = @ContainerNumber        
+   ,[ContainerType] = @ContainerType        
+   ,[ContainerSealNumber] = @ContainerSealNumber        
+      ,[NewHeight] = @Height        
+      ,[NewWidth] = @Width        
+      ,[NewNet] = @NetWeight        
+      ,[NewGross] = @GrossWeight        
+   ,[UpdateBy] = @ActionBy        
+   ,[UpdateDate] = GETDATE()     
+   ,[Status] = @Status  
+   ,isDelete = @isDelete  
+  WHERE Id = @Id      
+  SELECT CAST(@Id as bigint) as Id   
+ END       
+        
+END   

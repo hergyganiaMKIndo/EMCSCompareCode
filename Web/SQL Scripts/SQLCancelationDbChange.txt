@@ -1,0 +1,1153 @@
+﻿SET IDENTITY_INSERT [dbo].[FlowStep] ON
+INSERT [dbo].[FlowStep] ([Id], [IdFlow], [Step], [AssignType], [AssignTo], [Sort], [CreateBy], [CreateDate], [UpdateBy], [UpdateDate], [IsDelete]) VALUES (30074, 4, N'CancelRequest', N'Group', N'', 0, N'System', CAST(N'2022-09-13T17:27:00' AS SmallDateTime), NULL, NULL, 0)
+GO
+INSERT [dbo].[FlowStep] ([Id], [IdFlow], [Step], [AssignType], [AssignTo], [Sort], [CreateBy], [CreateDate], [UpdateBy], [UpdateDate], [IsDelete]) VALUES (30075, 4, N'CancelApproval', N'Group', N'', 0, N'System', CAST(N'2022-09-13T17:27:00' AS SmallDateTime), NULL, NULL, 0)
+GO
+INSERT [dbo].[FlowStep] ([Id], [IdFlow], [Step], [AssignType], [AssignTo], [Sort], [CreateBy], [CreateDate], [UpdateBy], [UpdateDate], [IsDelete]) VALUES (30076, 4, N'Cancel', N'Group', N'', 0, N'System', CAST(N'2022-09-13T17:27:00' AS SmallDateTime), NULL, NULL, 0)
+SET IDENTITY_INSERT [dbo].[FlowStep] OFF
+
+Go 
+
+
+insert into FlowStatus
+(IdStep,Status,ViewByUser,CreateBy,CreateDate,IsDelete)
+values(30074,'CancelRequest','Request Cancel','System',GETDATE(),0)
+Go
+insert into FlowStatus
+(IdStep,Status,ViewByUser,CreateBy,CreateDate,IsDelete)
+values(30075,'CancelApproval','waiting for beacukai approval','System',GETDATE(),0)
+Go
+insert into FlowStatus
+(IdStep,Status,ViewByUser,CreateBy,CreateDate,IsDelete)
+values(30076,'Cancel','Cancelled','System',GETDATE(),0)
+Go
+
+insert into FlowNext
+(IdStatus,IdStep,CreateDate,CreateBy,IsDelete)
+values(40151,30074,GETDATE(),'System',0)
+Go
+insert into FlowNext
+(IdStatus,IdStep,CreateDate,CreateBy,IsDelete)
+values(40153,30075,GETDATE(),'System',0)
+Go
+insert into FlowNext
+(IdStatus,IdStep,CreateDate,CreateBy,IsDelete)
+values(40154,30076,GETDATE(),'System',0)
+
+Go
+
+Insert into  Flow(Name,Type,CreateBy,CreateDate,IsDelete)
+values('PebNpe','','System',GETDATE(),0)
+
+Go
+
+alter table NpePeb
+Add IsCancelled Int null
+
+Go
+
+alter table NpePeb
+Add CancelledDocument nvarchar(max)
+
+Go
+
+create procedure SP_InsertDocumentCancelled(
+@id bigint ,
+@FileName nvarchar(max)
+)
+as
+begin
+update NpePeb
+set CancelledDocument = @FileName
+where Id = @id
+end
+
+Go
+
+alter PROCEDURE [dbo].[SP_CiplGetList]    
+(        
+ @ConsigneeName NVARCHAR(200),    
+ @CreateBy NVARCHAR(200)    
+)    
+AS    
+BEGIN    
+ DECLARE @Sql nvarchar(max);    
+ DECLARE @WhereSql nvarchar(max) = '';    
+ DECLARE @RoleID bigint;    
+ DECLARE @area NVARCHAR(max);    
+ DECLARE @role NVARCHAR(max);    
+ DECLARE @usertype NVARCHAR(max);    
+    
+ SELECT @area = U.Business_Area    
+  ,@role = U.[Role],@usertype = UserType    
+ FROM dbo.fn_get_employee_internal_ckb() U    
+ WHERE U.AD_User = @CreateBy;    
+    
+     
+ if @role !=''    
+ BEGIN    
+ IF (@role !='EMCS IMEX' and @CreateBy !='xupj21fig' and @CreateBy !='ict.bpm' and @usertype !='ext-imex' )    
+ BEGIN    
+  SET @WhereSql = ' AND c.CreateBy='''+@CreateBy+''' ';    
+ END    
+    
+ IF @ConsigneeName <> ''    
+ BEGIN    
+SET @WhereSql = ' AND (C.CiplNo LIKE ''%'+@ConsigneeName+'%'' OR C.ConsigneeName LIKE ''%'+@ConsigneeName+'%'' OR C.Id LIKE ''%'+@ConsigneeName+'%'')'; 
+ END    
+ IF @usertype ='ext-imex'    
+ BEGIN    
+  SET @WhereSql = @WhereSql + ' AND ((fnReqCl.IdNextStep is NULL  AND RC.[Status]=''Approve'')  OR (fnReqCl.IdNextStep = 10021 AND RC.[Status]=''Approve'')) ';    
+ END    
+    
+ SET @sql = 'SELECT DISTINCT C.id,C.EdoNo    
+    , C.CiplNo    
+    , C.Category    
+    , C.ConsigneeName    
+    , C.ShippingMethod    
+    , CF.Forwader    
+    , C.CreateDate    
+    ,ISNULL((Select SUM(CI.GrossWeight) FROM dbo.CiplItem CI WHERE CI.idcipl = C.id),0) GrossWeight    
+    , RC.[Status]    
+    ,  CASE  
+	WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep = 30074)
+	THEN ''Request Cancel''
+	WHEN (fnReqCl.IdStep = 30075)
+	THEN ''waiting for beacukai approval''
+	WHEN (fnReqCl.IdStep = 30076)
+	THEN ''Cancelled''
+     WHEN fnreq.NextStatusViewByUser =''Pickup Goods''    
+      THEN    
+        CASE WHEN     
+        (fnReqGr.Status=''DRAFT'') OR (fnReq.Status=''APPROVE'' AND (fnReqGr.Status is null OR fnReqGr.Status = ''Waiting Approval'') AND RC.Status =''APPROVE'')     
+        THEN ''Waiting for Pickup Goods''    
+       WHEN (fnReqGr.IdFlow = 14 AND (fnReqGr.Status =''Submit'' OR fnReqGr.Status =''APPROVE'' ) AND (fnReqCl.Status is Null OR (fnReqCl.Status=''Submit'' AND fnReqCl.IdStep != 10017)))    
+        THEN ''On process Pickup Goods''    
+       WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep not in (10022))    
+        THEN ''Preparing for export''    
+       WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep = 10022)    
+        THEN ''Finish''     
+       END       
+       WHEN fnReq.Status =''Reject''    
+       THEN ''Reject''    
+     WHEN fnReq.NextStatusViewByUser = ''Waiting for superior approval''    
+      THEN fnReq.NextStatusViewByUser +'' (''+ emp.Employee_Name +'')''    
+     WHEN fnReq.Status =''Reject''    
+     THEN ''Reject''    
+     ELSE fnReq.NextStatusViewByUser    
+      END AS [StatusViewByUser]    
+  FROM dbo.Cipl C      
+  INNER JOIN dbo.RequestCipl RC ON RC.IdCipl = C.id    
+  INNER JOIN dbo.CiplForwader CF ON CF.IdCipl = C.id    
+  INNER JOIN dbo.FlowStatus FS on FS.IdStep = RC.IdStep AND FS.[Status] = RC.Status    
+  INNER JOIN PartsInformationSystem.dbo.UserAccess PIS on PIS.UserID = c.CreateBy    
+  INNER JOIN dbo.[fn_get_cipl_request_list_all]() as fnReq on fnReq.Id = rc.Id     
+  --LEFT JOIN GoodsReceiveItem as GR on GR.IdCipl = C.id AND GR.isdelete = 0    
+  LEFT JOIN ShippingFleetRefrence as sfr on sfr.IdCipl = C.id    
+  LEFT JOIN CargoCipl as CC on CC.IdCipl = C.id AND CC.Isdelete = 0    
+  LEFT JOIN dbo.[fn_get_gr_request_list_all]() as fnReqGr on fnReqGr.IdGr = sfr.IdGr    
+  LEFT JOIN dbo.[fn_get_cl_request_list_all]() as fnReqCl on fnReqCl.IdCl = CC.IdCargo    
+  left join employee emp on emp.AD_User = fnReq.NextAssignTo    
+  WHERE 1=1 '+@WhereSql+'    
+  AND C.IsDelete = 0     
+  ORDER BY C.id DESC';    
+  print (@WhereSql);    
+  print (@sql);    
+ exec(@sql);     
+ END    
+END
+
+GO
+
+
+alter PROCEDURE [dbo].[sp_get_task_npe_peb] -- [dbo].[sp_get_task_npe_peb]'xupj21wdn'  
+(  
+ @Username nvarchar(100),  
+ @isTotal bit = 0,  
+ @sort nvarchar(100) = 'Id',  
+ @order nvarchar(100) = 'ASC',  
+ @offset nvarchar(100) = '0',  
+ @limit nvarchar(100) = '10'  
+)  
+AS  
+BEGIN  
+    SET NOCOUNT ON;  
+    DECLARE @sql nvarchar(max);  --select * from dbo.vw_container  
+ DECLARE @GroupId nvarchar(100);   
+ DECLARE @PicNpe nvarchar(100);  
+ DECLARE @UserType nvarchar(100);  
+ DECLARE @UserGroupNameExternal nvarchar(100) = '';  
+ DECLARE @Filter nvarchar(max);  
+ DECLARE @FilterAdd nvarchar(max) = '';  
+  
+ SELECT @UserType = UserType, @UserGroupNameExternal = Cust_Group_No from PartsInformationSystem.dbo.UserAccess where UserID = @Username;  
+  
+ if @UserType <> 'internal'   
+ BEGIN  
+  SET @GroupId = 'CKB';  
+  SET @PicNpe = 'CKB';  
+  SET @Filter = 'AND ((PicBlAwb = '''+@PicNpe+''' AND IdNextStep != 10020 ) OR (IdStep != 30069 AND IdStep != 30071)) '  
+  SET @FilterAdd = ' OR (IdStep = 30070 AND Status = ''Approve'')'  
+ END  
+ ELSE  
+ BEGIN  
+  select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;  
+  if @GroupId = 'Import Export' OR @GroupId = 'Import Export Operation' OR @GroupId = 'Import Export Operation Mgmt.'  
+  BEGIN  
+   SET @GroupId = 'Import Export';  
+   SET @PicNpe = 'IMEX';  
+   SET @Filter = 'AND ((PicBlAwb = '''+@PicNpe+''' OR IdNextStep = 10020 OR IdNextStep = 30075 OR IdNextStep = 30076 OR IdNextStep = null) OR IdStep = 30069 OR IdStep = 30071 OR IdStep = 30074 OR IdStep = 30075 OR IdStep = 30076)'  
+   --SET @FilterAdd = 'AND (IdStep = 30070 AND '  
+  END  
+ END  
+  
+    SET @sql = CASE   
+      WHEN @isTotal = 1   
+     THEN 'SELECT COUNT(*) as total'   
+      ELSE 'select tab0.* '  
+      --END + ' FROM fn_get_cl_request_list('''+@Username+''', '''+ISNULL(@GroupId, 0)+''', '''+@PicNpe+''') as tab0 WHERE IdStep IN (10017,10019,10020) AND (PicBlAwb = '''+@PicNpe+''' OR IdNextStep =10020) AND Status IN(''Submit'',''Revise'')' +  
+      --END + ' FROM fn_get_cl_request_list('''+@Username+''', '''+ISNULL(@GroupId, 0)+''', '''+@PicNpe+''') as tab0 WHERE IdStep IN (10017,10019,10020) '+ @Filter +' AND Status IN(''Submit'',''Revise'')' +  
+      END + ' FROM fn_get_cl_request_list('''+@Username+''', '''+ISNULL(@GroupId, 0)+''', '''+@PicNpe+''') as tab0 WHERE IdStep IN (10017,10019,10020, 30069,30070, 30071, 30072,30074,30075,30076) '+ @Filter +' AND Status IN (''Submit'',''Revise'',''CancelRequest'',''CancelApproval'',''Cancel'') Or IsCancelled IN (0,1,2,null)'+ @FilterAdd +'' +
+      CASE   
+     WHEN @isTotal = 0   
+     THEN ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY' ELSE '' END;  
+  
+ --select @sql;   
+ PRINT(@sql);  
+ EXECUTE(@sql);  
+END  
+  
+  
+
+GO
+
+
+alter FUNCTION [dbo].[fn_get_cl_request_list] -- select * from [fn_get_cl_request_list]('xupj21wdn', 'Import Export','xupj21wdn')     
+(     
+ -- Add the parameters for the function here    
+ @Username nvarchar(100),    
+ @GroupId nvarchar(100),    
+ @Pic nvarchar(100)    
+)    
+RETURNS TABLE     
+AS    
+RETURN     
+(    
+ -- Add the SELECT statement with parameter references here    
+ select * from (    
+   select t0.[Id]      
+   ,t0.IdCl     
+   ,t0.[IdFlow]     
+   ,t0.[IdStep]     
+   ,t0.[Status]     
+   ,t0.[Pic]      
+   ,t0.[CreateBy]     
+   ,t0.[CreateDate]     
+   ,t0.[UpdateBy]      
+   ,t0.[UpdateDate]     
+   ,t0.[IsDelete]      
+   ,t12.IsCancelled  
+   ,CASE WHEN t12.Id Is null Then 0
+   else t12.Id end AS IdNpePeb
+   ,t3.Name FlowName    
+   ,t3.Type SubFlowType    
+   , CASE  
+    WHEN t0.[IdStep] = 30074 THEN 30075  
+ WHEN t0.[IdStep] = 30075 THEN 30076  
+ WHEN t0.[IdStep] = 30076 THEN Null  
+ WHEN t0.[IdStep] = 30070 THEN 30071 ELSE [dbo].[fn_get_next_step_id](    
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     ) END as IdNextStep     
+   , CASE WHEN t0.[IdStep] = 30069 THEN 'Approve draft NPE & PEB'     
+   WHEN t0.[IdStep] = 30070 THEN 'Create NPE'  
+ WHEN t0.[IdStep] = 30074 THEN 'waiting for beacukai approval'  
+ WHEN t0.[IdStep] = 30075 THEN 'Cancelled'  
+ WHEN t0.[IdStep] = 30076 THEN ''  
+    WHEN t0.[IdStep] = 30071 THEN 'Approve NPE' ELSE [dbo].[fn_get_step_name](    
+     [dbo].[fn_get_next_step_id](    
+      t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     )    
+     ) END as NextStepName    
+   , [dbo].[fn_get_next_assignment_type](t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id) NextAssignType    
+   , CASE WHEN t0.[IdStep] = 30069 THEN 'Waiting approval draft PEB'     
+    WHEN (t0.[IdStep] = 30070 AND t0.[Status] = 'Approve') THEN 'Waiting NPE document'     
+    WHEN ((t0.[IdStep] = 30070 OR t0.[IdStep] = 30072) AND t0.[Status] = 'Revise') THEN 'Need revision review by imex'     
+    when t12.IsCancelled = 0 then 'Request Cancel Only PebNpe'  
+    when t12.IsCancelled = 1 then 'waiting for beacukai approval'  
+    when t12.IsCancelled = 2 then 'Cancelled'  
+    WHEN t0.[IdStep] = 30071 THEN 'Waiting approval NPE'  
+    WHEN t0.[IdStep] = 30074 THEN 'Request Cancel'  
+    WHEN t0.[IdStep] = 30075 THEN 'waiting for beacukai approval'  
+    WHEN t0.[IdStep] = 30076 THEN 'Cancelled'  
+    ELSE CASE WHEN t11.Step = 'System' THEN t8.ViewByUser ELSE t1.ViewByUser END END as StatusViewByUser    
+   , t1.CurrentStep    
+   , t2.ClNo    
+   , t2.BookingNumber    
+   , t2.BookingDate    
+   , t2.PortOfLoading    
+   , t2.PortOfDestination    
+   , t2.Liner    
+   , t2.SailingSchedule ETD    
+   , t2.ArrivalDestination ETA    
+   , t2.VesselFlight    
+   , t2.Consignee    
+   , t2.StuffingDateStarted    
+   , t2.StuffingDateFinished    
+   , t5.AD_User    
+   , t4.FullName    
+   , t5.Employee_Name    
+   , CASE WHEN ISNULL(t5.AD_User, '') <> '' THEN t4.FullName ELSE CASE WHEN ISNULL(t5.Employee_Name, '') <> '' THEN t5.Employee_Name ELSE t4.FullName END END PreparedBy     
+   , t7.AssignType as AssignmentType    
+   , CASE   
+  --WHEN (t0.[IdStep] = 30069 OR t0.[IdStep] = 30071 )   
+   -- THEN 'XUPJ21WDN'   
+    --WHEN (t0.[IdStep] = 30074)  
+    --then 'IMEX'  
+    WHEN (t0.[IdStep] = 30070)   
+     THEN t6.PicBlAwb  
+    when (((select RoleID from PartsInformationSystem.[dbo].UserAccess where UserID = @Username) = 8 and t0.[IdStep] = 30069 OR t0.[IdStep] = 30071 or t0.IdStep = 30074 or t0.IdStep = 30075 or t0.IdStep = 30076  or t12.IsCancelled = 0 or t12.IsCancelled =
+ 1 or t12.IsCancelled = 2) or  
+    ((select RoleID from PartsInformationSystem.[dbo].UserAccess where UserID = @Username) = 24 and t0.[IdStep] = 30069 OR t0.[IdStep] = 30071 or t0.IdStep = 30074 or t0.IdStep = 30075 or t0.IdStep = 30076 or t12.IsCancelled = 0 or t12.IsCancelled = 1 or 
+t12.IsCancelled = 2))  
+    then @Username  
+    ELSE   
+     [dbo].[fn_get_next_approval] (t7.AssignType, t0.Pic, t7.AssignTo, t0.CreateBy, t0.Id)   
+     END AS NextAssignTo  
+  , t6.SpecialInstruction    
+   , t6.SlNo    
+   , t6.Description    
+   , t6.DocumentRequired    
+   , t2.ShippingMethod    
+   , t12.AjuNumber as PebNumber    
+   , t2.SailingSchedule    
+   , t2.ArrivalDestination    
+   , t6.PicBlAwb    
+  from dbo.RequestCl t0    
+  left join (    
+   select     
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,     
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,     
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,    
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName    
+   from dbo.FlowNext nx    
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus    
+   join dbo.FlowStep np on np.Id = ns.IdStep    
+   join dbo.Flow nf on nf.Id = np.IdFlow    
+   join dbo.FlowStep nt on nt.Id = nx.IdStep    
+  ) as t1 on t1.IdFlow = t0.IdFlow AND t1.IdCurrentStep = t0.IdStep AND t1.Status = t0.Status    
+  inner join dbo.Cargo t2 on t2.id = t0.IdCl     
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow    
+  left join PartsInformationSystem.dbo.UserAccess t4 on t4.UserID = t2.CreateBy    
+  left join employee t5 on t5.AD_User = t2.CreateBy    
+  left join dbo.ShippingInstruction t6 on t6.IdCL = t0.IdCl      
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](    
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     ) and t7.IdFlow = t1.IdFlow    
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](    
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     )    
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep    
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id    
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep    
+  left join dbo.NpePeb t12 on t12.IdCl = t2.Id    
+  WHERE t0.CreateBy <> 'System' and t0.IsDelete = 0  and t2.CreateBy <> 'System'    
+ ) as tab0     
+ WHERE (tab0.NextAssignTo = @Username OR tab0.NextAssignTo = @GroupId OR tab0.PicBlAwb = @Pic)    
+)    
+  
+  
+
+
+GO
+
+
+
+create PROCEDURE [dbo].[sp_update_request_pebcancel] -- exec [sp_update_request_pebcancel] 1, 'CKB1', 'Submit', 'Testing Notes'    
+ (    
+  @IdCl BIGINT    
+ ,@Username NVARCHAR(100)    
+ ,@NewStatus NVARCHAR(100)    
+ ,@Notes NVARCHAR(100) = ''    
+ ,@IsCancelled int     
+ )    
+AS    
+BEGIN    
+ DECLARE @NewStepId BIGINT;    
+ DECLARE @IdFlow BIGINT;    
+ DECLARE @FlowName NVARCHAR(100);    
+ DECLARE @NextStepName NVARCHAR(100);    
+ DECLARE @Now DATETIME;    
+ DECLARE @GroupId NVARCHAR(100);    
+ DECLARE @UserType NVARCHAR(100);    
+ DECLARE @NextStepIdSystem BIGINT;    
+ DECLARE @LoadingPort NVARCHAR(100);    
+ DECLARE @DestinationPort NVARCHAR(100);    
+ DECLARE @CurrentStepId BIGINT;    
+ DECLARE @CurrentStatus NVARCHAR(100);    
+    
+ SET @Now = GETDATE();    
+ IF @IsCancelled = 4 and @NewStatus = 'CancelRequest'    
+ begin    
+ SET @FlowName = 'PebNpe'    
+ set @NextStepName = @NewStatus    
+ update NpePeb     
+ set IsCancelled = 0    
+ where Id = @IdCl     
+ end    
+ else if @IsCancelled = 4 and @NewStatus = 'CancelApproval'    
+ begin    
+ SET @FlowName = 'PebNpe'    
+ set @NextStepName = @NewStatus    
+ update NpePeb    
+ set IsCancelled = 1    
+ where Id = @IdCl     
+ end    
+ else if @IsCancelled = 4 and @NewStatus = 'Cancel'    
+ begin    
+ SET @FlowName = 'PebNpe'    
+ set @NextStepName = @NewStatus    
+ update NpePeb    
+ set IsCancelled = 2    
+ where Id = @IdCl    
+ end    
+ else if(@NewStatus = 'CancelRequest' and @IsCancelled = 3)    
+ begin    
+   SET @NewStepId = 30074    
+   SET @NextStepName = 'CancelRequest'    
+   SET @FlowName = 'CL'    
+   set @NextStepName = 'CancelApproval'    
+  UPDATE [dbo].[RequestCl]    
+  SET [IdStep] = 30074    
+   ,[Status] = 'CancelRequest'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+  WHERE IdCl = @IdCl    
+  UPDATE [dbo].[RequestCipl]    
+  SET IdStep = 30074    
+   ,[Status] ='CancelRequest'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+  WHERE IdCipl = (select Top(1)IdCipl from  CargoCipl where IdCargo =  @IdCl)   
+  update [dbo].RequestGr  
+  set IdStep = 30074    
+   ,[Status] ='CancelRequest'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()   
+   where IdGr = (select Top(1) IdGr from ShippingFleetRefrence where IdCipl = (select Top(1)IdCipl from  CargoCipl where IdCargo =  @IdCl))  
+ end    
+ else if(@NewStatus = 'CancelApproval' and @IsCancelled = 3)    
+ begin    
+ SET @NewStepId = 30075    
+   SET @NextStepName = 'CancelApproval'    
+   SET @FlowName = 'CL'    
+   set @NextStepName = 'Cancel'    
+  UPDATE [dbo].[RequestCl]    
+  SET [IdStep] = 30075    
+   ,[Status] = 'CancelApproval'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+  WHERE IdCl = @IdCl    
+  UPDATE [dbo].[RequestCipl]    
+  SET IdStep = 30075    
+   ,[Status] ='CancelApproval'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+  WHERE IdCipl = (select Top(1)IdCipl from  CargoCipl where IdCargo =  @IdCl)    
+  update [dbo].RequestGr  
+  SET IdStep = 30075    
+   ,[Status] ='CancelApproval'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+   where IdGr = (select Top(1) IdGr from ShippingFleetRefrence where IdCipl = (select Top(1)IdCipl from  CargoCipl where IdCargo =  @IdCl))  
+ end    
+ else if(@NewStatus = 'Cancel' and @IsCancelled = 3)    
+ begin    
+  SET @NewStepId = 30076    
+   SET @NextStepName = 'Cancel'    
+   SET @FlowName = 'CL'    
+   set @NextStepName = 'Cancel'    
+  UPDATE [dbo].[RequestCl]    
+  SET [IdStep] = 30076    
+   ,[Status] = 'Cancel'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+  WHERE IdCl = @IdCl    
+  UPDATE [dbo].[RequestCipl]    
+  SET IdStep = 30076    
+   ,[Status] = 'Cancel'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+  WHERE IdCipl = (select Top(1)IdCipl from  CargoCipl where IdCargo =  @IdCl)   
+  update [dbo].RequestGr  
+  SET IdStep = 30076    
+   ,[Status] = 'Cancel'    
+   --,[Pic] = @Username    
+   ,[UpdateBy] = @Username    
+   ,[UpdateDate] = GETDATE()    
+   where IdGr = (select Top(1) IdGr from ShippingFleetRefrence where IdCipl = (select Top(1)IdCipl from  CargoCipl where IdCargo =  @IdCl))  
+ end    
+ --======================================================    
+ EXEC [dbo].[sp_insert_cl_history] @id = @IdCl    
+  ,@Flow = @FlowName    
+  ,@Step = @NextStepName    
+  ,@Status = @NewStatus    
+  ,@Notes = @Notes    
+  ,@CreateBy = @Username    
+  ,@CreateDate = @Now;    
+END
+
+
+
+Go
+
+
+alter FUNCTION [dbo].[fn_get_cl_request_list_all] ()    
+RETURNS TABLE     
+AS    
+RETURN     
+(    
+ -- Add the SELECT statement with parameter references here    
+ select * from (    
+   select t0.[Id]      
+   ,t0.IdCl     
+   ,t0.[IdFlow]     
+   ,t0.[IdStep]     
+   ,t0.[Status]     
+   ,t0.[Pic]      
+   ,t6.SlNo    
+   ,t0.[CreateBy]     
+   ,t0.[CreateDate]     
+   ,t0.[UpdateBy]      
+   ,t0.[UpdateDate]     
+   ,t0.[IsDelete]      
+   ,t3.Name FlowName    
+   ,t3.Type SubFlowType    
+   , [dbo].[fn_get_next_step_id](    
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     ) as IdNextStep     
+   , [dbo].[fn_get_step_name](    
+     [dbo].[fn_get_next_step_id](    
+      t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     )    
+     ) as NextStepName    
+   , [dbo].[fn_get_next_assignment_type](t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id) NextAssignType    
+   , CASE WHEN t0.IdStep= 30076 THEN 'Cancelled'  
+   WHEN t0.IdStep= 30075 THEN 'waiting for beacukai approval'  
+   WHEN t0.IdStep= 30074 THEN 'Request Cancel' 
+   WHEN t0.IdStep = 30071 Then 'Waiting approval NPE'
+   WHEN t11.Step = 'System' THEN t8.ViewByUser ELSE t1.ViewByUser END as StatusViewByUser    
+   , t1.CurrentStep    
+   , t2.ClNo    
+   , t2.SailingSchedule ETD    
+   , t2.ArrivalDestination ETA    
+   , t2.BookingNumber    
+   , t2.BookingDate    
+   , t2.PortOfLoading    
+   , t2.PortOfDestination    
+   , t2.Liner    
+   , t2.SailingSchedule    
+   , t2.ArrivalDestination    
+   , t2.VesselFlight    
+   , t2.Consignee    
+   , t2.StuffingDateStarted    
+   , t2.StuffingDateFinished    
+   , CASE WHEN ISNULL(t5.AD_User, '') <> '' THEN t4.FullName ELSE CASE WHEN ISNULL(t5.Employee_Name, '') <> '' THEN t5.Employee_Name ELSE t4.FullName END END PreparedBy     
+   , t7.AssignType as AssignmentType    
+   , [dbo].[fn_get_next_approval] (t7.AssignType, t0.Pic, t7.AssignTo, t0.CreateBy, t0.Id) as NextAssignTo    
+   , t6.SpecialInstruction    
+   , t6.Description    
+   , t6.DocumentRequired    
+  from dbo.RequestCl t0    
+  left join (    
+   select     
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,     
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,     
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,    
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName    
+   from dbo.FlowNext nx    
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus    
+   join dbo.FlowStep np on np.Id = ns.IdStep    
+   join dbo.Flow nf on nf.Id = np.IdFlow    
+   join dbo.FlowStep nt on nt.Id = nx.IdStep    
+  ) as t1 on t1.IdFlow = t0.IdFlow AND t1.IdCurrentStep = t0.IdStep AND t1.Status = t0.Status    
+  inner join dbo.Cargo t2 on t2.id = t0.IdCl     
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow    
+  left join PartsInformationSystem.dbo.UserAccess t4 on t4.UserID = t2.CreateBy    
+  left join employee t5 on t5.AD_User = t2.CreateBy    
+  left join dbo.ShippingInstruction t6 on t6.IdCL = t0.IdCl      
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](    
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     ) and t7.IdFlow = t1.IdFlow    
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](    
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id    
+     )    
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep    
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id    
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep    
+  WHERE t2.CreateBy <> 'System' AND t0.CreateBy <> 'System'    
+ ) as tab0     
+ --WHERE (tab0.NextAssignTo = @Username OR tab0.NextAssignTo = @GroupId)    
+) 
+
+
+Go
+
+
+-- =============================================  
+-- Author  : Ali Mutasal  
+-- ALTER date : 2019-11  
+-- Description :   
+-- =============================================  
+alter FUNCTION [dbo].[fn_get_cipl_request_list_all] -- select * from [fn_get_cipl_request_list_all]() where id = 3  
+(   
+-- -- Add the parameters for the function here  
+)  
+RETURNS TABLE   
+AS  
+RETURN   
+(  
+ -- Add the SELECT statement with parameter references here  
+ select * from (  
+   select   
+   t0.[Id]    
+   ,t0.[IdCipl]   
+   ,t0.[IdFlow]   
+   ,t0.[IdStep]   
+   ,t0.[Status]   
+   ,t0.[Pic]    
+   ,t0.[CreateBy]   
+   ,t0.[CreateDate]   
+   ,t0.[UpdateBy]    
+   ,t0.[UpdateDate]   
+   ,t0.[IsDelete]    
+   , t3.Name FlowName  
+   , t3.Type SubFlowType  
+   , case when t0.[IdStep]	= 30076 then 0 
+			else[dbo].[fn_get_next_step_id](
+					t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.Status), t0.Id
+			  ) END as IdNextStep   
+   , [dbo].[fn_get_step_name]([dbo].[fn_get_next_step_id](  
+     t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.Status), t0.Id)  
+     ) as NextStepName  
+   , [dbo].[fn_get_next_assignment_type](  
+     t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id  
+     ) NextAssignType  
+   , CASE WHEN [dbo].[fn_get_next_step_id](  
+     t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.Status), t0.Id  
+     ) IN (14, 10024, 10028) THEN 'Pickup Goods' ELSE t1.ViewByUser END NextStatusViewByUser  
+   --, t1.ViewByUser NextStatusViewByUser  
+   , t2.CiplNo  
+   , t2.Category  
+   , t2.ETD  
+   , t2.ETA  
+   , t2.LoadingPort  
+   , t2.DestinationPort  
+   , t2.ShippingMethod  
+   , t4.Forwader  
+   , t2.ConsigneeCountry  
+   , CASE WHEN ISNULL(t6.AssignType, '') <> ''   
+     THEN  
+    t6.AssignType  
+     ELSE  
+    [dbo].[fn_get_next_assignment_type](t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id)   
+     END   
+     as AssignmentType  
+   , CASE WHEN ISNULL(t6.AssignTo, '') <> ''   
+     THEN   
+      t6.AssignTo  
+     ELSE  
+    CASE WHEN LOWER(t1.NextAssignType) = 'user'  
+    THEN  
+     t1.NextAssignTo  
+    ELSE  
+     [dbo].[fn_get_next_approval] ([dbo].[fn_get_next_assignment_type](t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id), t0.Pic, t1.NextAssignTo, t0.CreateBy, '0')         
+    END  
+     END as NextAssignTo  
+    , t5.Business_Area as BAreaUser  
+  from dbo.RequestCipl t0  
+  left join (  
+   select   
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,   
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,   
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo,   
+    ns.ViewByUser,  
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName  
+   from dbo.FlowNext nx  
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus  
+   join dbo.FlowStep np on np.Id = ns.IdStep  
+   join dbo.Flow nf on nf.Id = np.IdFlow  
+   join dbo.FlowStep nt on nt.Id = nx.IdStep  
+  ) as t1 on t1.IdFlow = t0.IdFlow AND t1.IdCurrentStep = t0.IdStep AND t1.Status = t0.Status  
+  inner join dbo.Cipl t2 on t2.id = t0.IdCipl   
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow  
+  left join dbo.CiplForwader t4 on t4.IdCipl = t0.IdCipl  
+  left join dbo.fn_get_employee_internal_ckb() as t5 on t5.AD_User = t0.CreateBy  
+  left join dbo.FlowDelegation as t6 on t6.IdFlow = t0.IdFlow AND t6.IdStep = t0.IdStep AND t6.IdReq = t0.Id  
+ ) as tab0   
+ --WHERE (tab0.NextAssignTo = @Username OR tab0.NextAssignTo = @GroupId)  
+)  
+
+
+Go
+
+alter PROCEDURE [dbo].[sp_get_cargo_list] -- [dbo].[sp_get_cargo_list] '', 0  
+(  
+ @Username nvarchar(100),  
+ @Search nvarchar(100),  
+ @isTotal bit = 0,  
+ @sort nvarchar(100) = 'Id',  
+ @order nvarchar(100) = 'ASC',  
+ @offset nvarchar(100) = '0',  
+ @limit nvarchar(100) = '10'  
+)  
+AS  
+BEGIN  
+    SET NOCOUNT ON;  
+    DECLARE @sql nvarchar(max);    
+ DECLARE @WhereSql nvarchar(max) = '';  
+ DECLARE @GroupId nvarchar(100);  
+ DECLARE @RoleID bigint;  
+ DECLARE @area NVARCHAR(max);  
+ DECLARE @role NVARCHAR(max) = '';  
+ SET @sort = 't0.'+@sort;  
+  
+ select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;  
+  
+  
+ SELECT @area = U.Business_Area  
+  ,@role = U.[Role]  
+ FROM dbo.fn_get_employee_internal_ckb() U  
+ WHERE U.AD_User = @Username;  
+  
+ if @role !=''  
+ BEGIN  
+  
+  
+ IF (@role !='EMCS IMEX' and @Username !='ict.bpm')  
+ BEGIN  
+  SET @WhereSql = ' AND t0.CreateBy='''+@Username+''' ';  
+ END  
+  
+ SET @sql = 'SELECT ';  
+ IF (@isTotal <> 0)  
+ BEGIN  
+  SET @sql += 'count(*) total '  
+ END   
+ ELSE  
+ BEGIN  
+  SET @sql += 't0.id  
+      , t0.ClNo  
+      , t0.Consignee Consignee  
+      , t0.NotifyParty NotifyParty  
+      , t0.ExportType ExportType  
+      , t0.Category  
+      , t0.IncoTerms  
+      , t0.StuffingDateStarted  
+      , t0.StuffingDateFinished  
+      , t0.VesselFlight  
+      , t0.ConnectingVesselFlight  
+      , t0.VoyageVesselFlight  
+      , t0.VoyageConnectingVessel  
+      , t0.PortOfLoading  
+      , t0.PortOfDestination  
+      , t0.SailingSchedule  
+      , t0.ArrivalDestination  
+      , t0.BookingNumber  
+      , t0.BookingDate  
+      , t0.Liner  
+      , t0.ETA  
+      , t0.ETD   
+      , t0.Referrence  
+      , t0.CreateDate  
+      , t0.CreateBy  
+      , t0.UpdateDate  
+      , t0.UpdateBy  
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Employee_Name ELSE t3.FullName END PreparedBy  
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Email ELSE t3.Email END Email   
+      , t4.Step  
+      , t5.[Status]  
+      , ISNULL(t9.StatusViewByUser, '''') [StatusViewByUser]          
+      , STUFF((SELECT '', ''+ISNULL(tx1.EdoNo, ''-'')  
+       FROM dbo.CargoItem tx0  
+       JOIN dbo.Cipl tx1 on tx1.id = tx0.IdCipl  
+       WHERE tx0.IdCargo = tx0.Id  
+       GROUP BY tx1.EdoNo  
+       FOR XML PATH(''''),type).value(''.'',''nvarchar(max)''),1,1,'''') [RefEdo]  
+      , t8.SlNo SiNo  
+      , t8.[Description] SiDescription  
+      , t8.DocumentRequired SiDocumentRequired  
+      , t8.SpecialInstruction SiSpecialInstruction '  
+ END  
+ SET @sql +='FROM Cargo t0  
+    JOIN dbo.RequestCl as t1 on t1.IdCl = t0.Id  
+    JOIN PartsInformationSystem.dbo.[UserAccess] t3 on t3.UserID = t0.CreateBy  
+    LEFT JOIN employee t2 on t2.AD_User = t0.CreateBy  
+    LEFT JOIN dbo.FlowStep t4 on t4.Id = t1.IdStep  
+    LEFT JOIN dbo.FlowStatus t5 on t5.[Status] = t1.[Status] AND  t5.IdStep = t1.IdStep  
+    LEFT JOIN dbo.ShippingInstruction t8 on t8.IdCL = t0.Id  
+    LEFT JOIN dbo.fn_get_cl_request_list_all() t9 on t9.IdCl = t0.Id  
+    WHERE 1=1 AND t0.IsDelete = 0 '+@WhereSql+' AND (t0.ClNo like ''%'+@Search+'%'' OR t0.Consignee like ''%'+@Search+'%'')';  
+  
+ IF @isTotal = 0   
+ BEGIN  
+  SET @sql += ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY';  
+ END   
+  
+ --select @sql;  
+ EXECUTE(@sql);  
+ END  
+END
+
+
+go
+
+
+alter PROCEDURE [dbo].[sp_get_npepeb_list] --exec [sp_get_npepeb_list] 'xupj21wdn',''      
+(      
+ @Username nvarchar(100),      
+ @Search nvarchar(100),      
+ @isTotal bit = 0,      
+ @sort nvarchar(100) = 'Id',      
+ @order nvarchar(100) = 'ASC',      
+ @offset nvarchar(100) = '0',      
+ @limit nvarchar(100) = '10'      
+)      
+AS      
+BEGIN      
+    SET NOCOUNT ON;      
+    DECLARE @sql nvarchar(max);        
+ DECLARE @WhereSql nvarchar(max) = '';      
+ DECLARE @GroupId nvarchar(100);      
+ DECLARE @RoleID bigint;      
+ DECLARE @area NVARCHAR(max);      
+ DECLARE @role NVARCHAR(max) = '';       
+ SET @sort = 'np.'+@sort;      
+      
+ select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;      
+      
+      
+ SELECT @area = U.Business_Area      
+  ,@role = U.[Role]      
+ FROM dbo.fn_get_employee_internal_ckb() U      
+ WHERE U.AD_User = @Username;      
+      
+ if @role !=''      
+ BEGIN      
+      
+      
+ IF (@role !='EMCS IMEX' and @Username !='ict.bpm')      
+ BEGIN      
+  SET @WhereSql = ' AND np.CreateBy='''+@Username+''' ';      
+ END      
+      
+ SET @sql = 'SELECT ';      
+ IF (@isTotal <> 0)      
+ BEGIN      
+  SET @sql += 'count(*) total '      
+ END       
+ ELSE      
+ BEGIN      
+       
+  SET @sql += '   np.Id      
+      , np.IdCl      
+      , np.AjuNumber      
+      , np.AjuDate      
+      , np.PebNumber      
+      , np.NpeNumber       
+      , np.NpeDate      
+      , np.PassPabeanOffice      
+      , np.Valuta  
+   ,np.RegistrationNumber  
+   ,ISNULL((select TOP 1(Id) from RequestForChange WHERE FormId = np.IdCl AND FormType = ''NpePeb'' AND [Status] = 0),0) AS PendingRFC    
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Employee_Name ELSE ua.FullName END PreparedBy      
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Email ELSE ua.Email END Email             
+      , STUFF((SELECT '', ''+ISNULL(tx1.EdoNo, ''-'')        
+           FROM dbo.CargoItem tx0        
+           JOIN dbo.Cipl tx1 on tx1.id = tx0.IdCipl        
+           WHERE tx0.IdCargo = tx0.Id        
+           GROUP BY tx1.EdoNo        
+           FOR XML PATH(''''),type).value(''.'',''nvarchar(max)''),1,1,'''') [RefEdo]         
+      , c.ClNo      
+      , c.CargoType      
+      , CASE WHEN t0.[IdStep] = 30069 THEN ''Waiting approval draft PEB''       
+    WHEN (t0.[IdStep] = 30070 AND t0.[Status] = ''Approve'') THEN ''Waiting NPE document''       
+    WHEN ((t0.[IdStep] = 30070 OR t0.[IdStep] = 30072) AND t0.[Status] = ''Revise'') THEN ''Need revision review by imex''  
+	when np.IsCancelled = 0 then ''Request Cancel Only PebNpe''
+	when np.IsCancelled = 1 then ''waiting for beacukai approval''
+	when np.IsCancelled = 2 then ''Cancelled''
+	WHEN t0.IdStep= 30076 THEN ''Cancelled''
+	WHEN t0.IdStep= 30075 THEN ''waiting for beacukai approval''
+	WHEN t0.IdStep= 30074 THEN ''Request Cancel'' 
+    WHEN t0.[IdStep] = 30071 THEN ''Waiting approval NPE''      
+    ELSE CASE WHEN t11.Step = ''System'' THEN t8.ViewByUser ELSE t1.ViewByUser END END as StatusViewByUser  '      
+ END      
+ SET @sql +='  FROM NpePeb np      
+      JOIN dbo.Cargo c on c.Id = np.IdCl      
+      left join RequestCl t0 on t0.IdCl = np.IdCl      
+     left join (      
+   select       
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,       
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,       
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,      
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName      
+   from dbo.FlowNext nx      
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus      
+   join dbo.FlowStep np on np.Id = ns.IdStep      
+   join dbo.Flow nf on nf.Id = np.IdFlow      
+   join dbo.FlowStep nt on nt.Id = nx.IdStep      
+  ) as t1 on t1.IdFlow = t0.IdFlow AND t1.IdCurrentStep = t0.IdStep AND t1.Status = t0.Status      
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow      
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](      
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id      
+     ) and t7.IdFlow = t1.IdFlow      
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](      
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id      
+     )      
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep      
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id      
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep      
+    JOIN PartsInformationSystem.dbo.[UserAccess] ua on ua.UserID = np.CreateBy      
+    LEFT JOIN employee t2 on t2.AD_User = np.CreateBy      
+    WHERE 1=1 AND np.IsDelete = 0  AND c.CargoType != ''''' + @WhereSql+ ' AND (np.AjuNumber like ''%'+@Search+'%'' OR c.ClNo like ''%'+@Search+'%'')';      
+      
+ IF @isTotal = 0       
+ BEGIN      
+  SET @sql += ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY';      
+ END       
+      
+ Print(@sql);      
+ EXECUTE(@sql);      
+ END      
+END      
+
+GO
+
+alter PROCEDURE [dbo].[sp_get_shippinginstruction_list]   --exec [dbo].[sp_get_shippinginstruction_list] 'xupj21wdn',''  
+(    
+ @Username nvarchar(100),    
+ @Search nvarchar(100),    
+ @isTotal bit = 0,    
+ @sort nvarchar(100) = 'Id',    
+ @order nvarchar(100) = 'ASC',    
+ @offset nvarchar(100) = '0',    
+ @limit nvarchar(100) = '10'    
+)    
+AS    
+BEGIN    
+    SET NOCOUNT ON;    
+    DECLARE @sql nvarchar(max);      
+ DECLARE @WhereSql nvarchar(max) = '';    
+ DECLARE @GroupId nvarchar(100);    
+ DECLARE @RoleID bigint;    
+ DECLARE @area NVARCHAR(max);    
+ DECLARE @role NVARCHAR(max) = '';     
+ SET @sort = 'si.'+@sort;    
+    
+ select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;    
+    
+    
+ SELECT @area = U.Business_Area    
+  ,@role = U.[Role]    
+ FROM dbo.fn_get_employee_internal_ckb() U    
+ WHERE U.AD_User = @Username;    
+    
+ if @role !=''    
+ BEGIN    
+    
+    
+ IF (@role !='EMCS IMEX' and @Username !='ict.bpm')    
+ BEGIN    
+  SET @WhereSql = ' AND t0.CreateBy='''+@Username+''' ';    
+ END    
+    
+ SET @sql = 'SELECT ';    
+ IF (@isTotal <> 0)    
+ BEGIN    
+  SET @sql += 'count(*) total '    
+ END     
+ ELSE    
+ BEGIN    
+     
+  SET @sql += ' si.id    
+      , si.SlNo    
+      , c.ClNo    
+      , si.IdCL    
+      , si.CreateDate    
+      , si.CreateBy    
+      , c.Referrence    
+      , c.BookingNumber    
+      , c.BookingDate    
+      , c.ArrivalDestination    
+      , c.SailingSchedule  
+      , c.Status    
+      , si.Description     
+      , si.DocumentRequired     
+      , si.SpecialInstruction    
+      , si.CreateDate    
+      , si.CreateBy     
+      , si.UpdateDate     
+      , si.UpdateBy     
+      , si.IsDelete     
+      , si.PicBlAwb     
+      , si.ExportType    
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Employee_Name ELSE ua.FullName END PreparedBy    
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Email ELSE ua.Email END Email           
+      , STUFF((SELECT '', ''+ISNULL(tx1.EdoNo, ''-'')    
+       FROM dbo.CargoItem tx0    
+       JOIN dbo.Cipl tx1 on tx1.id = tx0.IdCipl    
+       WHERE tx0.IdCargo = tx0.Id    
+       GROUP BY tx1.EdoNo    
+       FOR XML PATH(''''),type).value(''.'',''nvarchar(max)''),1,1,'''') [RefEdo]           
+      , c.CargoType  
+   ,CASE WHEN t0.[IdStep] = 30069 THEN ''Waiting approval draft PEB''   
+    WHEN (t0.[IdStep] = 30070 AND t0.[Status] = ''Approve'') THEN ''Waiting NPE document''   
+    WHEN ((t0.[IdStep] = 30070 OR t0.[IdStep] = 30072) AND t0.[Status] = ''Revise'') THEN ''Need revision review by imex''   
+    WHEN t0.[IdStep] = 30071 THEN ''Waiting approval NPE''
+	WHEN t0.IdStep= 30076 THEN ''Cancelled''
+	WHEN t0.IdStep= 30075 THEN ''waiting for beacukai approval''
+	WHEN t0.IdStep= 30074 THEN ''Request Cancel''
+    ELSE CASE WHEN t11.Step = ''System'' THEN t8.ViewByUser ELSE t1.ViewByUser END END as StatusViewByUser '    
+ END    
+ SET @sql +=' FROM ShippingInstruction si    
+     JOIN dbo.Cargo c on c.Id = si.IdCl   
+  left join RequestCl t0 on t0.IdCl = si.IdCl  
+     left join (  
+   select   
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,   
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,   
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,  
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName  
+   from dbo.FlowNext nx  
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus  
+   join dbo.FlowStep np on np.Id = ns.IdStep  
+   join dbo.Flow nf on nf.Id = np.IdFlow  
+   join dbo.FlowStep nt on nt.Id = nx.IdStep  
+  ) as t1 on t1.IdFlow = t0.IdFlow AND t1.IdCurrentStep = t0.IdStep AND t1.Status = t0.Status  
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow  
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](  
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id  
+     ) and t7.IdFlow = t1.IdFlow  
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](  
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id  
+     )  
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep  
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id  
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep  
+  
+    JOIN PartsInformationSystem.dbo.[UserAccess] ua on ua.UserID = si.CreateBy    
+    LEFT JOIN employee t2 on t2.AD_User = si.CreateBy    
+    WHERE 1=1 AND si.IsDelete = 0  AND c.CargoType != ''''' + @WhereSql+ ' AND (si.SlNo like ''%'+@Search+'%'' OR c.ClNo like ''%'+@Search+'%'')';    
+    
+ IF @isTotal = 0     
+ BEGIN    
+  SET @sql += ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY';    
+ END     
+    
+ print (@sql);    
+ EXECUTE(@sql);    
+ END    
+END   
+  
+
+ Go
+
+
+alter PROCEDURE [dbo].sp_get_gr_list -- [dbo].[sp_get_gr_list] 'XUPJ21WDN', '', 0      
+(      
+ @Username nvarchar(100),      
+ @Search nvarchar(100),      
+ @isTotal bit = 0,      
+ @sort nvarchar(100) = 'Id',      
+ @order nvarchar(100) = 'DESC',      
+ @offset nvarchar(100) = '0',      
+ @limit nvarchar(100) = '10'     
+)      
+AS      
+BEGIN      
+    SET NOCOUNT ON;      
+    DECLARE @sql nvarchar(max);        
+ DECLARE @WhereSql nvarchar(max) = '';      
+ DECLARE @GroupId nvarchar(100);      
+ DECLARE @RoleID bigint;      
+ DECLARE @area NVARCHAR(max);      
+ DECLARE @role NVARCHAR(max) = '';     
+    
+ SET @sort = 't0.'+@sort;      
+  --SET @sort = 't0.UpdateDate';      
+      
+ select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;      
+      
+      
+ SELECT @area = U.Business_Area      
+  ,@role = U.[Role]      
+ FROM dbo.fn_get_employee_internal_ckb() U      
+ WHERE U.AD_User = @Username;      
+      
+ if @role !=''      
+ BEGIN      
+      
+ IF (@role !='EMCS IMEX' and @Username !='ict.bpm')      
+ BEGIN      
+  SET @WhereSql = ' AND t0.CreateBy='''+@Username+''' ';      
+ END      
+      
+      
+ SET @sql = 'SELECT ';      
+ IF (@isTotal <> 0)      
+ BEGIN      
+  SET @sql += 'count(*) total '      
+ END       
+ ELSE      
+ BEGIN      
+  SET @sql += 't0.Id      
+     , t0.GrNo      
+     , (select top 1 PicName			  from shippingfleet s where  t0.id = s.IdGr ) as PicName     
+     , (select top 1 PhoneNumber		  from shippingfleet s where  t0.id = s.IdGr)as PhoneNumber    
+     , (select top 1 KtpNumber			  from shippingfleet s where  t0.id = s.IdGr)as KtpNumber      
+     , (select top 1 SimNumber			  from shippingfleet s where  t0.id = s.IdGr)as SimNumber      
+     , (select top 1 StnkNumber			  from shippingfleet s where  t0.id = s.IdGr)as StnkNumber     
+     , (select top 1 NopolNumber		  from shippingfleet s where  t0.id = s.IdGr)as NopolNumber    
+     , (select top 1 EstimationTimePickup from shippingfleet s where  t0.id = s.IdGr)as  EstimationTimePickup    
+     , t0.Notes      
+     , t2.Step      
+     , t1.Status      
+     , t0.PickupPoint      
+     , CASE WHEN (t3.ViewByUser =''Waiting for pickup goods approval'')      
+      THEN t3.ViewByUser +'' (''+ emp.Fullname +'')''  
+	  WHEN t1.[IdStep] = 30074 THEN ''Request Cancel''
+	  WHEN t1.[IdStep] = 30075 THEN ''waiting for beacukai approval''
+	  WHEN t1.[IdStep] = 30076 THEN ''Cancelled''
+      ELSE t3.ViewByUser      
+       END AS StatusViewByUser '      
+ END      
+ SET @sql +='FROM dbo.GoodsReceive as t0      
+       INNER JOIN dbo.RequestGr as t1 on t1.IdGr = t0.Id  
+	   --INNER JOIN ShippingFleetRefrence sfr on sfr.IdGr = gr.Id 
+    --   INNER JOIN CargoCipl cc on cc.IdCipl = sfr.IdCipl
+       INNER JOIN dbo.FlowStep as t2 on t2.Id = t1.IdStep      
+    LEFT JOIN dbo.FlowStatus as t3 on t3.IdStep = t1.IdStep AND t3.Status = t1.Status      
+    left join PartsInformationSystem.dbo.useraccess emp on emp.userid = t0.PickupPic      
+       where 1=1 '+@WhereSql+'  AND t0.IsDelete=0 AND (t0.GrNo like ''%'+@Search+'%'' OR t0.PicName like ''%'+@Search+'%'')';      
+      
+ IF @isTotal = 0       
+ BEGIN      
+  SET @sql += ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY';      
+ END       
+      
+ --select @sql;      
+ print (@sql)    
+ EXECUTE(@sql);      
+ END      
+END      
+  
+ Go
+
+

@@ -1,0 +1,420 @@
+﻿--Sp_RPebReport '2000-01-01','2022-12-01','','',''            
+--Sp_RPebReport '','','','',''          
+Alter PROCEDURE Sp_RPebReport             
+ (          
+ @StartMonth DATEtime          
+ ,@EndMonth DATEtime          
+ ,@ParamName NVARCHAR(50)          
+ ,@ParamValue NVARCHAR(200)          
+ ,@KeyNum NVARCHAR(200)          
+ )          
+AS          
+BEGIN          
+ IF (          
+   @StartMonth <> ''          
+   AND @EndMonth <> ''          
+   )          
+ BEGIN          
+  SELECT DISTINCT t0.IdCl          
+   ,CONCAT (          
+    LEFT(DATENAME(MONTH, IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate)), 3)          
+    ,'-'          
+    ,DATEPART(YEAR, IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate))          
+    ) AS PebMonth     
+	,CAST(ROW_NUMBER() OVER (        
+     PARTITION BY CONCAT (        
+      LEFT(DATENAME(MONTH,IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate)), 3)        
+      ,'-'        
+      ,DATEPART(YEAR,IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate))        
+      ) ORDER BY IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate)     
+     ) AS bigint) RowNumber
+   ,t0.Id          
+   ,t0.AjuNumber          
+   ,t0.RegistrationNumber AS Nopen          
+   ,IIF(t0.NpeDateSubmitToCustomOffice IS NOT NULL, t0.NpeDateSubmitToCustomOffice, t0.UpdateDate) AS NopenDate          
+   ,t5.Company AS PPJK          
+   ,t6.ContainerNumber AS Container          
+   ,IIF(t1.TotalPackageBy = 'CaseNo', (          
+     SELECT Cast(Count(DISTINCT ci.CaseNumber) AS NVARCHAR)          
+     FROM CargoItem c          
+     JOIN ciplITEM ci ON ci.id = c.Idciplitem          
+     WHERE c.Idcargo = t1.Id          
+      AND c.isdelete = 0          
+     ), (          
+     SELECT Cast(Count(DISTINCT c.Id) AS NVARCHAR)          
+     FROM CargoItem c          
+     JOIN ciplITEM ci ON ci.id = c.Idciplitem          
+     WHERE c.Idcargo = t1.Id          
+      AND c.isdelete = 0          
+     )) AS Packages          
+   ,(          
+    SELECT Cast(SUM(C.Gross) AS NVARCHAR)          
+    FROM CargoItem c          
+    WHERE c.Idcargo = t0.IdCl          
+     AND c.isdelete = 0          
+    ) AS Gross          
+   ,t1.ShippingMethod          
+   ,t1.CargoType          
+   ,IIF(t3.ExportType = 'Non Sales - Return (Temporary)', 'Non Sales', IIF(t3.ExportType = 'Non Sales - Personal Effect (Permanent)', 'Non Sales', iif(t3.ExportType = 'Sales (Permanent)', 'Sales', iif(t3.ExportType = 'Non Sales - Repair Return (Temporary)
+  
+    
+      
+        
+', 'Non Sales', iif(t3.ExportType = 'Non Sales - Return (Permanent)', 'Non Sales', '-'))))) AS Note          
+   ,IIF(t3.ExportType = 'Non Sales - Return (Temporary)', 'Temporary', IIF(t3.ExportType = 'Non Sales - Personal Effect (Permanent)', 'Permanent', iif(t3.ExportType = 'Sales (Permanent)', 'Permanent', iif(t3.ExportType = 'Non Sales - Repair Return (Tempor
+  
+    
+      
+        
+ary)', 'Temporary', iif(t3.ExportType = 'Non Sales - Return (Permanent)', 'Permanent', '-'))))) AS Type          
+   ,t3.Category AS CategoryName          
+   ,(          
+    SELECT CAST(Count(Id) AS NVARCHAR)          
+    FROM CiplItem          
+    WHERE IdCipl = t3.Id          
+     AND isDelete = 0          
+    ) AS CiplQty          
+   ,t7.Uom AS CiplUOM          
+   ,Cast(t7.NetWeight AS NVARCHAR) AS [CiplWeight]          
+   ,Cast(t0.Rate AS NVARCHAR) AS PebNpeRate          
+   ,(          
+    SELECT Cast(Sum(cc.ExtendedValue) AS NVARCHAR)          
+    FROM CiplItem cc          
+    WHERE t3.ExportType LIKE 'Non Sales%'          
+     AND cc.IdCipl = t3.id          
+    ) AS NonSales          
+   ,(          
+    SELECT Cast(Sum(cc.ExtendedValue) AS NVARCHAR)          
+    FROM CiplItem cc          
+    WHERE t3.ExportType LIKE 'Sales%'          
+     AND cc.IdCipl = t3.id          
+    ) AS Sales          
+   ,(          
+    SELECT Cast(SUM(t7.extendedvalue) * t0.RATE AS NVARCHAR)          
+    ) AS TOTALEXPORTVALUEINIDR          
+,(SELECT cast(SUM(ci.extendedvalue) - NN.PebFob as nvarchar) FROM NpePeb NN        
+JOIN CargoCipl CC ON  CC.IdCargo = NN.IdCl        
+JOIN CiplItem ci on ci.IdCipl = cc.IdCipl        
+where nn.IdCl = t0.IdCl  And nn.IsCancelled Is null      
+group by nn.PebFob) as Balanced        
+   ,t1.PortOfLoading          
+   ,t1.PortOfDestination          
+   ,CONVERT(VARCHAR(11), t1.ETD, 106) AS ETD          
+   ,CONVERT(VARCHAR(11), t1.ETA, 106) AS ETA          
+   ,t4.Number AS MasterBlAwbNumber          
+   ,Convert(VARCHAR(11), t4.CreateDate, 106) AS BlDate          
+   ,t1.Incoterms          
+   ,t0.Valuta          
+   ,CAST(FORMAT(sum(ISNULL(t0.Rate, 0)), '#,0.00') AS NVARCHAR) AS Rate          
+   ,CAST(FORMAT(sum(ISNULL(t0.FreightPayment, 0)), '#,0.00') AS NVARCHAR) AS FreightPayment          
+   ,CAST(FORMAT(sum(ISNULL(t0.InsuranceAmount, 0)), '#,0.00') AS NVARCHAR) AS InsuranceAmount          
+   ,t3.CiplNo          
+   ,t3.Branch          
+   ,Convert(VARCHAR(11), t3.UpdateDate, 106) AS CiplDate          
+   ,t3.Remarks          
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,Cast(t0.PebFob AS NVARCHAR) AS PebFob          
+   ,(SELECT  Cast(count(Distinct ci.CaseNumber)as nvarchar) FROM NpePeb NN        
+JOIN CargoCipl CC ON  CC.IdCargo = NN.IdCl        
+JOIN CiplItem ci on ci.IdCipl = cc.IdCipl        
+where nn.IdCl = t0.IdCl ) as Colli        
+  FROM NpePeb t0          
+  LEFT JOIN Cargo t1 ON t1.Id = t0.IdCl          
+  LEFT JOIN CargoCipl t2 ON t2.IdCargo = t1.Id          
+  LEFT JOIN Cipl t3 ON t3.id = t2.IdCipl          
+  LEFT JOIN BlAwb t4 ON t4.IdCl = t2.IdCargo          
+  LEFT JOIN CiplForwader t5 ON t5.IdCipl = t3.id          
+  LEFT JOIN CargoItem t6 ON t6.IdCargo = t4.IdCl          
+  LEFT JOIN CiplItem t7 ON t7.Id = t6.IdCiplItem          
+  WHERE t0.IsDelete = 0          
+   AND t1.IsDelete = 0          
+   AND t2.IsDelete = 0          
+   AND t3.IsDelete = 0          
+   AND t4.IsDelete = 0          
+   AND t5.IsDelete = 0          
+   AND t6.isDelete = 0          
+   AND t7.IsDelete = 0          
+   AND t0.NpeDateSubmitToCustomOffice BETWEEN @StartMonth          
+    AND @EndMonth          
+  GROUP BY t0.Id          
+   ,t0.IdCl          
+   ,t0.AjuNumber          
+   ,t3.ExportType          
+   ,t3.Category          
+   ,t3.Id          
+   ,t1.Id          
+   ,t0.CreateDate          
+   ,t7.Uom          
+   ,t7.NetWeight          
+   ,t1.TotalPackageBy          
+   ,t0.UpdateDate          
+   ,t7.CaseNumber        
+   ,t0.NpeDateSubmitToCustomOffice          
+   ,t5.Company          
+   ,t6.ContainerNumber          
+   --,t0.UpdateBy                  
+   ,t0.RegistrationNumber          
+   --,t0.Nopen                              
+   --,t0.NopenDate                          
+   ,t1.ShippingMethod          
+   ,t1.CargoType          
+   ,t1.ExportType          
+   ,t1.ExportType          
+   ,t1.PortOfLoading          
+   ,t1.PortOfDestination          
+   ,t1.ETD          
+   ,t1.ETA          
+   ,t4.Number          
+   ,t4.CreateDate          
+   ,t1.Incoterms          
+   ,t0.Valuta          
+   ,t0.Rate          
+   ,t0.FreightPayment          
+   ,t0.InsuranceAmount          
+   ,t3.CiplNo          
+   ,t3.Branch          
+   ,t3.UpdateDate          
+   ,t3.Remarks          
+  
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,t0.PebFob         
+ END          
+ ELSE          
+ BEGIN          
+  SELECT DISTINCT t0.IdCl          
+   ,CONCAT (          
+    LEFT(DATENAME(MONTH, IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate)), 3)          
+    ,'-'          
+    ,DATEPART(YEAR, IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate))          
+    ) AS PebMonth     
+	,CAST(ROW_NUMBER() OVER (        
+     PARTITION BY CONCAT (        
+      LEFT(DATENAME(MONTH,IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate)), 3)        
+      ,'-'        
+      ,DATEPART(YEAR,IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate))        
+      ) ORDER BY IIF(t0.UpdateDate IS NOT NULL, t0.UpdateDate, t0.CreateDate)     
+     ) AS bigint) RowNumber
+   ,t0.Id          
+   ,t0.AjuNumber          
+   ,t0.RegistrationNumber AS Nopen          
+   ,t0.NpeDateSubmitToCustomOffice AS NopenDate          
+   ,t5.Company AS PPJK          
+   ,t6.ContainerNumber AS Container          
+   ,IIF(t1.TotalPackageBy = 'CaseNo', (          
+     SELECT Cast(Count(DISTINCT ci.CaseNumber) AS NVARCHAR)          
+     FROM CargoItem c          
+     JOIN ciplITEM ci ON ci.id = c.Idciplitem          
+     WHERE c.Idcargo = t1.Id          
+      AND c.isdelete = 0          
+     ), (          
+     SELECT Cast(Count(DISTINCT c.Id) AS NVARCHAR)          
+     FROM CargoItem c          
+     JOIN ciplITEM ci ON ci.id = c.Idciplitem          
+     WHERE c.Idcargo = t1.Id          
+      AND c.isdelete = 0          
+     )) AS Packages          
+   ,(          
+    SELECT Cast(SUM(C.Gross) AS NVARCHAR)          
+    FROM CargoItem c          
+    WHERE c.Idcargo = t0.IdCl          
+     AND c.isdelete = 0          
+    ) AS Gross          
+   ,t1.ShippingMethod          
+   ,t1.CargoType          
+   ,IIF(t3.ExportType = 'Non Sales - Return (Temporary)', 'Non Sales', IIF(t3.ExportType = 'Non Sales - Personal Effect (Permanent)', 'Non Sales', iif(t3.ExportType = 'Sales (Permanent)', 'Sales', iif(t3.ExportType = 'Non Sales - Repair Return (Temporary)
+  
+    
+      
+        
+', 'Non Sales', iif(t3.ExportType = 'Non Sales - Return (Permanent)', 'Non Sales', '-'))))) AS Note          
+   ,IIF(t3.ExportType = 'Non Sales - Return (Temporary)', 'Temporary', IIF(t3.ExportType = 'Non Sales - Personal Effect (Permanent)', 'Permanent', iif(t3.ExportType = 'Sales (Permanent)', 'Permanent', iif(t3.ExportType = 'Non Sales - Repair Return (Tempor
+  
+    
+      
+        
+ary)', 'Temporary', iif(t3.ExportType = 'Non Sales - Return (Permanent)', 'Permanent', '-'))))) AS Type          
+   ,t3.Category AS CategoryName          
+   ,(          
+    SELECT CAST(Count(Id) AS NVARCHAR)          
+    FROM CiplItem          
+    WHERE IdCipl = t3.Id          
+     AND isDelete = 0          
+    ) AS CiplQty          
+   ,t7.Uom AS CiplUOM          
+   ,Cast(t7.NetWeight AS NVARCHAR) AS [CiplWeight]          
+   ,Cast(t0.Rate AS NVARCHAR) AS PebNpeRate          
+   ,(          
+    SELECT Cast(Sum(cc.ExtendedValue) AS NVARCHAR)          
+    FROM CiplItem cc          
+    WHERE t3.ExportType LIKE 'Non Sales%'          
+     AND cc.IdCipl = t3.id          
+    ) AS NonSales          
+   ,(          
+    SELECT Cast(Sum(cc.ExtendedValue) AS NVARCHAR)          
+    FROM CiplItem cc          
+    WHERE t3.ExportType LIKE 'Sales%'          
+     AND cc.IdCipl = t3.id          
+    ) AS Sales          
+   ,(          
+    SELECT Cast(SUM(t7.extendedvalue) * t0.RATE AS NVARCHAR)          
+    ) AS TOTALEXPORTVALUEINIDR          
+   ,(SELECT cast(SUM(ci.extendedvalue) - NN.PebFob as nvarchar) FROM NpePeb NN        
+JOIN CargoCipl CC ON  CC.IdCargo = NN.IdCl        
+JOIN CiplItem ci on ci.IdCipl = cc.IdCipl        
+where nn.IdCl = t0.IdCl   And nn.IsCancelled Is null      
+group by nn.PebFob) as Balanced        
+   ,t1.PortOfLoading          
+   ,t1.PortOfDestination          
+   ,CONVERT(VARCHAR(11), t1.ETD, 106) AS ETD          
+   ,CONVERT(VARCHAR(11), t1.ETA, 106) AS ETA          
+   ,t4.Number AS MasterBlAwbNumber          
+   ,Convert(VARCHAR(11), t4.CreateDate, 106) AS BlDate          
+   ,t1.Incoterms          
+   ,t0.Valuta          
+   ,CAST(FORMAT(sum(ISNULL(t0.Rate, 0)), '#,0.00') AS NVARCHAR) AS Rate          
+   ,CAST(FORMAT(sum(ISNULL(t0.FreightPayment, 0)), '#,0.00') AS NVARCHAR) AS FreightPayment          
+   ,CAST(FORMAT(sum(ISNULL(t0.InsuranceAmount, 0)), '#,0.00') AS NVARCHAR) AS InsuranceAmount          
+   ,t3.CiplNo          
+   ,t3.Branch          
+   ,Convert(VARCHAR(11), t3.UpdateDate, 106) AS CiplDate          
+   ,t3.Remarks          
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,Cast(t0.PebFob AS NVARCHAR) AS PebFob          
+   ,(SELECT  Cast(count(Distinct ci.CaseNumber)as nvarchar) FROM NpePeb NN        
+JOIN CargoCipl CC ON  CC.IdCargo = NN.IdCl        
+JOIN CiplItem ci on ci.IdCipl = cc.IdCipl        
+where nn.IdCl = t0.IdCl ) as Colli        
+  FROM NpePeb t0          
+  LEFT JOIN Cargo t1 ON t1.Id = t0.IdCl          
+  LEFT JOIN CargoCipl t2 ON t2.IdCargo = t1.Id          
+  LEFT JOIN Cipl t3 ON t3.id = t2.IdCipl          
+  LEFT JOIN BlAwb t4 ON t4.IdCl = t2.IdCargo          
+  LEFT JOIN CiplForwader t5 ON t5.IdCipl = t3.id          
+  LEFT JOIN CargoItem t6 ON t6.IdCargo = t4.IdCl          
+  LEFT JOIN CiplItem t7 ON t7.Id = t6.IdCiplItem          
+  WHERE t0.IsDelete = 0          
+   AND t1.IsDelete = 0          
+   AND t2.IsDelete = 0          
+   AND t3.IsDelete = 0          
+   AND t4.IsDelete = 0          
+   AND t5.IsDelete = 0          
+   AND t6.isDelete = 0          
+   AND t7.IsDelete = 0          
+             
+  GROUP BY t0.Id          
+   ,t0.IdCl          
+   ,t0.AjuNumber          
+   ,t3.ExportType          
+   ,t3.Category          
+   ,t3.Id          
+   ,t1.Id          
+   ,t0.CreateDate          
+   ,t7.Uom          
+   ,t7.NetWeight          
+   ,t1.TotalPackageBy          
+   ,t7.CaseNumber        
+   ,t0.UpdateDate          
+   ,t0.NpeDateSubmitToCustomOffice          
+   ,t5.Company          
+   ,t6.ContainerNumber          
+   --,t0.UpdateBy                  
+   ,t0.RegistrationNumber          
+   --,t0.Nopen                               --,t0.NopenDate                          
+   ,t1.ShippingMethod          
+   ,t1.CargoType          
+   ,t1.ExportType          
+   ,t1.ExportType          
+   ,t1.PortOfLoading          
+   ,t1.PortOfDestination          
+   ,t1.ETD          
+   ,t1.ETA          
+   ,t4.Number          
+   ,t4.CreateDate          
+   ,t1.Incoterms          
+   ,t0.Valuta          
+   ,t0.Rate          
+   ,t0.FreightPayment          
+   ,t0.InsuranceAmount          
+   ,t3.CiplNo          
+   ,t3.Branch          
+   ,t3.UpdateDate          
+   ,t3.Remarks          
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,t3.ConsigneeName          
+   ,t3.ConsigneeCountry          
+   ,t0.PebFob      
+     
+ END          
+END 
+
+Go
+
+ALTER PROCEDURE [dbo].[sp_get_task_npe_peb] -- [dbo].[sp_get_task_npe_peb]'xupj21wdn'        
+(        
+ @Username nvarchar(100),        
+ @isTotal bit = 0,        
+ @sort nvarchar(100) = 'Id',        
+ @order nvarchar(100) = 'ASC',        
+ @offset nvarchar(100) = '0',        
+ @limit nvarchar(100) = '100'        
+)        
+AS        
+BEGIN        
+    SET NOCOUNT ON;        
+    DECLARE @sql nvarchar(max);  --select * from dbo.vw_container        
+ DECLARE @GroupId nvarchar(100);         
+ DECLARE @PicNpe nvarchar(100);        
+ DECLARE @UserType nvarchar(100);        
+ DECLARE @UserGroupNameExternal nvarchar(100) = '';        
+ DECLARE @Filter nvarchar(max);        
+ DECLARE @FilterAdd nvarchar(max) = '';        
+        
+ SELECT @UserType = UserType, @UserGroupNameExternal = Cust_Group_No from PartsInformationSystem.dbo.UserAccess where UserID = @Username;        
+        
+ if @UserType <> 'internal'         
+ BEGIN        
+  SET @GroupId = 'CKB';        
+  SET @PicNpe = 'CKB';        
+  SET @Filter = 'AND ((PicBlAwb = '''+@PicNpe+''' AND IdNextStep != 10020 ) OR (IdStep != 30069 AND IdStep != 30071)) '        
+  SET @FilterAdd = ' OR (IdStep = 30070 AND Status = ''Approve'')'        
+ END        
+ ELSE        
+ BEGIN        
+  select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;        
+  if @GroupId = 'Import Export' OR @GroupId = 'Import Export Operation' OR @GroupId = 'Import Export Operation Mgmt.'        
+  BEGIN        
+   SET @GroupId = 'Import Export';        
+   SET @PicNpe = 'IMEX';        
+   SET @Filter = 'AND ((PicBlAwb = '''+@PicNpe+''' OR IdNextStep = 10020 OR IdNextStep = 30075 OR IdNextStep = 30076 OR IdNextStep = null) OR IdStep = 30069 OR IdStep = 30071 OR IdStep = 30074 OR IdStep = 30075 OR IdStep = 30076)'        
+   --SET @FilterAdd = 'AND (IdStep = 30070 AND '        
+  END        
+ END        
+        
+    SET @sql = CASE         
+      WHEN @isTotal = 1         
+     THEN 'SELECT COUNT(*) as total'         
+      ELSE 'select tab0.* '        
+      --END + ' FROM fn_get_cl_request_list('''+@Username+''', '''+ISNULL(@GroupId, 0)+''', '''+@PicNpe+''') as tab0 WHERE IdStep IN (10017,10019,10020) AND (PicBlAwb = '''+@PicNpe+''' OR IdNextStep =10020) AND Status IN(''Submit'',''Revise'')' +        
+      --END + ' FROM fn_get_cl_request_list('''+@Username+''', '''+ISNULL(@GroupId, 0)+''', '''+@PicNpe+''') as tab0 WHERE IdStep IN (10017,10019,10020) '+ @Filter +' AND Status IN(''Submit'',''Revise'')' +        
+      END + ' FROM fn_get_CL_request_list('''+@Username+''', '''+ISNULL(@GroupId, 0)+''', '''+@PicNpe+''') as tab0 WHERE IdStep IN (10017,10019,10020, 30069,30070, 30071, 30072,30074,30075,30076) '+ @Filter +' AND Status IN (''Submit'',''Revise'',''Ca
+ncel  
+    
+Request'',''CancelApproval'',''Cancel'') Or IsCancelled IN (0,1,2,null)'+ @FilterAdd +'' +      
+      CASE         
+     WHEN @isTotal = 0         
+     THEN ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY' ELSE '' END;        
+        
+ --select @sql;         
+ PRINT(@sql);        
+ EXECUTE(@sql);        
+END  

@@ -1,0 +1,115 @@
+﻿ALTER PROCEDURE [dbo].[SP_Report_Total_Export_Monthly] --'2022', ''
+(@year NVARCHAR(7),
+@filter NVARCHAR(MAX))   
+AS   
+  BEGIN   
+		SELECT	SUM(T1.January) January, 
+				SUM(T1.JanuarySales) JanuarySales, 
+				SUM(T1.JanuaryNonSales) JanuaryNonSales, 
+				SUM(T1.February) February, 
+				SUM(T1.FebruarySales) FebruarySales, 
+				SUM(T1.FebruaryNonSales) FebruaryNonSales, 
+				SUM(T1.March) March, 
+				SUM(T1.MarchSales) MarchSales, 
+				SUM(T1.MarchNonSales) MarchNonSales, 
+				SUM(T1.April) April, 
+				SUM(T1.AprilSales) AprilSales, 
+				SUM(T1.AprilNonSales) AprilNonSales, 
+				SUM(T1.May) May, 
+				SUM(T1.MaySales) MaySales, 
+				SUM(T1.MayNonSales) MayNonSales,
+				SUM(T1.June) June, 
+				SUM(T1.JuneSales) JuneSales, 
+				SUM(T1.JuneNonSales) JuneNonSales,
+				SUM(T1.July) July, 
+				SUM(T1.JulySales) JulySales, 
+				SUM(T1.JulyNonSales) JulyNonSales,
+				SUM(T1.August) August, 
+				SUM(T1.AugustSales) AugustSales, 
+				SUM(T1.AugustNonSales) AugustNonSales,
+				SUM(T1.September) September, 
+				SUM(T1.SeptemberSales) SeptemberSales, 
+				SUM(T1.SeptemberNonSales) SeptemberNonSales,
+				SUM(T1.October) October, 
+				SUM(T1.OctoberSales) OctoberSales, 
+				SUM(T1.OctoberNonSales) OctoberNonSales,
+				SUM(T1.November) November, 
+				SUM(T1.NovemberSales) NovemberSales, 
+				SUM(T1.NovemberNonSales) NovemberNonSales,
+				SUM(T1.December) December, 
+				SUM(T1.DecemberSales) DecemberSales, 
+				SUM(T1.DecemberNonSales) DecemberNonSales,
+				SUM(T1.TotalSales) TotalSales, 
+				SUM(T1.TotalNonSales) TotalNonSales,
+				SUM(T1.Total) Total
+		FROM	(SELECT	rcl.IdCl, car.ExportType, rcl.CreateDate,
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 1 THEN 1 ELSE 0 END),0) AS 'January', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 1 THEN 1 ELSE 0 END),0) AS 'JanuarySales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 1 THEN 1 ELSE 0 END),0) AS 'JanuaryNonSales',  
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 2 THEN 1 ELSE 0 END),0) AS 'February', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 2 THEN 1 ELSE 0 END),0) AS 'FebruarySales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 2 THEN 1 ELSE 0 END),0) AS 'FebruaryNonSales', 
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 3 THEN 1 ELSE 0 END),0) AS 'March', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 3 THEN 1 ELSE 0 END),0) AS 'MarchSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 3 THEN 1 ELSE 0 END),0) AS 'MarchNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 4 THEN 1 ELSE 0 END),0) AS 'April', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 4 THEN 1 ELSE 0 END),0) AS 'AprilSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 4 THEN 1 ELSE 0 END),0) AS 'AprilNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 5 THEN 1 ELSE 0 END),0) AS 'May', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 5 THEN 1 ELSE 0 END),0) AS 'MaySales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 5 THEN 1 ELSE 0 END),0) AS 'MayNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 6 THEN 1 ELSE 0 END),0) AS 'June', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 6 THEN 1 ELSE 0 END),0) AS 'JuneSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 6 THEN 1 ELSE 0 END),0) AS 'JuneNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 7 THEN 1 ELSE 0 END),0) AS 'July', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 7 THEN 1 ELSE 0 END),0) AS 'JulySales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 7 THEN 1 ELSE 0 END),0) AS 'JulyNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 8 THEN 1 ELSE 0 END),0) AS 'August', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 8 THEN 1 ELSE 0 END),0) AS 'AugustSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 8 THEN 1 ELSE 0 END),0) AS 'AugustNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 9 THEN 1 ELSE 0 END),0) AS 'September', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 9 THEN 1 ELSE 0 END),0) AS 'SeptemberSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 9 THEN 1 ELSE 0 END),0) AS 'SeptemberNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 10 THEN 1 ELSE 0 END),0) AS 'October', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 10 THEN 1 ELSE 0 END),0) AS 'OctoberSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 10 THEN 1 ELSE 0 END),0) AS 'OctoberNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 11 THEN 1 ELSE 0 END),0) AS 'November', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 11 THEN 1 ELSE 0 END),0) AS 'NovemberSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 11 THEN 1 ELSE 0 END),0) AS 'NovemberNonSales',
+				ISNULL(SUM(CASE WHEN DATEPART(month, rcl.CreateDate) = 12 THEN 1 ELSE 0 END),0) AS 'December', 
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(month, rcl.CreateDate) = 12 THEN 1 ELSE 0 END),0) AS 'DecemberSales',  
+				ISNULL(SUM(CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(month, rcl.CreateDate) = 12 THEN 1 ELSE 0 END),0) AS 'DecemberNonSales',
+				CASE WHEN car.ExportType LIKE 'Sales%' AND DATEPART(year, rcl.CreateDate) IN (@year) THEN 1 ELSE 0 END [TotalSales],
+				CASE WHEN car.ExportType LIKE 'Non Sales%' AND DATEPART(year, rcl.CreateDate) IN (@year) THEN 1 ELSE 0 END [TotalNonSales],
+				ISNULL(SUM(CASE WHEN DATEPART(year, rcl.CreateDate) IN (@year) THEN 1 ELSE 0 END),0) [Total]
+		FROM	RequestCl rcl
+				INNER JOIN Cargo car ON rcl.IdCl = car.Id
+		WHERE	Year(rcl.CreateDate) = @year  
+				AND rcl.[Status] = 'Approve'  
+				AND rcl.IdStep IN (10020, 10022) 
+				AND car.ExportType LIKE '' + @filter + '%'
+		GROUP BY rcl.IdCl, car.ExportType, rcl.CreateDate) AS T1
+  END   
+
+  ALTER PROCEDURE [dbo].[Sp_Report_Total_Export_Port] --'2022', ''
+(@year NVARCHAR(4),
+@filter NVARCHAR(MAX))
+AS   
+  BEGIN   
+      SELECT	T1.PortOfLoading, T1.PortOfDestination, ISNULL(SUM(T1.Total),0) Total, ISNULL(SUM(T1.TotalSales),0) TotalSales, ISNULL(SUM(T1.TotalNonSales),0) TotalNonSales
+	  FROM		( SELECT C.PortOfLoading,
+						 C.PortOfDestination,   
+						 ISNULL(COUNT(RCL.Id), 0) Total,
+						 ISNULL(SUM(CASE WHEN C.ExportType LIKE 'Sales%' AND DATEPART(year, rcl.CreateDate) IN (@year) THEN 1 ELSE 0 END),0) [TotalSales],
+						 ISNULL(SUM(CASE WHEN C.ExportType LIKE 'Non Sales%' AND DATEPART(year, rcl.CreateDate) IN (@year) THEN 1 ELSE 0 END),0) [TotalNonSales]  
+				  FROM   dbo.RequestCl RCL
+						 INNER JOIN dbo.Cargo C ON C.Id = RCL.IdCl
+						 INNER JOIN NpePeb N ON C.Id = N.IdCl
+				  WHERE  Year(RCL.CreateDate) = @year   
+						 AND RCL.[Status] = 'Approve'   
+						 AND RCL.IdStep IN ( 10020, 10022 )   
+						 AND N.NpeNumber <> ''  
+						 AND C.ExportType LIKE '' + @filter + '%'
+				  GROUP  BY C.Id, C.PortOfLoading, C.PortOfDestination, C.ExportType, rcl.CreateDate) AS T1
+	  GROUP BY	T1.PortOfLoading, T1.PortOfDestination
+  END

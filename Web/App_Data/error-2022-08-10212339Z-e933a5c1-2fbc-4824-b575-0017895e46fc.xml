@@ -1,0 +1,230 @@
+﻿<error errorId="e933a5c1-2fbc-4824-b575-0017895e46fc" application="/LM/W3SVC/2/ROOT" host="DESKTOP-CDLR69T" type="System.ComponentModel.Win32Exception" message="The wait operation timed out" detail="System.Data.SqlClient.SqlException (0x80131904): Execution Timeout Expired.  The timeout period elapsed prior to completion of the operation or the server is not responding. ---&gt; System.ComponentModel.Win32Exception (0x80004005): The wait operation timed out&#xD;&#xA;   at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)&#xD;&#xA;   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)&#xD;&#xA;   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean&amp; dataReady)&#xD;&#xA;   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()&#xD;&#xA;   at System.Data.SqlClient.SqlDataReader.get_MetaData()&#xD;&#xA;   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)&#xD;&#xA;   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task&amp; task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)&#xD;&#xA;   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method, TaskCompletionSource`1 completion, Int32 timeout, Task&amp; task, Boolean&amp; usedCache, Boolean asyncWrite, Boolean inRetry)&#xD;&#xA;   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)&#xD;&#xA;   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior, String method)&#xD;&#xA;   at System.Data.Entity.Infrastructure.Interception.InternalDispatcher`1.Dispatch[TTarget,TInterceptionContext,TResult](TTarget target, Func`3 operation, TInterceptionContext interceptionContext, Action`3 executing, Action`3 executed)&#xD;&#xA;   at System.Data.Entity.Infrastructure.Interception.DbCommandDispatcher.Reader(DbCommand command, DbCommandInterceptionContext interceptionContext)&#xD;&#xA;   at System.Data.Entity.Core.Objects.ObjectContext.ExecuteStoreQueryInternal[TElement](String commandText, String entitySetName, ExecutionOptions executionOptions, Object[] parameters)&#xD;&#xA;   at System.Data.Entity.Core.Objects.ObjectContext.&lt;&gt;c__DisplayClass65`1.&lt;ExecuteStoreQueryReliably&gt;b__64()&#xD;&#xA;   at System.Data.Entity.Core.Objects.ObjectContext.ExecuteInTransaction[T](Func`1 func, IDbExecutionStrategy executionStrategy, Boolean startLocalTransaction, Boolean releaseConnectionOnSuccess)&#xD;&#xA;   at System.Data.Entity.Core.Objects.ObjectContext.&lt;&gt;c__DisplayClass65`1.&lt;ExecuteStoreQueryReliably&gt;b__63()&#xD;&#xA;   at System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)&#xD;&#xA;   at System.Data.Entity.Core.Objects.ObjectContext.ExecuteStoreQueryReliably[TElement](String commandText, String entitySetName, ExecutionOptions executionOptions, Object[] parameters)&#xD;&#xA;   at System.Data.Entity.Core.Objects.ObjectContext.ExecuteStoreQuery[TElement](String commandText, ExecutionOptions executionOptions, Object[] parameters)&#xD;&#xA;   at System.Data.Entity.Internal.LazyEnumerator`1.MoveNext()&#xD;&#xA;   at System.Linq.Enumerable.FirstOrDefault[TSource](IEnumerable`1 source)&#xD;&#xA;   at App.Service.EMCS.SvcRequestCl.GetBlTotalList(GridListFilter crit) in E:\Client Projects\Hendri\EMCS_Staging\Library\App.Service\EMCS\SvcRequestCl.cs:line 164&#xD;&#xA;   at App.Web.Controllers.EMCS.EmcsController.GetTaskBlData(GridListFilter filter) in E:\Client Projects\Hendri\EMCS_Staging\Web\Controllers\EMCS\MyTask.cs:line 131&#xD;&#xA;   at lambda_method(Closure , ControllerBase , Object[] )&#xD;&#xA;   at System.Web.Mvc.ReflectedActionDescriptor.Execute(ControllerContext controllerContext, IDictionary`2 parameters)&#xD;&#xA;   at System.Web.Mvc.ControllerActionInvoker.InvokeActionMethod(ControllerContext controllerContext, ActionDescriptor actionDescriptor, IDictionary`2 parameters)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.&lt;BeginInvokeSynchronousActionMethod&gt;b__39(IAsyncResult asyncResult, ActionInvocation innerInvokeState)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncResultWrapper.WrappedAsyncResult`2.CallEndDelegate(IAsyncResult asyncResult)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.EndInvokeActionMethod(IAsyncResult asyncResult)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.AsyncInvocationWithFilters.&lt;InvokeActionMethodFilterAsynchronouslyRecursive&gt;b__3d()&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.AsyncInvocationWithFilters.&lt;&gt;c__DisplayClass46.&lt;InvokeActionMethodFilterAsynchronouslyRecursive&gt;b__3f()&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.EndInvokeActionMethodWithFilters(IAsyncResult asyncResult)&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.&lt;&gt;c__DisplayClass21.&lt;&gt;c__DisplayClass2b.&lt;BeginInvokeAction&gt;b__1c()&#xD;&#xA;   at System.Web.Mvc.Async.AsyncControllerActionInvoker.&lt;&gt;c__DisplayClass21.&lt;BeginInvokeAction&gt;b__1e(IAsyncResult asyncResult)&#xD;&#xA;ClientConnectionId:cfdf1f84-ebec-4d9d-a9ba-b5a7a6972045&#xD;&#xA;Error Number:-2,State:0,Class:11" user="XUPJ21WDN" time="2022-08-10T21:23:39.7839388Z">
+  <serverVariables>
+    <item name="ALL_HTTP">
+      <value string="HTTP_CONNECTION:keep-alive&#xD;&#xA;HTTP_CONTENT_TYPE:application/json&#xD;&#xA;HTTP_ACCEPT:application/json, text/javascript, */*; q=0.01&#xD;&#xA;HTTP_ACCEPT_ENCODING:gzip, deflate, br&#xD;&#xA;HTTP_ACCEPT_LANGUAGE:en-US,en;q=0.9,gu;q=0.8&#xD;&#xA;HTTP_COOKIE:trakindo__pis_localhost1400_202207=D2980012EBE94B2D6D3A8C0C5D994EAB431B40FC23319B12FDACBD15712869FB8E353AB771AF5C59A16B167A9FB201E5C839F77D16156FF9FB7A1898B968DFDCFE41A65B266382F95E16CC02C1EC9F5D7E85BE79C3F9A650E1FE895CF7D866DA20CA963FCD089A4953820006AB95B28E5916AE23ECB430C476459C354EB8644FFACA5FED24F1E68383A8AF686F44136A3C232F1A09E2C5AE6F20A4124B6D64D07D9244A3EBB935E56367F577AC61692B1BD9BA4ED096377EFDD159F3990D0734474D38C7A4139F69E0206011B291890CFE14081C82640E16C5DE00F5AF4CB0ECEDB7F21706D4999029F8F387B8892D25F8FE62BE2E54721D61002707C014FFCC7C5CEDC7F67596EB684FD4B0EECA57AB97EC20228F53D724797718B9E5CFC506EAE77872A086F85CED936CAC6277AF2CA36B836FCCCB52BB52297AB6A2BDAC3DB791FA1BF4980A03954525F4F35D28312DFA747C1080659B4DF4173AD78E36FCDAE44FF5EF795311564E60CC955671B4; _ga=GA1.1.1094185988.1657879694; _gcl_au=1.1.1428815844.1657880879; ajs_anonymous_id=4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0; _ga_Y80687Q41G=GS1.1.1659011652.29.1.1659011700.0; .Nop.Customer=cd179d34-4953-4c73-8ad6-de3951c32b8b; ASP.NET_SessionId=kqyu4i0nxe20o3j4gyuxd5la; __RequestVerificationToken=WVxq-FNynEOk0lHJXuH_GqQIUpeeSP_Ib4PuQfzNu7yR_6lJVSio7_zTuiVDeADgKxnaCWmrU_dH8RgfanYLd5eaLnXgTD72vbt9AqIkQZ41; .ASPXAUTH=9F2940F2D57137D44A2BA90B66B2FEE34610940FD7E73D3F5A9D18A61CD60B113FDA24848C6BB546B3B3617FC530C10D72FC05BF8C556E04E7B5434A1D08A9B7B14230FD961F4DBABBF994F2B1FD56DCC86C66034B348F938B6DA0582F5FF20A; trakindo__pis_localhost1400_202208=F2D913B2FF5DD404DB13B2C29E310117E8C65EE97F530CCA33B00C3CB5AE547996CA8B2BD45B07D2970527D9700EB125AA43C6BA94BC48829EB079E1E20502B610318D2F001741561E0AF4438DC05F30AB20CA66B1516099BF6254B968003EA7AD7CAF12DB5F1A0C5FEE2B81DE9F73E0F038E9FC6A72E2E9DA2AE908F5FA6427D657C912D22CAA08A637718D21FFD531E18D4270B3BAF70AC41877273A6959BC2172A6F214A3C94F6E87ED8745E87DA29F426EB021849D7268696F944DF787B599114D2CC0AE24B1BFCC6852C15DFBB055C67C1650321A7F68B3C664ADF8E0A1FD218C73421C7FAED35B80E4E95AD44E59BFAC02355864F7ACE2429A31F6DDD6B5EA4101B15EA19863528A8181D4DCF0E1E05AA1E2844D7FA05FEB8A9E2475315A3F92F433BD44F7FB23258FB0C2473071789DBC9B7A9C5563B9908FBFCD6AAC350A056C105EF7643433E89A92386A41A61BB5B0043D38EA90DA53327BFB5DE820CA775F9AA32A90084846162944C9E6; nav-item=1&#xD;&#xA;HTTP_HOST:localhost:1400&#xD;&#xA;HTTP_REFERER:http://localhost:1400/EMCS/Mytask&#xD;&#xA;HTTP_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36&#xD;&#xA;HTTP_SEC_CH_UA:&quot;Chromium&quot;;v=&quot;104&quot;, &quot; Not A;Brand&quot;;v=&quot;99&quot;, &quot;Google Chrome&quot;;v=&quot;104&quot;&#xD;&#xA;HTTP_X_REQUESTED_WITH:XMLHttpRequest&#xD;&#xA;HTTP_SEC_CH_UA_MOBILE:?0&#xD;&#xA;HTTP_SEC_CH_UA_PLATFORM:&quot;Windows&quot;&#xD;&#xA;HTTP_SEC_FETCH_SITE:same-origin&#xD;&#xA;HTTP_SEC_FETCH_MODE:cors&#xD;&#xA;HTTP_SEC_FETCH_DEST:empty&#xD;&#xA;" />
+    </item>
+    <item name="ALL_RAW">
+      <value string="Connection: keep-alive&#xD;&#xA;Content-Type: application/json&#xD;&#xA;Accept: application/json, text/javascript, */*; q=0.01&#xD;&#xA;Accept-Encoding: gzip, deflate, br&#xD;&#xA;Accept-Language: en-US,en;q=0.9,gu;q=0.8&#xD;&#xA;Cookie: trakindo__pis_localhost1400_202207=D2980012EBE94B2D6D3A8C0C5D994EAB431B40FC23319B12FDACBD15712869FB8E353AB771AF5C59A16B167A9FB201E5C839F77D16156FF9FB7A1898B968DFDCFE41A65B266382F95E16CC02C1EC9F5D7E85BE79C3F9A650E1FE895CF7D866DA20CA963FCD089A4953820006AB95B28E5916AE23ECB430C476459C354EB8644FFACA5FED24F1E68383A8AF686F44136A3C232F1A09E2C5AE6F20A4124B6D64D07D9244A3EBB935E56367F577AC61692B1BD9BA4ED096377EFDD159F3990D0734474D38C7A4139F69E0206011B291890CFE14081C82640E16C5DE00F5AF4CB0ECEDB7F21706D4999029F8F387B8892D25F8FE62BE2E54721D61002707C014FFCC7C5CEDC7F67596EB684FD4B0EECA57AB97EC20228F53D724797718B9E5CFC506EAE77872A086F85CED936CAC6277AF2CA36B836FCCCB52BB52297AB6A2BDAC3DB791FA1BF4980A03954525F4F35D28312DFA747C1080659B4DF4173AD78E36FCDAE44FF5EF795311564E60CC955671B4; _ga=GA1.1.1094185988.1657879694; _gcl_au=1.1.1428815844.1657880879; ajs_anonymous_id=4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0; _ga_Y80687Q41G=GS1.1.1659011652.29.1.1659011700.0; .Nop.Customer=cd179d34-4953-4c73-8ad6-de3951c32b8b; ASP.NET_SessionId=kqyu4i0nxe20o3j4gyuxd5la; __RequestVerificationToken=WVxq-FNynEOk0lHJXuH_GqQIUpeeSP_Ib4PuQfzNu7yR_6lJVSio7_zTuiVDeADgKxnaCWmrU_dH8RgfanYLd5eaLnXgTD72vbt9AqIkQZ41; .ASPXAUTH=9F2940F2D57137D44A2BA90B66B2FEE34610940FD7E73D3F5A9D18A61CD60B113FDA24848C6BB546B3B3617FC530C10D72FC05BF8C556E04E7B5434A1D08A9B7B14230FD961F4DBABBF994F2B1FD56DCC86C66034B348F938B6DA0582F5FF20A; trakindo__pis_localhost1400_202208=F2D913B2FF5DD404DB13B2C29E310117E8C65EE97F530CCA33B00C3CB5AE547996CA8B2BD45B07D2970527D9700EB125AA43C6BA94BC48829EB079E1E20502B610318D2F001741561E0AF4438DC05F30AB20CA66B1516099BF6254B968003EA7AD7CAF12DB5F1A0C5FEE2B81DE9F73E0F038E9FC6A72E2E9DA2AE908F5FA6427D657C912D22CAA08A637718D21FFD531E18D4270B3BAF70AC41877273A6959BC2172A6F214A3C94F6E87ED8745E87DA29F426EB021849D7268696F944DF787B599114D2CC0AE24B1BFCC6852C15DFBB055C67C1650321A7F68B3C664ADF8E0A1FD218C73421C7FAED35B80E4E95AD44E59BFAC02355864F7ACE2429A31F6DDD6B5EA4101B15EA19863528A8181D4DCF0E1E05AA1E2844D7FA05FEB8A9E2475315A3F92F433BD44F7FB23258FB0C2473071789DBC9B7A9C5563B9908FBFCD6AAC350A056C105EF7643433E89A92386A41A61BB5B0043D38EA90DA53327BFB5DE820CA775F9AA32A90084846162944C9E6; nav-item=1&#xD;&#xA;Host: localhost:1400&#xD;&#xA;Referer: http://localhost:1400/EMCS/Mytask&#xD;&#xA;User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36&#xD;&#xA;sec-ch-ua: &quot;Chromium&quot;;v=&quot;104&quot;, &quot; Not A;Brand&quot;;v=&quot;99&quot;, &quot;Google Chrome&quot;;v=&quot;104&quot;&#xD;&#xA;X-Requested-With: XMLHttpRequest&#xD;&#xA;sec-ch-ua-mobile: ?0&#xD;&#xA;sec-ch-ua-platform: &quot;Windows&quot;&#xD;&#xA;Sec-Fetch-Site: same-origin&#xD;&#xA;Sec-Fetch-Mode: cors&#xD;&#xA;Sec-Fetch-Dest: empty&#xD;&#xA;" />
+    </item>
+    <item name="APPL_MD_PATH">
+      <value string="/LM/W3SVC/2/ROOT" />
+    </item>
+    <item name="APPL_PHYSICAL_PATH">
+      <value string="E:\Client Projects\Hendri\EMCS_Staging\Web\" />
+    </item>
+    <item name="AUTH_TYPE">
+      <value string="Forms" />
+    </item>
+    <item name="AUTH_USER">
+      <value string="XUPJ21WDN" />
+    </item>
+    <item name="AUTH_PASSWORD">
+      <value string="*****" />
+    </item>
+    <item name="LOGON_USER">
+      <value string="XUPJ21WDN" />
+    </item>
+    <item name="REMOTE_USER">
+      <value string="XUPJ21WDN" />
+    </item>
+    <item name="CERT_COOKIE">
+      <value string="" />
+    </item>
+    <item name="CERT_FLAGS">
+      <value string="" />
+    </item>
+    <item name="CERT_ISSUER">
+      <value string="" />
+    </item>
+    <item name="CERT_KEYSIZE">
+      <value string="" />
+    </item>
+    <item name="CERT_SECRETKEYSIZE">
+      <value string="" />
+    </item>
+    <item name="CERT_SERIALNUMBER">
+      <value string="" />
+    </item>
+    <item name="CERT_SERVER_ISSUER">
+      <value string="" />
+    </item>
+    <item name="CERT_SERVER_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="CERT_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="CONTENT_LENGTH">
+      <value string="0" />
+    </item>
+    <item name="CONTENT_TYPE">
+      <value string="application/json" />
+    </item>
+    <item name="GATEWAY_INTERFACE">
+      <value string="CGI/1.1" />
+    </item>
+    <item name="HTTPS">
+      <value string="off" />
+    </item>
+    <item name="HTTPS_KEYSIZE">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SECRETKEYSIZE">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SERVER_ISSUER">
+      <value string="" />
+    </item>
+    <item name="HTTPS_SERVER_SUBJECT">
+      <value string="" />
+    </item>
+    <item name="INSTANCE_ID">
+      <value string="2" />
+    </item>
+    <item name="INSTANCE_META_PATH">
+      <value string="/LM/W3SVC/2" />
+    </item>
+    <item name="LOCAL_ADDR">
+      <value string="::1" />
+    </item>
+    <item name="PATH_INFO">
+      <value string="/EMCS/GetTaskBlData" />
+    </item>
+    <item name="PATH_TRANSLATED">
+      <value string="E:\Client Projects\Hendri\EMCS_Staging\Web\EMCS\GetTaskBlData" />
+    </item>
+    <item name="QUERY_STRING">
+      <value string="order=asc&amp;limit=5&amp;offset=0&amp;_=1660166494300" />
+    </item>
+    <item name="REMOTE_ADDR">
+      <value string="::1" />
+    </item>
+    <item name="REMOTE_HOST">
+      <value string="::1" />
+    </item>
+    <item name="REMOTE_PORT">
+      <value string="53118" />
+    </item>
+    <item name="REQUEST_METHOD">
+      <value string="GET" />
+    </item>
+    <item name="SCRIPT_NAME">
+      <value string="/EMCS/GetTaskBlData" />
+    </item>
+    <item name="SERVER_NAME">
+      <value string="localhost" />
+    </item>
+    <item name="SERVER_PORT">
+      <value string="1400" />
+    </item>
+    <item name="SERVER_PORT_SECURE">
+      <value string="0" />
+    </item>
+    <item name="SERVER_PROTOCOL">
+      <value string="HTTP/1.1" />
+    </item>
+    <item name="SERVER_SOFTWARE">
+      <value string="Microsoft-IIS/10.0" />
+    </item>
+    <item name="URL">
+      <value string="/EMCS/GetTaskBlData" />
+    </item>
+    <item name="HTTP_CONNECTION">
+      <value string="keep-alive" />
+    </item>
+    <item name="HTTP_CONTENT_TYPE">
+      <value string="application/json" />
+    </item>
+    <item name="HTTP_ACCEPT">
+      <value string="application/json, text/javascript, */*; q=0.01" />
+    </item>
+    <item name="HTTP_ACCEPT_ENCODING">
+      <value string="gzip, deflate, br" />
+    </item>
+    <item name="HTTP_ACCEPT_LANGUAGE">
+      <value string="en-US,en;q=0.9,gu;q=0.8" />
+    </item>
+    <item name="HTTP_COOKIE">
+      <value string="trakindo__pis_localhost1400_202207=D2980012EBE94B2D6D3A8C0C5D994EAB431B40FC23319B12FDACBD15712869FB8E353AB771AF5C59A16B167A9FB201E5C839F77D16156FF9FB7A1898B968DFDCFE41A65B266382F95E16CC02C1EC9F5D7E85BE79C3F9A650E1FE895CF7D866DA20CA963FCD089A4953820006AB95B28E5916AE23ECB430C476459C354EB8644FFACA5FED24F1E68383A8AF686F44136A3C232F1A09E2C5AE6F20A4124B6D64D07D9244A3EBB935E56367F577AC61692B1BD9BA4ED096377EFDD159F3990D0734474D38C7A4139F69E0206011B291890CFE14081C82640E16C5DE00F5AF4CB0ECEDB7F21706D4999029F8F387B8892D25F8FE62BE2E54721D61002707C014FFCC7C5CEDC7F67596EB684FD4B0EECA57AB97EC20228F53D724797718B9E5CFC506EAE77872A086F85CED936CAC6277AF2CA36B836FCCCB52BB52297AB6A2BDAC3DB791FA1BF4980A03954525F4F35D28312DFA747C1080659B4DF4173AD78E36FCDAE44FF5EF795311564E60CC955671B4; _ga=GA1.1.1094185988.1657879694; _gcl_au=1.1.1428815844.1657880879; ajs_anonymous_id=4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0; _ga_Y80687Q41G=GS1.1.1659011652.29.1.1659011700.0; .Nop.Customer=cd179d34-4953-4c73-8ad6-de3951c32b8b; ASP.NET_SessionId=kqyu4i0nxe20o3j4gyuxd5la; __RequestVerificationToken=WVxq-FNynEOk0lHJXuH_GqQIUpeeSP_Ib4PuQfzNu7yR_6lJVSio7_zTuiVDeADgKxnaCWmrU_dH8RgfanYLd5eaLnXgTD72vbt9AqIkQZ41; .ASPXAUTH=9F2940F2D57137D44A2BA90B66B2FEE34610940FD7E73D3F5A9D18A61CD60B113FDA24848C6BB546B3B3617FC530C10D72FC05BF8C556E04E7B5434A1D08A9B7B14230FD961F4DBABBF994F2B1FD56DCC86C66034B348F938B6DA0582F5FF20A; trakindo__pis_localhost1400_202208=F2D913B2FF5DD404DB13B2C29E310117E8C65EE97F530CCA33B00C3CB5AE547996CA8B2BD45B07D2970527D9700EB125AA43C6BA94BC48829EB079E1E20502B610318D2F001741561E0AF4438DC05F30AB20CA66B1516099BF6254B968003EA7AD7CAF12DB5F1A0C5FEE2B81DE9F73E0F038E9FC6A72E2E9DA2AE908F5FA6427D657C912D22CAA08A637718D21FFD531E18D4270B3BAF70AC41877273A6959BC2172A6F214A3C94F6E87ED8745E87DA29F426EB021849D7268696F944DF787B599114D2CC0AE24B1BFCC6852C15DFBB055C67C1650321A7F68B3C664ADF8E0A1FD218C73421C7FAED35B80E4E95AD44E59BFAC02355864F7ACE2429A31F6DDD6B5EA4101B15EA19863528A8181D4DCF0E1E05AA1E2844D7FA05FEB8A9E2475315A3F92F433BD44F7FB23258FB0C2473071789DBC9B7A9C5563B9908FBFCD6AAC350A056C105EF7643433E89A92386A41A61BB5B0043D38EA90DA53327BFB5DE820CA775F9AA32A90084846162944C9E6; nav-item=1" />
+    </item>
+    <item name="HTTP_HOST">
+      <value string="localhost:1400" />
+    </item>
+    <item name="HTTP_REFERER">
+      <value string="http://localhost:1400/EMCS/Mytask" />
+    </item>
+    <item name="HTTP_USER_AGENT">
+      <value string="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36" />
+    </item>
+    <item name="HTTP_SEC_CH_UA">
+      <value string="&quot;Chromium&quot;;v=&quot;104&quot;, &quot; Not A;Brand&quot;;v=&quot;99&quot;, &quot;Google Chrome&quot;;v=&quot;104&quot;" />
+    </item>
+    <item name="HTTP_X_REQUESTED_WITH">
+      <value string="XMLHttpRequest" />
+    </item>
+    <item name="HTTP_SEC_CH_UA_MOBILE">
+      <value string="?0" />
+    </item>
+    <item name="HTTP_SEC_CH_UA_PLATFORM">
+      <value string="&quot;Windows&quot;" />
+    </item>
+    <item name="HTTP_SEC_FETCH_SITE">
+      <value string="same-origin" />
+    </item>
+    <item name="HTTP_SEC_FETCH_MODE">
+      <value string="cors" />
+    </item>
+    <item name="HTTP_SEC_FETCH_DEST">
+      <value string="empty" />
+    </item>
+  </serverVariables>
+  <queryString>
+    <item name="order">
+      <value string="asc" />
+    </item>
+    <item name="limit">
+      <value string="5" />
+    </item>
+    <item name="offset">
+      <value string="0" />
+    </item>
+    <item name="_">
+      <value string="1660166494300" />
+    </item>
+  </queryString>
+  <cookies>
+    <item name="trakindo__pis_localhost1400_202207">
+      <value string="D2980012EBE94B2D6D3A8C0C5D994EAB431B40FC23319B12FDACBD15712869FB8E353AB771AF5C59A16B167A9FB201E5C839F77D16156FF9FB7A1898B968DFDCFE41A65B266382F95E16CC02C1EC9F5D7E85BE79C3F9A650E1FE895CF7D866DA20CA963FCD089A4953820006AB95B28E5916AE23ECB430C476459C354EB8644FFACA5FED24F1E68383A8AF686F44136A3C232F1A09E2C5AE6F20A4124B6D64D07D9244A3EBB935E56367F577AC61692B1BD9BA4ED096377EFDD159F3990D0734474D38C7A4139F69E0206011B291890CFE14081C82640E16C5DE00F5AF4CB0ECEDB7F21706D4999029F8F387B8892D25F8FE62BE2E54721D61002707C014FFCC7C5CEDC7F67596EB684FD4B0EECA57AB97EC20228F53D724797718B9E5CFC506EAE77872A086F85CED936CAC6277AF2CA36B836FCCCB52BB52297AB6A2BDAC3DB791FA1BF4980A03954525F4F35D28312DFA747C1080659B4DF4173AD78E36FCDAE44FF5EF795311564E60CC955671B4" />
+    </item>
+    <item name="_ga">
+      <value string="GA1.1.1094185988.1657879694" />
+    </item>
+    <item name="_gcl_au">
+      <value string="1.1.1428815844.1657880879" />
+    </item>
+    <item name="ajs_anonymous_id">
+      <value string="4efb9591-a471-4e5f-a1fb-d3c64f9a5fb0" />
+    </item>
+    <item name="_ga_Y80687Q41G">
+      <value string="GS1.1.1659011652.29.1.1659011700.0" />
+    </item>
+    <item name=".Nop.Customer">
+      <value string="cd179d34-4953-4c73-8ad6-de3951c32b8b" />
+    </item>
+    <item name="ASP.NET_SessionId">
+      <value string="kqyu4i0nxe20o3j4gyuxd5la" />
+    </item>
+    <item name="__RequestVerificationToken">
+      <value string="WVxq-FNynEOk0lHJXuH_GqQIUpeeSP_Ib4PuQfzNu7yR_6lJVSio7_zTuiVDeADgKxnaCWmrU_dH8RgfanYLd5eaLnXgTD72vbt9AqIkQZ41" />
+    </item>
+    <item name=".ASPXAUTH">
+      <value string="9F2940F2D57137D44A2BA90B66B2FEE34610940FD7E73D3F5A9D18A61CD60B113FDA24848C6BB546B3B3617FC530C10D72FC05BF8C556E04E7B5434A1D08A9B7B14230FD961F4DBABBF994F2B1FD56DCC86C66034B348F938B6DA0582F5FF20A" />
+    </item>
+    <item name="trakindo__pis_localhost1400_202208">
+      <value string="F2D913B2FF5DD404DB13B2C29E310117E8C65EE97F530CCA33B00C3CB5AE547996CA8B2BD45B07D2970527D9700EB125AA43C6BA94BC48829EB079E1E20502B610318D2F001741561E0AF4438DC05F30AB20CA66B1516099BF6254B968003EA7AD7CAF12DB5F1A0C5FEE2B81DE9F73E0F038E9FC6A72E2E9DA2AE908F5FA6427D657C912D22CAA08A637718D21FFD531E18D4270B3BAF70AC41877273A6959BC2172A6F214A3C94F6E87ED8745E87DA29F426EB021849D7268696F944DF787B599114D2CC0AE24B1BFCC6852C15DFBB055C67C1650321A7F68B3C664ADF8E0A1FD218C73421C7FAED35B80E4E95AD44E59BFAC02355864F7ACE2429A31F6DDD6B5EA4101B15EA19863528A8181D4DCF0E1E05AA1E2844D7FA05FEB8A9E2475315A3F92F433BD44F7FB23258FB0C2473071789DBC9B7A9C5563B9908FBFCD6AAC350A056C105EF7643433E89A92386A41A61BB5B0043D38EA90DA53327BFB5DE820CA775F9AA32A90084846162944C9E6" />
+    </item>
+    <item name="nav-item">
+      <value string="1" />
+    </item>
+  </cookies>
+</error>

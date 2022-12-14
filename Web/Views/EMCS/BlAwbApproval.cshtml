@@ -1,0 +1,528 @@
+﻿@model  App.Web.Models.EMCS.BlAwbModel
+@{
+    ViewBag.Title = "Bl Awb Approval";
+    ViewBag.TypeReq = "BlAwb";
+    ViewBag.IdReq = Model.BlAwb.IdCl;
+    ViewBag.IdStep = Model.Request.IdStep;
+}
+
+@Styles.Render("~/Content/EMCS/Custom.css")
+@Styles.Render("~/Content/EMCS/SweetAlert/sweetalert2.min.css")
+<style>
+    .help-block {
+        color: #a94442;
+        display: inline;
+        font-weight: bolder;
+    }
+</style>
+<div class="col-md-12">
+    <div class="tab" role="tabpanel" style="box-shadow:none !important;background:none;">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a style="z-index:5" href="#invoice" aria-controls="home" role="tab" data-toggle="tab">BL / AWB </a>
+            </li>
+            <li role="presentation">
+                <a style="z-index:4" href="#history" aria-controls="profile" role="tab" data-toggle="tab">Action History</a>
+            </li>
+            <li role="presentation">
+                <a style="z-index:3" href="#problemhistory" aria-controls="profile" role="tab" data-toggle="tab">Problem History</a>
+            </li>
+        </ul>
+
+        <div class="tab-content tabs-custom">
+            <div role="tabpanel" class="tab-pane active" id="invoice">
+                <div class="row">
+                    <form id="FormUploadBlAwb">
+                        <div class="modal-body">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-xs-12 table-responsive">
+                                        <input type="hidden" name="idCargo" id="idCargo" value="@Model.Data.Id" />
+                                        <table id="tableBlAwbItems" data-toolbar=".toolbar" class="table table-bordered"></table>
+                                    </div>
+                                </div>
+                                <div class="pull-right">
+                                    <p></p>
+                                    <a href="~/EMCS/MyTask" class="btn btn-default" style="min-width:120px;"><i class="fa fa-chevron-left"></i>&nbsp;Back</a>
+                                    <button type="button" class="btn btn-success" id="btnApproveBlAwb" style="min-width:120px;"><i class="fa fa-paper-plane"></i> Approve</button>
+                                    <button id="btnRevise" type="button" class="btn btn-warning" value="Revise" style="min-width:120px;"><i class="fa fa-edit"></i>&nbsp;Revise</button>
+                                    <button type="button" class="btn btn-danger" id="btnReject" style="min-width:120px;"><i class="fa fa-times"></i> Reject</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <iframe title="File Name Cipl File" id="framePreview" name="framePreview" src="" style="width:100%;height:800px;"></iframe>
+                            </div>
+                        </div>
+                        <div class="box-footer text-right">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="history">
+                <div class="row">
+                    <div class="col-xs-12 table-responsive">
+                        <input type="hidden" name="idCargo" id="idCargo" value="@Model.Data.Id" />
+                        <table id="tableCargoHistory" data-toolbar=".toolbar" class="table table-bordered"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="problemhistory">
+                <div class="row">
+                    <div class="col-xs-12 table-responsive">
+                        <table id="tableCargoProblemHistory" data-toolbar=".toolbar" class="table table-bordered"></table>
+                    </div>
+                </div>
+            </div>
+
+            @*<div role="tabpanel" class="tab-pane" id="documents">
+                    <div class="row">
+                        <div class="col-xs-12 table-responsive">
+                            <table id="tableCargoDocuments" data-toolbar=".toolbar" class="table table-bordered"></table>
+                        </div>
+                    </div>
+                </div>*@
+        </div>
+    </div>
+</div>
+<div id='myModalUploadPlace' class='modal fade in'>
+    <div class="modal-dialog" style="width:800px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title"><i class="fa fa-edit"></i>&nbsp;Upload File Document</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row text-center divUploadFile dropzone" id="FormUploadDocumentContainer">
+                        </div>
+                    </div>
+                    <div class="form-group hidden">
+                        <label class="control-label col-md-3 col-xs-12">IdDocument</label>
+                        <div class="input-group col-md-9 col-xs-12">
+                            <input type="text" class="form-control" id="IdDocumentUpload" name="IdDocumentUpload">
+                            @Html.HiddenFor(m => m.BlAwb.Id, new { @class = "form-control ", @id = "BLAWBID" })
+                            @Html.HiddenFor(m => m.BlAwb.Number, new { @class = "form-control ", @id = "Number" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+            <div id="template-dropzone" class="hidden">
+                <div id="template" class="file-row text-left" style="padding:20px;">
+                    <!-- This is used as the file preview template -->
+                    <div class="col-md-2">
+                        <div class="row">
+                            <span class="preview">
+                                <img alt="Data Thumbnail" style="width:65%;height:auto;" data-dz-thumbnail>
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="name" data-dz-name></p>
+                        <strong class="error text-danger" data-dz-errormessage></strong>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="row">
+                            <p class="size" data-dz-size></p>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                        <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <span data-dz-uploadprogress id="progressPercent"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("Modal.FormProblem")
+
+@section scripts{
+    <script src="@Url.Content("~/Content/EMCS/DropZone/dropzone.js")"></script>
+    <script src="@Url.Content("~/Content/EMCS/SweetAlert/sweetalert2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts.app/EMCS/Custom.js")"></script>
+    @Scripts.Render("~/Scripts.app/EMCS/function.cshtml.js")
+    <script src="@Url.Content("~/Scripts.app/EMCS/transaction/CargoHistory.cshtml.js")"></script>
+    @*<script src="@Url.Content("~/Scripts.app/EMCS/mytask/BlAwb.cshtml.js")"></script>*@
+    @Scripts.Render("~/Scripts.app/EMCS/FormProblem.cshtml.js")
+    <script>
+        var wizardState = "@ViewBag.WizardData.Progress";
+        var CargoTypeName = "@Model.Data.CargoTypeName";
+    </script>
+
+    <script>
+        var tabledata = [];
+        var $table = $('#tableBlAwbItems');
+        var $AllowDelete = true;
+        var $AllowUpdate = true;
+        Dropzone.autoDiscover = false
+        var myDropzoneDocument = new Dropzone("#FormUploadDocumentContainer", { // Make the bodyFormUpload a dropzone
+            url: "/EMCS/UploadDocumentBlAwb", // Set the url
+            thumbnailHeight: 100,
+            thumbnailWeight: 100,
+            timeout: "80000",
+            method: 'POST',
+            dictDefaultMessage: "<h4>Click this Section for Browse the Import File.</h4>",
+            acceptedFiles: '.pdf, .jpeg, .jpg, .png',
+            filesizeBase: 1024,
+            autoProcessQueue: true,
+            maxFiles: 1,
+            maxFilesize: 100, // MB
+            parallelUploads: 1,
+            previewTemplate: $("#template-dropzone").html(),
+            uploadMultiple: false
+            //previewsContainer: "#FormUploadMaterial", // Define the container to display the previews
+            //clickable: ".fileinput-button" // Define the element that should be used as click trigger to select files.
+        });
+
+        myDropzoneDocument.on("addedfile", function (file) {
+
+            // Hookup the start button
+            $("#actions .start").on("click", function () {
+                myDropzone.enqueueFile(file);
+            });
+            $("#placeholderUpload").hide();
+        });
+
+        myDropzoneDocument.on("totaluploadprogress", function (progress) {
+
+            $("#total-progress .progress-bar").css("width", progress + "%");
+            $("#progressPercent").html(progress + "%");
+        });
+
+        myDropzoneDocument.on("sending", function (file, xhr, formData) {
+            
+            formData.append("blawbid", $("#BLAWBID").val());
+            formData.append("idCargo", $("#idCargo").val());
+            formData.append("blAwbNo", $("#Number").val());
+            formData.append("typeDoc", "DOC");
+
+            // Show the total progress bar when upload starts
+            $("#total-progress").css("opacity", 1);
+            // And disable the start button
+            $("#actions .delete").attr("disabled", "disabled");
+            $(".start").attr("disabled", "disabled");
+        });
+
+        myDropzoneDocument.on("complete", function (resp) {
+            if (resp.status === "success") {
+                $("#actions .delete").prop("disabled", false);
+                if (resp.size >= 9785 && resp.size <= 9800) {
+                    swal.fire("Upload Status", "Empty files will not be uploaded.", "error");
+                }
+                else {
+
+                    var respText = resp.xhr.response;
+                    var respData = JSON.parse(respText);
+                    console.log(respData);
+                    var type = respData.status ? "success" : "error";
+                    swal.fire("Upload Status", respData.msg, type);
+                    $table.bootstrapTable('refresh')
+                }
+            }
+        });
+
+        myDropzoneDocument.on("queuecomplete", function (progress) {
+            $("#total-progress").css("opacity", "0");
+            setTimeout(function () {
+                myDropzoneDocument.removeAllFiles(true);
+            }, 400);
+        });
+
+        $("#actions .start").on("click", function () {
+            myDropzoneDocument.enqueueFiles(myDropzoneDocument.getFilesWithStatus(Dropzone.QUEUED));
+        });
+
+        $("#actions .cancel").on("click", function () {
+            myDropzoneDocument.removeAllFiles(true);
+            $("#placeholderUpload").hide();
+        });
+        function getbyid(row) {
+            
+            $('#BLAWBID').val(row.Id);
+            $('#CargoID').val(row.IdCl);
+            $('#Number').val(row.Number);
+        }
+        $(function () {
+            var blawbcolumns = [
+                {
+                    field: 'Number',
+                    title: 'Master BL/AWB Number',
+                    halign: 'center',
+                    align: 'center',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    field: 'MasterBlDate',
+                    title: 'Master Bl Date',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true,
+                    formatter: function (data, row, index) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
+                    field: 'HouseBlNumber',
+                    title: 'House Bl Number',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true
+                },
+                {
+                    field: 'HouseBlDate',
+                    title: 'House Bl Date',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true,
+                    formatter: function (data, row, index) {
+                        return moment(data).format("DD MMM YYYY");
+                    }
+                },
+                {
+                    field: 'Publisher',
+                    title: 'Publish',
+                    halign: 'center',
+                    align: 'left',
+                    class: 'text-nowrap',
+                    sortable: true
+                },
+                {
+                    field: 'FileName',
+                    title: 'Attachment',
+                    align: 'center',
+                    valign: 'center',
+                    halign: "center",
+                    class: 'text-nowrap',
+                    sortable: true,
+                    events: operateEventBlAWbUploaded,
+                    formatter: function (data, row) {
+                        var btnUpload = '<button type="button" class="btn btn-primary btn-xs uploadDocument" data-toggle="modal" data-target="#myModalUploadPlace" title="Upload"><i class="fa fa-upload"></i></button>';
+                        if (row.FileName !== "") {
+                            var btnDownload = "<button class='btn btn-xs btn-success download' type='button'><i class='fa fa-download'></i></button>";
+                            var btnPreview = "<button class='btn btn-xs btn-primary btn-outline showDocument' type='button' data-toggle='modal' data-target='#myModalUploadPreview'><i class='fa fa-file-pdf-o'></i></button>";
+                            return [btnUpload,btnDownload, btnPreview].join(' ');
+                        } else {
+                            return [btnUpload].join(' ');;
+                        }
+                    },
+                    class: 'text-nowrap'
+                }
+            ]
+
+            $table.bootstrapTable(
+                {
+                    url: "/EMCS/GetBlAwbListByCargo",
+                    columns: blawbcolumns,
+                    cache: false,
+                    pagination: true,
+                    search: false,
+                    striped: true,
+                    clickToSelect: true,
+                    reorderableColumns: true,
+                    toolbar: '.toolbar',
+                    toolbarAlign: 'left',
+                    onClickRow: selectRow,
+                    sidePagination: 'server',
+                    showColumns: true,
+                    showRefresh: true,
+                    smartDisplay: false,
+                    pageSize: '5',
+                    queryParams: function (params) {
+                        return {
+                            limit: params.limit,
+                            offset: params.offset,
+                            Cargoid: $("#idCargo").val(),
+                            sort: params.sort,
+                            order: params.order,
+                        };
+                    },
+                    responseHandler: function (resp) {
+                        var data = {};
+                        $.map(resp, function (value, key) {
+                            data[value.Key] = value.Value;
+                        });
+                        return data;
+                    },
+                    formatNoMatches: function () {
+                        return '<span class="noMatches">No Data Found</span>';
+                    },
+
+                });
+
+            /* $("#mySearch").insertBefore($("[name=refresh]"));*/
+
+        });
+       
+        window.operateEventBlAWbUploaded = {
+            'click .download': function (e, value, row) {
+                
+                location.href = "/EMCS/BlAWBDocument/" + row.Id;
+            },
+            'click .uploadDocument': function (e, value, row, index) {
+                getbyid(row);
+            },
+            'click .showDocument': function (e, value, row) {
+                document.getElementById('framePreview').src = myApp.fullPath + "Upload/EMCS/BLAWB/" + row.FileName;
+            }
+        };
+        $("#btnApproveBlAwb").on("click", function () {
+            Swal.fire({
+                title: 'Approve Confirmation',
+                text: 'By approving this document, you are responsible for the authenticity of the documents and data entered. Are you sure you want to process this document?',
+                type: 'question',
+                showCancelButton: true,
+                cancelButtonColor: '#d33',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Approve!',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showCloseButton: true
+            }).then((result) => {
+                if (result.value) {
+                    Swal.fire({
+                        input: 'textarea',
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        inputPlaceholder: 'Type your notes here...',
+                        inputAttributes: {
+                            'aria-label': 'Type your notes here'
+                        },
+                        showCancelButton: false
+                    }).then((result) => {
+                        var Notes = result.value;
+                        var Status = "Approve";
+                        var Id = $('#idCargo').val();
+                        var data = { Notes: Notes, Status: Status, Id: Id };
+                        ApproveBlAwb(data);
+                    });
+                }
+                return false;
+            });
+        });
+
+        function ApproveBlAwb(obj) {
+            var item = {
+                Id: obj.Id,
+                Status: obj.Status,
+                Notes: obj.Notes,
+                Detail: {
+                    obj
+                }
+            };
+            console.log(item);
+            $.ajax({
+                url: "/EMCS/ApprovalBlAwb",
+                type: "POST",
+                data: {
+                    Id: obj.Id,
+                    Status: obj.Status,
+                    Notes: obj.Notes,
+                    Detail: obj
+                },
+                success: function (resp) {
+                    Swal.fire({
+                        title: 'Approve!',
+                        text: 'Data Confirmed Successfully',
+                        type: 'success'
+                    }).then((result) => {
+                        window.location.href = "/EMCS/MyTask";
+                    });
+                }
+            });
+        }
+
+        $("#YesReviseBtn").on("click", function () {
+            var status = $("#myModalProblemContent form").valid();
+            var StatusName = "Revise";
+            if (status) {
+                submitProblem(StatusName);
+            }
+        })
+
+        $("#YesRejectBtn").on("click", function () {
+            var status = $("#myModalProblemContent form").valid();
+            var StatusName = "Reject";
+            if (status) {
+                submitProblem(StatusName);
+            }
+        })
+
+        function submitProblem(statusName) {
+            var status = false;
+            var data = $("#myModalProblemContent form").serializeArray();
+            data.push({ name: "Status", value: statusName });
+            $.ajax({
+                url: myApp.fullPath + "EMCS/SaveProblemHistory",
+                type: "Post",
+                async: false,
+                data: data,
+                success: function (resp) {
+                    var result = resp.result;
+                    status = true;
+                    ReviseProblem(result.Status, result.IdRequest, result.Comment, statusName);
+                },
+                error: function (resp) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Data Error. Please Try Again !',
+                        type: 'error',
+                    })
+                }
+            })
+            return status;
+        }
+
+        function ReviseProblem(Status, IdRequest, Notes, statusName) {
+            $.ajax({
+                url: myApp.fullPath + "EMCS/ApprovalBlAwb",
+                type: "Post",
+                async: false,
+                data: {
+                    Status: Status,
+                    Id: IdRequest,
+                    Notes: Notes
+                },
+                success: function (resp) {
+                    console.log(resp);
+                    Swal.fire({
+                        title: statusName + '!',
+                        text: 'Data Confirmed Successfully',
+                        type: 'success',
+                    }).then((result) => {
+                        window.location.href = "/EMCS/MyTask";
+                    });
+                },
+                error: function (resp) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Data Error. Please Try Again !',
+                        type: 'error',
+                    })
+                }
+            })
+        }
+
+
+    </script>
+}

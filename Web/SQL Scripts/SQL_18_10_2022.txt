@@ -1,0 +1,488 @@
+﻿CREATE FUNCTION [dbo].[fn_get_cl_request_list_all_report] ()          
+RETURNS TABLE           
+AS          
+RETURN           
+(          
+ -- Add the SELECT statement with parameter references here          
+ select * from (          
+   select t0.[Id]            
+   ,t0.IdCl           
+   ,t0.[IdFlow]           
+   ,t0.[IdStep]           
+   ,t0.[Status]           
+   ,t0.[Pic]            
+   ,t6.SlNo          
+   ,t0.[CreateBy]           
+   ,t0.[CreateDate]           
+   ,t0.[UpdateBy]            
+   ,t0.[UpdateDate]           
+   ,t0.[IsDelete]            
+   ,t3.Name FlowName          
+   ,t3.Type SubFlowType          
+   , [dbo].[fn_get_next_step_id](          
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id          
+     ) as IdNextStep           
+   , [dbo].[fn_get_step_name](          
+     [dbo].[fn_get_next_step_id](          
+      t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id          
+     )          
+     ) as NextStepName          
+   , [dbo].[fn_get_next_assignment_type](t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id) NextAssignType          
+   , CASE WHEN t0.IdStep= 30076 THEN 'Cancelled'        
+   WHEN t0.IdStep= 30075 THEN 'waiting for beacukai approval'        
+   WHEN t0.IdStep= 30074 THEN 'Request Cancel'       
+   WHEN t0.IdStep = 30071 Then 'Waiting approval NPE'      
+   WHEN t11.Step = 'System' THEN t8.ViewByUser ELSE t1.ViewByUser END as StatusViewByUser          
+   , t1.CurrentStep          
+   , t2.ClNo          
+   , t2.SailingSchedule ETD          
+   , t2.ArrivalDestination ETA          
+   , t2.BookingNumber          
+   , t2.BookingDate          
+   , t2.PortOfLoading          
+   , t2.PortOfDestination          
+   , t2.Liner          
+   , t2.SailingSchedule          
+   , t2.ArrivalDestination          
+   , t2.VesselFlight          
+   , t2.Consignee          
+   , t2.StuffingDateStarted          
+   , t2.StuffingDateFinished          
+   , CASE WHEN ISNULL(t5.AD_User, '') <> '' THEN t4.FullName ELSE CASE WHEN ISNULL(t5.Employee_Name, '') <> '' THEN t5.Employee_Name ELSE t4.FullName END END PreparedBy           
+   , t7.AssignType as AssignmentType          
+   , t7.AssignTo as AssignTo      
+   , [dbo].[fn_get_next_approval] (t7.AssignType, t0.Pic, t7.AssignTo, t0.CreateBy, t0.Id) as NextAssignTo          
+   , t6.SpecialInstruction          
+   , t6.Description          
+   , t6.DocumentRequired          
+  from dbo.RequestCl t0          
+  left join (          
+   select           
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,           
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,           
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,          
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName          
+   from dbo.FlowNext nx          
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus          
+   join dbo.FlowStep np on np.Id = ns.IdStep          
+   join dbo.Flow nf on nf.Id = np.IdFlow          
+   join dbo.FlowStep nt on nt.Id = nx.IdStep          
+  ) as t1 on     
+  t1.IdFlow = t0.IdFlow AND     
+  t1.IdCurrentStep = t0.IdStep     
+  AND t1.Status = t0.Status          
+  inner join dbo.Cargo t2 on t2.id = t0.IdCl           
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow          
+  left join PartsInformationSystem.dbo.UserAccess t4 on t4.UserID = t2.CreateBy          
+  left join employee t5 on t5.AD_User = t2.CreateBy          
+  left join dbo.ShippingInstruction t6 on t6.IdCL = t0.IdCl            
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](          
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id          
+     ) and t7.IdFlow = t1.IdFlow          
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](          
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id          
+     )          
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep          
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id          
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep         
+  --LEFT JOIN CargoCipl t12 ON t0.Id = t12.IdCargo     
+  --LEFT JOIN RequestCipl t13 ON t12.IdCipl = t13.Id     
+  WHERE t2.CreateBy <> 'System'    AND t0.CreateBy <> 'System'     
+ ) as tab0           
+ --WHERE (tab0.NextAssignTo = @Username OR tab0.NextAssignTo = @GroupId)          
+) 
+
+CREATE FUNCTION [dbo].[fn_ActivityReport_TotalExport_Outstanding](
+	--@year VARCHAR(7) = ''
+)
+RETURNS TABLE
+AS
+RETURN
+(
+	SELECT	DISTINCT a.id [IdCipl], a.CiplNo, a.ClNo, a.CreateDate, a.CreateBy, b.Step, b.[Status], b.UpdateDate
+	FROM	Cipl a
+			JOIN CiplHistory b ON a.id = b.IdCipl
+	WHERE	a.IsDelete = 0
+			AND b.IsDelete = 0
+			AND b.Status = 'Approve'
+			AND b.Step = 'Approval By Superior'
+			AND a.id NOT IN (SELECT	b.IdCipl
+							FROM	NpePeb a
+									JOIN CargoCipl b ON a.IdCl = b.IdCargo
+							WHERE	a.IsDelete = 0
+									AND b.IsDelete = 0
+									AND b.IdCargo IN (
+									SELECT	DISTINCT a.IdCargo
+									FROM	CargoCipl a
+											JOIN Cipl b ON a.IdCipl = b.id
+									WHERE	a.IsDelete = 0
+											AND b.IsDelete = 0 
+											AND a.IdCipl IN (SELECT	DISTINCT a.id
+														FROM	Cipl a
+																JOIN CiplHistory b ON a.id = b.IdCipl
+														WHERE	a.IsDelete = 0 
+																AND b.IsDelete = 0
+																AND b.Status = 'Approve'
+																AND b.Step = 'Approval By Superior')))
+)
+
+    INSERT INTO dbo.Test_Email_Log ([To], Content, [Subject], CreateDate)      
+      VALUES (@Email, @Template, @subject, GETDATE());      
+  END      
+
+ALTER PROCEDURE [dbo].[SP_ActivityReport_TotalExport] --'2022'    
+    @year INT    
+AS    
+BEGIN    
+    DECLARE @invoice TABLE (Month INT, COUNT INT, peb INT)    
+    INSERT INTO @invoice    
+    SELECT     
+		  Month(CreatedDate),     
+				COUNT(DISTINCT IdCipl),     
+				COUNT(DISTINCT NpeNumber)     
+				FROM (SELECT     
+				ci.IdCargo,     
+				ci.Id AS IdCargoItem,     
+				cpi.Id AS IdCiplItem,     
+				cp.id AS IdCipl,     
+				peb.NpeNumber,     
+				CONVERT(VARCHAR(10), rc.CreateDate, 120) AS CreatedDate  
+			FROM fn_get_cl_request_list_all_report() rc    
+				LEFT JOIN NpePeb peb ON rc.IdCl = peb.IdCl    
+				LEFT JOIN CargoItem ci ON rc.IdCl = ci.IdCargo    
+				LEFT JOIN CiplItem cpi ON ci.IdCiplItem = cpi.Id    
+				LEFT JOIN Cipl cp ON cpi.IdCipl = cp.id      
+			WHERE (YEAR(rc.CreateDate) = @year) 
+				--OR rc.IdStep = 10019
+				--AND ((rc.IdStep = 10020 AND rc.Status = 'Approve')
+				--OR rc.IdStep = 10021   
+				--OR (rc.IdStep = 10022 AND (rc.Status = 'Submit' OR rc.Status = 'Approve'))) 
+				AND peb.NpeNumber IS NOT NULL  
+				AND cp.IsDelete = 0)  
+		  DATA GROUP BY Month(CreatedDate)    
+    
+    DECLARE @outstanding TABLE (month int, count int)    
+    INSERT INTO @outstanding    
+    SELECT   
+		  Month(CreatedDate),   
+		  COUNT(DISTINCT IdCipl)   
+		  FROM (
+			SELECT	rc.IdCipl,
+					CONVERT(VARCHAR(10), rc.CreateDate, 120) AS CreatedDate,  
+					CONVERT(VARCHAR(10), rc.UpdateDate, 120) AS UpdateDate    
+			FROM	[fn_ActivityReport_TotalExport_Outstanding]() rc
+			WHERE	YEAR(rc.CreateDate) = @year
+		  --prev version
+		 -- FROM (SELECT     
+			--  ci.IdCargo,     
+			--  ci.Id AS IdCargoItem,     
+			--  cpi.Id AS IdCiplItem,     
+			--  cp.id AS IdCipl,  
+			--  rc.IdCl,   
+			--  rc.Status,  
+			--  CONVERT(VARCHAR(10), rc.CreateDate, 120) AS CreatedDate,  
+			--  CONVERT(VARCHAR(10), rc.UpdateDate, 120) AS UpdateDate    
+			--  , fs.Step  
+			--  , fs.Id    
+			--FROM fn_get_cl_request_list_all_report() rc    
+			--  --RequestCl rc     
+			--  LEFT JOIN NpePeb peb ON rc.IdCl = peb.IdCl    
+			--  INNER JOIN FlowStep fs ON rc.IdStep = fs.Id    
+			--  LEFT JOIN CargoItem ci ON rc.IdCl = ci.IdCargo    
+			--  LEFT JOIN CiplItem cpi ON ci.IdCiplItem = cpi.Id    
+			--  LEFT JOIN Cipl cp ON cpi.IdCipl = cp.id    
+			--  LEFT JOIN CiplHistory chis ON chis.IdCipl = cp.id   
+			--WHERE (YEAR(rc.CreateDate) = @year OR @year = 0)  
+			--  AND ((rc.IdStep = 10020 AND (rc.Status NOT IN ('Approve', 'Reject')))   
+			--  OR (rc.IdStep NOT IN (10020, 10021, 10022) AND rc.Status <> 'Reject'))  
+			--  AND ((peb.NpeNumber IS NULL OR peb.NpeNumber = '') OR (peb.NpeNumber IS NOT NULL OR peb.NpeNumber <> '' AND MONTH(rc.CreateDate) <= MONTH(GETDATE())))  
+			--  AND chis.Step = 'Approval By Superior'  
+			--  AND cp.IsDelete = 0  
+			--  AND rc.IdCl NOT IN (SELECT npe.IdCl  
+			--   FROM CargoCipl cc  
+			--	 INNER JOIN NpePeb npe ON npe.IdCl = cc.Id  
+			--   WHERE YEAR(npe.CreateDate) = @year)  
+		  )DATA GROUP BY Month(CreatedDate)    
+    
+    DECLARE @monthly_tbl table(MonthNumber int, MonthName nvarchar(10))    
+    DECLARE @month int = 1    
+    WHILE @month <= 12    
+    BEGIN    
+        INSERT INTO @monthly_tbl     
+        SELECT @month, LEFT(DATENAME(MONTH , DATEADD(MONTH, @month , -1)), 3)    
+        SET @month = @month + 1;  
+    END;  
+    
+    SELECT  m.MonthName AS Month,     
+            ISNULL(i.count, 0) AS Invoice,     
+            ISNULL(i.peb, 0) AS PEB,     
+            ISNULL(o.count, 0) AS Outstanding     
+    FROM @monthly_tbl m    
+   LEFT JOIN @invoice i ON m.MonthNumber = i.month    
+   LEFT JOIN @outstanding o ON m.MonthNumber = o.month    
+    
+END
+
+Go
+
+
+USE [EMCS_Staging_26_Aug_2022]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_Process_Email_RFC]    Script Date: 18-10-2022 11:41:19 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER  PROC [dbo].[sp_Process_Email_RFC]  --exec      [sp_Process_Email_RFC]  '281','Approval'
+@RFCId int,      
+@Doctype nvarchar(200)      
+AS      
+BEGIN      
+  DECLARE @Email nvarchar(200)      
+  DECLARE @Subject nvarchar(max)      
+  DECLARE @Template nvarchar(max)      
+  DECLARE @NextApproverEmail nvarchar(max)      
+  DECLARE @ApproverUser nvarchar(max)      
+  DECLARE @RequestorUser nvarchar(max)      
+  DECLARE @FormType nvarchar(max)      
+  DECLARE @FormId int      
+  DECLARE @CreatorEmail nvarchar(max)      
+  DECLARE @CCReceipent nvarchar(max)      
+  DECLARE @MailTo nvarchar(max)      
+  DECLARE @ProfileName nvarchar(max) = 'EMCS'      
+  SELECT      
+    @FormType = RFC.FormType,      
+    @FormId = CONVERT(int, RFC.FormId),      
+    @RequestorUser = (SELECT Email FROM dbo.fn_get_employee_internal_ckb() WHERE AD_User = RFC.CreateBy),      
+    @ApproverUser = (SELECT Email FROM dbo.fn_get_employee_internal_ckb() WHERE AD_User = RFC.Approver)      
+  FROM RequestForChange RFC      
+  WHERE ID = @RFCId      
+      
+  SET @NextApproverEmail =      
+                          CASE      
+                            WHEN (@ApproverUser = 'xupj21dxd') THEN (SELECT      
+                                Email      
+                              FROM dbo.fn_get_employee_internal_ckb()      
+                              WHERE AD_User = 'xupj21fig')      
+                            WHEN (@ApproverUser = 'xupj21fig') THEN (SELECT      
+                                Email      
+                              FROM dbo.fn_get_employee_internal_ckb()      
+                              WHERE AD_User = 'xupj21dxd')      
+                            ELSE (SELECT      
+                                Email      
+                              FROM dbo.fn_get_employee_internal_ckb()      
+                              WHERE AD_User = 'xupj21dxd')      
+                          END;      
+      
+  SET @CreatorEmail =      
+                     CASE      
+                       WHEN @FormType = 'CIPL' THEN (SELECT      
+                           Email      
+                         FROM dbo.fn_get_employee_internal_ckb()      
+                         WHERE AD_User = (SELECT TOP 1      
+                           CreateBy      
+                         FROM Cipl      
+                         WHERE id = @FormId))      
+                       WHEN @FormType = 'Cargo' THEN (SELECT      
+                           Email      
+                         FROM dbo.fn_get_employee_internal_ckb()      
+                         WHERE AD_User = (SELECT TOP 1      
+                           CreateBy      
+                         FROM Cargo      
+                         WHERE id = @FormId))      
+						WHEN @FormType = 'GoodsReceive' THEN (SELECT      
+                           Email      
+                         FROM dbo.fn_get_employee_internal_ckb()      
+                         WHERE AD_User = (SELECT TOP 1      
+                           CreateBy      
+                         FROM GoodsReceive      
+                         WHERE id = @FormId))   
+                       WHEN @FormType = 'ShippingInstruction' THEN (SELECT      
+                           Email      
+                         FROM dbo.fn_get_employee_internal_ckb()      
+                         WHERE AD_User = (SELECT TOP 1      
+                           CreateBy      
+                         FROM ShippingInstruction      
+                         WHERE IdCL = @FormId))      
+                       WHEN @FormType = 'BlAwb' THEN (SELECT      
+                           Email      
+                         FROM dbo.fn_get_employee_internal_ckb()      
+                         WHERE AD_User = (SELECT TOP 1      
+                           CreateBy      
+                         FROM BlAwb      
+                         WHERE IdCl = @FormId))      
+                       ELSE (SELECT      
+                           Email      
+                         FROM dbo.fn_get_employee_internal_ckb()      
+                         WHERE AD_User = (SELECT TOP 1      
+                           CreateBy      
+                         FROM NpePeb      
+                         WHERE IdCl = @FormId))      
+                     END      
+      
+  SET @CCReceipent = @CreatorEmail + ';' + @NextApproverEmail  
+      
+  IF (@Doctype = 'Approval')      
+  BEGIN      
+    SELECT      
+      @Subject = [Subject],      
+      @Template = [Message]      
+    FROM EmailTemplate      
+    WHERE [Module] = 'RFC'      
+    AND [Status] = 'Approval'      
+    AND RecipientType = 'Requestor'      
+      
+    SET @Subject = dbo.[fn_proccess_email_template_RFC](@RFCId, @Subject)      
+    SET @Template = dbo.[fn_proccess_email_template_RFC](@RFCId, @Template)      
+    SET @MailTo = @RequestorUser     
+      
+BEGIN      
+    EXEC msdb.dbo.sp_send_dbmail @recipients = @MailTo,      
+                                 @copy_recipients = @CCReceipent,      
+                                 @subject = @subject,      
+                           @body = @Template,      
+                                 @body_format = 'HTML',      
+                                 @profile_name = @ProfileName;      
+      
+    INSERT INTO dbo.Test_Email_Log ([To], Content, [Subject], CreateDate)      
+      VALUES (@Email, @Template, @subject, GETDATE());      
+  END      
+      
+    SELECT      
+      @Subject = [Subject],      
+      @Template = [Message]      
+    FROM EmailTemplate      
+    WHERE [Module] = 'RFC'      
+    AND [Status] = 'Approval'      
+    AND RecipientType = 'Approver'      
+      
+    SET @Subject = dbo.[fn_proccess_email_template_RFC](@RFCId, @Subject)      
+    SET @Template = dbo.[fn_proccess_email_template_RFC](@RFCId, @Template)      
+    SET @MailTo = @ApproverUser      
+      
+  BEGIN      
+    EXEC msdb.dbo.sp_send_dbmail @recipients = @MailTo,      
+                                 @copy_recipients = @CCReceipent,      
+                                 @subject = @subject,      
+                                 @body = @Template,      
+                                 @body_format = 'HTML',      
+                                 @profile_name = @ProfileName;      
+      
+    INSERT INTO dbo.Test_Email_Log ([To], Content, [Subject], CreateDate)      
+      VALUES (@Email, @Template, @subject, GETDATE());      
+  END      
+      
+  END      
+  ELSE      
+  IF (@Doctype = 'Approved')      
+  BEGIN      
+    SELECT      
+      @Subject = [Subject],      
+      @Template = [Message]      
+    FROM EmailTemplate      
+    WHERE [Module] = 'RFC'      
+    AND [Status] = 'Approved'      
+    AND RecipientType = 'Requestor'      
+      
+    SET @Subject = dbo.[fn_proccess_email_template_RFC](@RFCId, @Subject)      
+    SET @Template = dbo.[fn_proccess_email_template_RFC](@RFCId, @Template)      
+    SET @MailTo = @RequestorUser      
+  BEGIN      
+    EXEC msdb.dbo.sp_send_dbmail @recipients = @MailTo,      
+                                 @copy_recipients = @CCReceipent,      
+                                 @subject = @subject,      
+                                 @body = @Template,      
+                                 @body_format = 'HTML',      
+                                 @profile_name = @ProfileName;      
+      
+    INSERT INTO dbo.Test_Email_Log ([To], Content, [Subject], CreateDate)      
+      VALUES (@Email, @Template, @subject, GETDATE());      
+  END      
+      
+      
+    SELECT      
+      @Subject = [Subject],      
+      @Template = [Message]      
+    FROM EmailTemplate      
+    WHERE [Module] = 'RFC'      
+    AND [Status] = 'Approved'      
+    AND RecipientType = 'Approver'      
+      
+    SET @Subject = dbo.[fn_proccess_email_template_RFC](@RFCId, @Subject)      
+    SET @Template = dbo.[fn_proccess_email_template_RFC](@RFCId, @Template)      
+    SET @MailTo = @ApproverUser      
+      
+  BEGIN      
+    EXEC msdb.dbo.sp_send_dbmail @recipients = @MailTo,      
+                                 @copy_recipients = @CCReceipent,      
+                                 @subject = @subject,      
+                                 @body = @Template,      
+                                 @body_format = 'HTML',      
+                                 @profile_name = @ProfileName;      
+      
+    INSERT INTO dbo.Test_Email_Log ([To], Content, [Subject], CreateDate)      
+      VALUES (@Email, @Template, @subject, GETDATE());      
+  END      
+      
+  END      
+  ELSE      
+  BEGIN      
+    SELECT      
+      @Subject = [Subject],      
+      @Template = [Message]      
+    FROM EmailTemplate      
+    WHERE [Module] = 'RFC'      
+    AND [Status] = 'Reject'      
+    AND RecipientType = 'Requestor'      
+      
+    SET @Subject = dbo.[fn_proccess_email_template_RFC](@RFCId, @Subject)      
+    SET @Template = dbo.[fn_proccess_email_template_RFC](@RFCId, @Template)      
+    SET @MailTo = @RequestorUser      
+      
+  BEGIN      
+    EXEC msdb.dbo.sp_send_dbmail @recipients = @MailTo,      
+                                 @copy_recipients = @CCReceipent,      
+                                 @subject = @subject,     
+                                 @body = @Template,      
+                                 @body_format = 'HTML',      
+                                 @profile_name = @ProfileName;      
+      
+    INSERT INTO dbo.Test_Email_Log ([To], Content, [Subject], CreateDate)      
+      VALUES (@Email, @Template, @subject, GETDATE());      
+  END      
+      
+      
+    SELECT      
+      @Subject = [Subject],      
+      @Template = [Message]      
+    FROM EmailTemplate      
+    WHERE [Module] = 'RFC'      
+    AND [Status] = 'Reject'      
+    AND RecipientType = 'Approver'      
+      
+    SET @Subject = dbo.[fn_proccess_email_template_RFC](@RFCId, @Subject)      
+    SET @Template = dbo.[fn_proccess_email_template_RFC](@RFCId, @Template)      
+    SET @MailTo = @ApproverUser      
+      
+  BEGIN      
+    EXEC msdb.dbo.sp_send_dbmail @recipients = @MailTo,      
+                                 @copy_recipients = @CCReceipent,      
+                                 @subject = @subject,      
+                                 @body = @Template,      
+                                 @body_format = 'HTML',      
+                                 @profile_name = @ProfileName;      
+      
+    INSERT INTO dbo.Test_Email_Log ([To], Content, [Subject], CreateDate)      
+      VALUES (@Email, @Template, @subject, GETDATE());      
+  END      
+      
+  END      
+      
+      
+      
+END
+
+
+
+
+     

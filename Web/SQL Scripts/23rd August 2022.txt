@@ -1,0 +1,1473 @@
+
+insert into Master_Menu
+(Id,ParentID,Name,URL,OrderNo,Icon,isDefault,isActive,EntryDate,EntryBy)
+values(247,135,'Vendor','/EMCS/Vendor',15,'fa fa-building-o',0,1,GETDATE(),'ict.bpm')
+
+
+
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12481,5,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12482,11,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12483,12,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12484,13,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12485,17,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12486,22,247,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12487,23,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12488,24,247,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12489,25,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12490,26,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12491,27,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12492,40,247,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12493,42,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12494,43,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12495,44,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12496,45,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12497,46,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12498,47,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12499,48,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12500,49,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12501,50,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12502,51,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12503,52,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12504,53,247,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12505,54,247,0,0,0,0,GETDATE(),'ict.bpm')
+
+
+GO
+
+Go
+
+Create procedure [dbo].[SP_MasterVendorAdd]  
+(  
+@Id nvarchar(100),  
+@Name nvarchar(max),  
+@Code nvarchar(max),
+@Address nvarchar(max), 
+@City nvarchar(max), 
+@Telephone nvarchar(max), 
+@CreateBy nvarchar(Max),  
+@UpdatedBy nvarchar(Max),
+@IsManualEntry bit
+)  
+as  
+begin  
+If (@Id = 0)  
+begin  
+insert into [MasterVendor]([Name],[Code],[Address],City,Telephone,CreateBy,CreateDate,UpdateBy,UpdateDate,IsManualEntry)  
+VALUES(@Name,@Code,@Address,@City,@Telephone,@CreateBy,GetDate(),null,null,@IsManualEntry)  
+SET @Id = SCOPE_IDENTITY()
+update MasterVendor
+set Code = @Code+@Id
+where Id= @Id
+end  
+else  
+begin  
+update [MasterVendor]  
+set [Name] = @Name,  
+[Address] = @Address,
+City = @City,
+Telephone= @Telephone, 
+UpdateBy = @UpdatedBy,   
+UpdateDate = GETDATE()  
+where Id = @Id  
+end  
+select CAST(@Id as bigint) as Id
+end
+
+
+Go
+
+
+alter table CiplForwader
+add  Vendor nvarchar(max) null
+
+
+Go
+
+
+ALTER PROCEDURE [dbo].[SP_CiplInsert]
+(
+  @Category NVARCHAR(100),
+  @CategoryItem NVARCHAR(50),
+  @ExportType NVARCHAR(100),
+  @ExportTypeItem NVARCHAR(100),
+  @SoldConsignee NVARCHAR(30),
+  @SoldToName NVARCHAR(200),
+  @SoldToAddress NVARCHAR(MAX),
+  @SoldToCountry NVARCHAR(100),
+  @SoldToTelephone NVARCHAR(100),
+  @SoldToFax NVARCHAR(100),
+  @SoldToPic NVARCHAR(200),
+  @SoldToEmail NVARCHAR(200),
+  @ShipDelivery NVARCHAR(30),
+  @ConsigneeName NVARCHAR(200),
+  @ConsigneeAddress NVARCHAR(MAX),
+  @ConsigneeCountry NVARCHAR(100),
+  @ConsigneeTelephone NVARCHAR(100),
+  @ConsigneeFax NVARCHAR(100),
+  @ConsigneePic NVARCHAR(200),
+  @ConsigneeEmail NVARCHAR(200),
+  @NotifyName NVARCHAR(200),
+  @NotifyAddress NVARCHAR(MAX),
+  @NotifyCountry NVARCHAR(100),
+  @NotifyTelephone NVARCHAR(100),
+  @NotifyFax NVARCHAR(100),
+  @NotifyPic NVARCHAR(200),
+  @NotifyEmail NVARCHAR(200),
+  @ConsigneeSameSoldTo BIGINT,
+  @NotifyPartySameConsignee BIGINT,
+  @Area NVARCHAR(100),
+  @Branch NVARCHAR(100),
+  @Currency NVARCHAR(20),
+  @Rate DECIMAL(18,2),
+  @PaymentTerms NVARCHAR(50),
+  @ShippingMethod NVARCHAR(30),
+  @CountryOfOrigin NVARCHAR(200),
+  @LcNoDate NVARCHAR(200),
+  @IncoTerm NVARCHAR(50),
+  @FreightPayment NVARCHAR(30),
+  @ShippingMarks NVARCHAR(MAX),
+  @Remarks NVARCHAR(200),
+  @SpecialInstruction NVARCHAR(MAX),
+  @CreateBy NVARCHAR(50),
+  @CreateDate datetime,
+  @UpdateBy NVARCHAR(50),
+  @UpdateDate datetime,
+  @Status NVARCHAR(10),
+  @IsDelete BIT,
+  @LoadingPort NVARCHAR(200),
+  @DestinationPort NVARCHAR(200),
+  @PickUpPic NVARCHAR(200),
+  @PickUpArea NVARCHAR(200),
+  @CategoryReference NVARCHAR(50),
+  @ReferenceNo NVARCHAR(50),
+  @Consolidate NVARCHAR(10),
+  @Forwader NVARCHAR(200),
+  @BranchForwarder NVARCHAR(200),
+  @Attention NVARCHAR(200),
+  @Company NVARCHAR(200),
+  @SubconCompany NVARCHAR(200),
+  @Address NVARCHAR(MAX),
+  @AreaForwarder NVARCHAR(100),
+  @City NVARCHAR(100),
+  @PostalCode NVARCHAR(100),
+  @Contact NVARCHAR(200),
+  @FaxNumber NVARCHAR(200),
+  @Forwading NVARCHAR(200),
+  @Email NVARCHAR(200),
+  @Type NVARCHAR(10),
+  @ExportShipmentType NVARCHAR(Max),
+  @Vendor NVARCHAR(Max)
+
+  --@LASTCIPLID bigint output
+)
+AS
+BEGIN
+  DECLARE @LASTID bigint
+  INSERT INTO [dbo].[Cipl]
+           ([Category]
+           ,[CategoriItem]
+           ,[ExportType]
+           ,[ExportTypeItem]
+		   ,[SoldConsignee]
+           ,[SoldToName]
+           ,[SoldToAddress]
+           ,[SoldToCountry]
+           ,[SoldToTelephone]
+           ,[SoldToFax]
+           ,[SoldToPic]
+           ,[SoldToEmail]
+           ,[ShipDelivery]
+           ,[ConsigneeName]
+           ,[ConsigneeAddress]
+           ,[ConsigneeCountry]
+           ,[ConsigneeTelephone]
+           ,[ConsigneeFax]
+           ,[ConsigneePic]
+           ,[ConsigneeEmail]
+           ,[NotifyName]
+           ,[NotifyAddress]
+           ,[NotifyCountry]
+           ,[NotifyTelephone]
+           ,[NotifyFax]
+           ,[NotifyPic]
+           ,[NotifyEmail]
+           ,[ConsigneeSameSoldTo]
+           ,[NotifyPartySameConsignee]
+       ,[Area]
+       ,[Branch]
+	   ,[Currency]
+	   ,[Rate]
+           ,[PaymentTerms]
+           ,[ShippingMethod]
+           ,[CountryOfOrigin]
+           ,[LcNoDate]
+           ,[IncoTerm]
+           ,[FreightPayment]
+           ,[ShippingMarks]
+           ,[Remarks]
+           ,[SpecialInstruction]
+           ,[CreateBy]
+           ,[CreateDate]
+           ,[UpdateBy]
+           ,[UpdateDate]
+           ,[IsDelete]
+		   ,[LoadingPort]
+		   ,[DestinationPort]
+		   ,[PickUpPic]
+       ,[PickUpArea]
+	   ,[CategoryReference]
+	   ,[ReferenceNo]
+	   ,[Consolidate]
+           )
+     VALUES
+           (@Category
+           ,@CategoryItem
+           ,@ExportType
+           ,@ExportTypeItem
+       ,@SoldConsignee
+           ,@SoldToName
+           ,@SoldToAddress
+           ,@SoldToCountry
+           ,@SoldToTelephone
+           ,@SoldToFax
+           ,@SoldToPic
+           ,@SoldToEmail
+       ,@ShipDelivery
+           ,@ConsigneeName
+           ,@ConsigneeAddress
+           ,@ConsigneeCountry
+           ,@ConsigneeTelephone
+           ,@ConsigneeFax
+           ,@ConsigneePic
+           ,@ConsigneeEmail
+           ,@NotifyName
+           ,@NotifyAddress
+           ,@NotifyCountry
+           ,@NotifyTelephone
+           ,@NotifyFax
+           ,@NotifyPic
+           ,@NotifyEmail
+           ,@ConsigneeSameSoldTo
+           ,@NotifyPartySameConsignee
+       ,@Area
+       ,@Branch
+	   ,@Currency
+	   ,@Rate
+           ,@PaymentTerms
+           ,@ShippingMethod
+           ,@CountryOfOrigin
+           ,@LcNoDate
+           ,@IncoTerm
+           ,@FreightPayment
+           ,@ShippingMarks
+           ,@Remarks
+           ,@SpecialInstruction
+           ,@CreateBy
+           ,@CreateDate
+           ,@UpdateBy
+           ,@UpdateDate
+           ,@IsDelete
+		   ,@LoadingPort
+		   ,@DestinationPort
+		   ,@PickUpPic
+       ,@PickUpArea
+	   ,@CategoryReference
+	   ,@ReferenceNo
+	   ,@Consolidate)
+
+  SET @LASTID = CAST(SCOPE_IDENTITY() as bigint)
+  --SET @LASTCIPLID =@LASTID
+  INSERT INTO [dbo].[CiplForwader]
+           ([IdCipl]
+       ,[Forwader]
+	   ,[Branch]
+	   ,[Attention]
+       ,[Company]
+	   ,[SubconCompany]
+       ,[Address]
+	   ,[Area]
+	   ,[City]
+	   ,[PostalCode]
+       ,[Contact]
+	   ,[FaxNumber]
+	   ,[Forwading]
+       ,[Email]
+           ,[CreateBy]
+           ,[CreateDate]
+           ,[UpdateBy]
+           ,[UpdateDate]
+           ,[IsDelete]
+		   ,[Type]
+		   ,[ExportShipmentType]
+		   ,[Vendor]
+           )
+     VALUES
+           (@LASTID
+       ,@Forwader
+	   ,@BranchForwarder
+	   ,@Attention
+       ,@Company
+	   ,@SubconCompany
+       ,@Address
+	   ,@AreaForwarder
+	   ,@City
+	   ,@PostalCode	
+       
+       ,@Contact
+	   ,@FaxNumber
+	   ,@Forwading
+       ,@Email
+           ,@CreateBy
+           ,@CreateDate
+           ,@UpdateBy
+           ,@UpdateDate
+           ,@IsDelete
+		   ,@Type
+		   ,@ExportShipmentType
+		   ,@Vendor)
+
+
+
+  EXEC dbo.GenerateCiplNumber @LASTID, @CreateBy;
+
+  DECLARE @CIPLNO nvarchar(20), @GETCATEGORY nvarchar(2)
+  
+  SELECT @GETCATEGORY = 
+    CASE
+      WHEN C.Category = 'CATERPILLAR NEW EQUIPMENT' THEN 'PP'
+      WHEN C.Category = 'CATERPILLAR SPAREPARTS' THEN 'SP'
+      WHEN C.Category = 'CATERPILLAR USED EQUIPMENT' THEN 'UE'
+	  WHEN C.Category = 'MISCELLANEOUS' THEN 'MC'
+    ELSE Null
+    END 
+    FROM Cipl C WHERE C.id = @LASTID
+    
+  EXEC dbo.sp_insert_request_data @LASTID, 'CIPL', @GETCATEGORY, @Status, 'CREATE';
+
+END
+
+
+Go
+
+
+
+ALTER PROCEDURE [dbo].[SP_CiplUpdate]
+(
+	@id bigint,
+	@Category NVARCHAR(100),
+	@CategoryItem NVARCHAR(50),
+	@ExportType NVARCHAR(100),
+	@ExportTypeItem NVARCHAR(50),
+	@SoldConsignee NVARCHAR(30),
+	@SoldToName NVARCHAR(200),
+	@SoldToAddress NVARCHAR(MAX),
+	@SoldToCountry NVARCHAR(100),
+	@SoldToTelephone NVARCHAR(100),
+	@SoldToFax NVARCHAR(100),
+	@SoldToPic NVARCHAR(200),
+	@SoldToEmail NVARCHAR(200),
+	@ShipDelivery NVARCHAR(30),
+	@ConsigneeName NVARCHAR(200),
+	@ConsigneeAddress NVARCHAR(MAX),
+	@ConsigneeCountry NVARCHAR(100),
+	@ConsigneeTelephone NVARCHAR(100),
+	@ConsigneeFax NVARCHAR(100),
+	@ConsigneePic NVARCHAR(200),
+	@ConsigneeEmail NVARCHAR(200),
+	@NotifyName NVARCHAR(200),
+	@NotifyAddress NVARCHAR(MAX),
+	@NotifyCountry NVARCHAR(100),
+	@NotifyTelephone NVARCHAR(100),
+	@NotifyFax NVARCHAR(100),
+	@NotifyPic NVARCHAR(200),
+	@NotifyEmail NVARCHAR(200),
+	@ConsigneeSameSoldTo BIGINT,
+	@NotifyPartySameConsignee BIGINT,
+	@Area NVARCHAR(100),
+	@Branch NVARCHAR(100),
+	@Currency NVARCHAR(20),
+	@Rate DECIMAL(18,2),
+	@PaymentTerms NVARCHAR(50),
+	@ShippingMethod NVARCHAR(30),
+	@CountryOfOrigin NVARCHAR(30),
+	@LcNoDate NVARCHAR(30),
+	@IncoTerm NVARCHAR(50),
+	@FreightPayment NVARCHAR(30),
+	@ShippingMarks NVARCHAR(MAX),
+	@Remarks NVARCHAR(200),
+	@SpecialInstruction NVARCHAR(MAX),
+	@CreateBy NVARCHAR(50),
+	@CreateDate datetime,
+	@UpdateBy NVARCHAR(50),
+	@UpdateDate datetime,
+	@Status NVARCHAR(10),
+	@IsDelete BIT,
+	@LoadingPort NVARCHAR(200),
+    @DestinationPort NVARCHAR(200),
+	@PickUpPic NVARCHAR(200),
+	@PickUpArea NVARCHAR(200),
+	@CategoryReference NVARCHAR(50),
+	@ReferenceNo NVARCHAR(50),
+	@Consolidate NVARCHAR(20),
+	@Forwader NVARCHAR(200),
+	@BranchForwarder NVARCHAR(200),
+	@Attention NVARCHAR(200),
+	@Company NVARCHAR(200),
+	@SubconCompany NVARCHAR(200),
+	@Address NVARCHAR(MAX),
+	@AreaForwarder NVARCHAR(100),
+	@City NVARCHAR(100),
+	@PostalCode NVARCHAR(100),
+	@Contact NVARCHAR(200),
+	@FaxNumber NVARCHAR(200),
+	@Forwading NVARCHAR(200),
+	@Email NVARCHAR(200),
+	@Type VARCHAR(10),
+	@ExportShipmentType NVARCHAR(Max),
+	@Vendor NVARCHAR(MAX)
+)
+AS
+BEGIN
+	UPDATE dbo.Cipl 
+		SET Category = @Category 
+           ,CategoriItem = @CategoryItem
+           ,ExportType = @ExportType
+           ,ExportTypeItem = @ExportTypeItem
+		   ,SoldConsignee = @SoldConsignee
+           ,SoldToName = @SoldToName
+           ,SoldToAddress = @SoldToAddress
+           ,SoldToCountry = @SoldToCountry
+           ,SoldToTelephone = @SoldToTelephone
+           ,SoldToFax = @SoldToFax
+           ,SoldToPic = @SoldToPic
+           ,SoldToEmail = @SoldToEmail
+		   ,ShipDelivery = @ShipDelivery
+           ,ConsigneeName = @ConsigneeName
+           ,ConsigneeAddress = @ConsigneeAddress
+           ,ConsigneeCountry = @ConsigneeCountry
+           ,ConsigneeTelephone = @ConsigneeTelephone
+           ,ConsigneeFax = @ConsigneeFax
+           ,ConsigneePic = @ConsigneePic
+           ,ConsigneeEmail = @ConsigneeEmail
+           ,NotifyName = @NotifyName
+           ,NotifyAddress = @NotifyAddress
+           ,NotifyCountry = @NotifyCountry
+           ,NotifyTelephone = @NotifyTelephone
+           ,NotifyFax = @NotifyFax
+           ,NotifyPic = @NotifyPic
+           ,NotifyEmail = @NotifyEmail
+           ,ConsigneeSameSoldTo = @ConsigneeSameSoldTo
+           ,NotifyPartySameConsignee = @NotifyPartySameConsignee
+		   ,Area = @Area
+		   ,Branch = @Branch
+		   ,Currency = @Currency
+           ,PaymentTerms = @PaymentTerms
+           ,ShippingMethod = @ShippingMethod
+           ,CountryOfOrigin = @CountryOfOrigin
+           ,LcNoDate = @LcNoDate
+           ,IncoTerm = @IncoTerm
+           ,FreightPayment = @FreightPayment
+           ,ShippingMarks = @ShippingMarks
+           ,Remarks = @Remarks
+           ,SpecialInstruction = @SpecialInstruction
+           ,UpdateBy = @UpdateBy
+           ,UpdateDate = @UpdateDate
+           ,IsDelete = @IsDelete
+		   ,LoadingPort = @LoadingPort
+		   ,DestinationPort = @DestinationPort
+		   ,PickUpPic = @PickUpPic
+		   ,PickUpArea = @PickUpArea
+		   ,CategoryReference = @CategoryReference
+		   ,ReferenceNo = @ReferenceNo
+		   ,Consolidate = @Consolidate
+	WHERE id = @id;
+
+	UPDATE dbo.CiplForwader
+	SET Forwader = @Forwader
+		,Branch = @BranchForwarder
+		,Attention = @Attention
+		,Company = @Company
+		,SubconCompany = @SubconCompany
+		,Address = @Address
+		,Area = @AreaForwarder
+		,City = @City
+		,PostalCode = @PostalCode
+		,Contact = @Contact
+		,FaxNumber = @FaxNumber
+		,Forwading = @Forwading
+		,Email = @Email
+		,UpdateBy = @UpdateBy
+		,UpdateDate = @UpdateDate
+        ,IsDelete = @IsDelete
+		,[Type]=@Type
+		,ExportShipmentType=@ExportShipmentType 
+		,Vendor=@Vendor
+
+	WHERE IdCipl = @id;
+
+	DECLARE @GETCATEGORY nvarchar(2)
+	
+	SELECT @GETCATEGORY = 
+		CASE
+			WHEN C.Category = 'CATERPILLAR NEW EQUIPMENT' THEN 'PP'
+			WHEN C.Category = 'CATERPILLAR SPAREPARTS' THEN 'SP'
+			WHEN C.Category = 'CATERPILLAR USED EQUIPMENT' THEN 'UE'
+			WHEN C.Category = 'MISCELLANEOUS' THEN 'MC'
+		ELSE Null
+		END 
+		FROM Cipl C WHERE C.id = @id
+	EXEC [dbo].[sp_update_request_cipl] @id, @UpdateBy, @Status, ''
+
+END
+
+
+Go
+alter table [MasterVendor]
+  add [IsManualEntry] bit 
+  
+GO
+
+
+insert into Master_Menu
+(Id,ParentID,Name,URL,OrderNo,Icon,isDefault,isActive,EntryDate,EntryBy)
+values(246,135,'Subcon Company','EMCS/Subcon',14,'fa fa-building-o',0,1,GETDATE(),'ict.bpm')
+
+
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12455,5,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12456,11,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12457,12,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12458,13,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12459,17,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12460,22,246,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12461,23,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12462,24,246,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12463,25,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12464,26,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12465,27,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12466,40,246,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12468,42,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12469,43,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12470,44,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12471,45,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12472,46,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12473,47,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12474,48,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12475,49,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12476,50,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12477,51,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12478,52,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12479,53,246,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12480,54,246,0,0,0,0,GETDATE(),'ict.bpm')
+
+GO
+
+
+CREATE TABLE [dbo].[MasterSubConCompany](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL primary key,
+	Name nvarchar(max),
+	Value nvarchar(max),
+	CreatedBy nvarchar(max),
+	UpdatedBy nvarchar(max),
+	CreateDate datetime,
+	UpdateDate datetime,
+
+)
+
+Go
+
+CREATE procedure [dbo].[sp_SubConCompanyDelete]
+(@Id bigint)
+as 
+begin
+delete from MasterSubConCompany
+where Id = @Id 
+select @Id as Id
+end	
+
+Go
+
+CREATE procedure [dbo].[sp_SubConCompanyAdd]  
+(  
+@Id nvarchar(100),  
+@Name nvarchar(max),  
+@Value nvarchar(max),  
+@CreateBy nvarchar(Max),  
+@UpdatedBy nvarchar(Max) 
+)  
+as  
+begin  
+If (@Id = 0)  
+begin  
+insert into MasterSubConCompany([Name],[Value],CreatedBy,UpdatedBy,CreateDate,UpdateDate)  
+VALUES(@Name,@Value,@CreateBy,'',GetDate(),'')  
+SET @Id = SCOPE_IDENTITY()  
+end  
+else  
+begin  
+update MasterSubConCompany  
+set [Name] = @Name,  
+[Value] = @Value,  
+UpdatedBy = @UpdatedBy,   
+UpdateDate = GETDATE()  
+where Id = @Id  
+end  
+select CAST(@Id as bigint) as Id
+end
+
+GO
+
+---PebReport
+
+insert into Master_Menu
+(Id,ParentID,Name,URL,OrderNo,Icon,isDefault,isActive,EntryDate,EntryBy)
+values(248,127,'Peb Reports','EMCS/PebReport',10,'fa fa-building-o',0,1,GETDATE(),'ict.bpm')
+
+
+
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12506,5,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12507,11,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12508,12,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12509,13,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12510,17,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12511,22,248,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12512,23,248,1,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12513,24,248,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12514,25,248,1,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12515,26,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12516,27,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12517,40,248,1,1,1,1,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12518,42,248,1,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12519,43,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12520,44,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12521,45,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12522,46,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12523,47,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12524,48,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12525,49,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12526,50,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12527,51,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12528,52,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12529,53,248,0,0,0,0,GETDATE(),'ict.bpm')
+insert into Role_Access_Menu 
+(Id,RoleID,MenuID,isRead,isCreate,isUpdated,isDeleted,EntryDate,EntryBy)
+values(12530,54,248,0,0,0,0,GETDATE(),'ict.bpm')
+
+GO
+
+
+alter table shippingfleet
+alter column IdCipl nvarchar(max)
+----------------------------------
+alter table shippingfleet
+alter column DoNo nvarchar(max)
+----------------------------------
+alter table shippingfleet
+add [FileName] nvarchar(max)
+----------------------------------
+alter table shippingfleet
+alter column SimExpiryDate datetime
+----------------------------------
+alter table shippingfleet
+alter column KirExpire datetime
+----------------------------------
+alter table shippingfleet
+alter column EstimationTimePickup datetime
+----------------------------------
+
+GO
+
+
+CREATE PROCEDURE [dbo].[SP_GetAvailableShippingCiplItem] -- exec [dbo].[SP_GetAvailableShippingCiplItem] '13383','91538','40579'    (      @IdCipl nvarchar(100) = 0,      @IdGr nvarchar(100),    @IdShippingFleet nvarchar(100)         )      As      Beg
+in                                                       --DECLARE @sql nvarchar(max);    --DECLARE @CiplItemCount nvarchar(max);    --Set @CiplItemCount = (select Count(IdCiplItem) from ShippingFleetItem t2 where t2.IdCipl = @IdCipl And t2.IdGr = @IdGr And t2.IdShippingFleet = @IdShippingFleet)
+IF @IdShippingFleet = 0
+BEGIN
+  SELECT t0.id ,
+         t0.idcipl ,
+         t0.idreference ,
+         (
+                SELECT
+                       CASE
+                              WHEN t0.referenceno = '-' THEN t0.casenumber
+                              ELSE t0.referenceno
+                       END) AS referenceno ,
+         t0.idcustomer ,
+         t0.NAME ,
+         t0.uom AS unituom ,
+         t0.partnumber ,
+         t0.sn ,
+         t0.jcode ,
+         t0.ccr ,
+         t0.casenumber ,
+         t0.type ,
+         t0.idno ,
+         t0.yearmade ,
+         t0.quantity ,
+         t0. unitprice ,
+         t0.extendedvalue ,
+         t0.length ,
+         t0.width ,
+         t0.height ,
+         t0.volume ,
+         t0.grossweight ,
+         t0.netweight ,
+         t0.currency ,
+         t0.coo ,
+         t0.idparent ,
+         t0.wonumber ,
+         t0.sibnumb er ,
+         t0.createby ,
+         t0.createdate ,
+         t0.updateby ,
+         t0.updatedate ,
+         t0.isdelete ,
+         t0.claim ,
+         t0.asnnumber
+  FROM   ciplitem t0
+  JOIN   cipl t1
+  ON     t0.idcipl = t1.id
+  WHERE  t0.isdelete = 0
+  AND    t0.idcipl IN
+         (
+                SELECT part
+                FROM   [SDF_SplitString](@IdCipl,','))
+  AND    t0.id NOT IN
+         (
+                SELECT idciplitem
+                FROM   shippingfleetitem t2
+                WHERE  t2.idcipl IN
+                       (
+                              SELECT part
+                              FROM   [SDF_SplitString](@IdCipl,','))
+                AND    t2.idgr = @IdGr
+                AND    t2.idshippingfleet = 0)
+END
+ELSE be gin
+SELECT t0.id ,
+       t0.idcipl ,
+       t0.idreference ,
+       (
+              SELECT
+                     CASE
+                            WHEN t0.referenceno = '-' THEN t0.casenumber
+                            ELSE t0.referenceno
+                     END) AS referenceno ,
+       t0.idcustomer ,
+       t0.nam    e ,
+       t0.uom AS unituom ,
+       t0.partnumber ,
+       t0.sn ,
+       t0.jcode ,
+       t0.ccr ,
+       t0.casenumber ,
+       t0.type ,
+       t0.idno ,
+       t0.yearmade ,
+       t0.quantity ,
+       t0.unitprice ,
+       t0.extendedv alue ,
+       t0.length ,
+       t0.width ,
+       t0.height ,
+       t0.volume ,
+       t0.grossweight ,
+       t0.netweight ,
+       t0.currency ,
+       t0.coo ,
+       t0.idparent ,
+       t0.wonumber ,
+       t0.sibnumber ,
+       t0.createby ,
+       t0.createdate ,
+       t0.updateby ,
+       t0.updatedate ,
+       t0.isdelete ,
+       t0.claim ,
+       t0.asnnumber ,
+       t3.idshippingfleet
+FROM   ciplitem t0
+JOIN   cipl t1
+ON     t0.idcipl = t1.id
+JOIN   shippingfleetitem t3
+ON     t3.idciplitem = t0.id
+WHERE  t0.isdelete = 0
+AND    t3.idshippingfleet = @IdShippingFleet
+AND    t0.idcipl IN
+       (
+              SELECT part
+              FROM   [SDF_SplitString](@IdCipl,','))
+AND    t0.id IN
+       (
+              SELECT idciplitem
+              FROM   shippingfleetitem t2
+              WHERE  t2.idcipl IN
+                     (
+                            SELECT part
+                            FROM   [SDF_SplitString](@IdCipl,','))
+              AND    t2.idgr = @IdGr
+              AND    t2.idshippingfleet = @IdShippingFleet)
+UNION
+SELECT t0.id ,
+       t0.idcipl ,
+       t0.idreference ,
+       (
+              SELECT
+                     CASE
+                            WHEN t0.referenceno = '-' THEN t0.casenumber el se t0.referenceno
+                     END) AS referenceno ,
+       t0.idcustomer ,
+       t0.NAME ,
+       t0.uom AS unituom ,
+       t0.partnumber ,
+       t0.sn ,
+       t0.jcode ,
+       t0.ccr ,
+       t0.casenumber ,
+       t0.type ,
+       t0.idno ,
+       t0.yearmade ,
+       t0.quantity ,
+       t0.unitprice ,
+       t0.extendedvalue ,
+       t0.length ,
+       t0.width ,
+       t0.height ,
+       t0.volume ,
+       t0.grossweight ,
+       t0.netweight ,
+       t0.currency ,
+       t0.co o ,
+       t0.idparent ,
+       t0.wonumber ,
+       t0.sibnumber ,
+       t0.createby ,
+       t0.createdate ,
+       t0.updateby ,
+       t0.updatedate ,
+       t0.isdelete ,
+       t0.claim ,
+       t0.asnnumber ,
+       -1 AS idshippingfleet
+FROM   ciplite m t0
+JOIN   cipl t1
+ON     t0.idcipl = t1.id
+WHERE  t0.isdelete = 0
+AND    t0.idcipl IN
+       (
+              SELECT part
+              FROM   [SDF_SplitString](@IdCipl,','))
+AND    t0.id NOT IN
+       (
+              SELECT idciplitem
+              FROM   shippingfleetitem t2
+              WHERE  t2.idcipl IN
+                     (
+                            SELECT part
+                            FROM   [SDF_SplitString](@IdCipl,','))
+              AND    t2.idgr = @IdGr
+              AND    t2.idshippingfleet = @IdShippingFleet)
+END
+END
+
+Go
+
+USE [EMCS]
+GO
+/***** Object:  UserDefinedFunction [dbo].[SDF_SplitString]    Script Date: 23-08-2022 19:44:41 *****/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create FUNCTION [dbo].[SDF_SplitString]
+(
+    @sString nvarchar(2048),
+    @cDelimiter nchar(1)
+)
+RETURNS @tParts TABLE ( part nvarchar(2048) )
+AS
+BEGIN
+    if @sString is null return
+    declare @iStart int,
+            @iPos int
+    if substring( @sString, 1, 1 ) = @cDelimiter 
+    begin
+        set @iStart = 2
+        insert into @tParts
+        values( null )
+    end
+    else 
+        set @iStart = 1
+    while 1=1
+    begin
+        set @iPos = charindex( @cDelimiter, @sString, @iStart )
+        if @iPos = 0
+            set @iPos = len( @sString )+1
+        if @iPos - @iStart > 0          
+            insert into @tParts
+            values  ( substring( @sString, @iStart, @iPos-@iStart ))
+        else
+            insert into @tParts
+            values( null )
+        set @iStart = @iPos+1
+        if @iStart > len( @sString ) 
+            break
+    end
+    RETURN
+
+END
+
+GO
+
+  create procedure SP_deleteArmada(@id nvarchar(100))  
+  as  
+  begin  
+  delete From ShippingFleet  
+  where Id = @id  
+  delete From ShippingFleetItem  
+  where IdShippingFleet = @id  
+  end
+  
+  GO
+  
+    drop procedure SP_deleteAllArmada
+	
+	GO
+	
+	 ALTER procedure [dbo].[sp_addShippingFleetItem]      
+ (      
+  @Id nvarchar(15),      
+  @IdShippingFleet nvarchar(15),      
+  @IdGr nvarchar(15),      
+  @IdCipl nvarchar(15),      
+  @IdCiplItem nvarchar(15)      
+      
+ )      
+ AS      
+BEGIN      
+IF @Id = 0 
+Begin
+set @IdCipl = (select c.IdCipl from CiplItem c
+where c.Id = @IdCiplItem) 
+ insert into ShippingFleetItem (IdShippingFleet,IdGr,IdCipl,IdCiplItem)      
+ values(@IdShippingFleet,@IdGr,@IdCipl,@IdCiplItem)      
+ Set @Id = SCOPE_IDENTITY()  
+ select * from ShippingFleetItem    
+ where Id = @Id 
+END
+else
+Begin
+select * from ShippingFleet
+where Id = @Id
+End
+End
+
+
+GO
+
+create procedure [dbo].[Sp_GetArmdaList]
+(@IdGr bigint,
+@Id BigInt )
+as
+begin
+if @Id = 0
+begin
+select * from ShippingFleet
+where IdGr = @IdGr 
+end
+else
+begin 
+select * from ShippingFleet
+where Id = @Id
+end 
+end
+
+
+GO
+
+create procedure [dbo].[SP_deleteShippingFleet]  
+(  
+@id nvarchar(100),  
+@idCiplItem nvarchar(100)  
+)  
+as   
+begin  
+delete From ShippingFleetItem  
+where IdCiplItem = @idCiplItem And IdShippingFleet = @id  
+end
+
+GO
+
+create procedure sp_get_armada_document
+(
+	@Id NVARCHAR(10)
+)	
+AS
+BEGIN
+	select * from ShippingFleet
+	where Id = @Id
+	
+END
+
+GO
+
+create PROCEDURE [dbo].[SP_ArmadaDocumentUpdateFile]
+(
+	@Id BIGINT,
+	@Filename NVARCHAR(MAX) = ''
+)
+AS
+BEGIN
+ 
+	UPDATE dbo.ShippingFleet
+	SET [FileName] = @Filename	
+	WHERE Id = @Id;
+
+END
+
+GO
+CREATE PROCEDURE [dbo].[sp_CiplItemInArmada]    
+ (        
+ @IdCipl nvarchar(100),        
+ @IdGr nvarchar(100),      
+ @IdShippingFleet nvarchar(100)      
+        
+ )        
+ As     
+ BEGIN      
+      
+  select  t0.Id        
+    , t0.IdCipl        
+    , t0.IdReference        
+    , (SELECT CASE        
+        WHEN t0.ReferenceNo = '-' THEN t0.CaseNumber         
+        ELSE t0.ReferenceNo        
+        END) AS ReferenceNo        
+    , t0.IdCustomer        
+    , t0.Name        
+    , t0.Uom         
+    , t0.PartNumber        
+    , t0.Sn        
+    , t0.JCode        
+    , t0.Ccr        
+    , t0.CaseNumber        
+    , t0.Type        
+    , t0.IdNo        
+    , t0.YearMade        
+    , t0.Quantity        
+    , t0.UnitPrice        
+    , t0.ExtendedValue        
+    , t0.Length        
+    , t0.Width        
+    , t0.Height        
+    , t0.Volume        
+    , t0.GrossWeight        
+    , t0.NetWeight        
+    , t0.Currency        
+ , t0.CoO        
+ , t0.IdParent        
+ , t0.WONumber        
+ , t0.SIBNumber        
+    , t0.CreateBy        
+    , t0.CreateDate        
+    , t0.UpdateBy        
+    , t0.UpdateDate        
+    , t0.IsDelete        
+ , t0.Claim        
+ , t0.ASNNumber      
+ , t3.IdShippingFleet      
+   from CiplItem t0        
+  join Cipl t1 on t0.IdCipl = t1.id      
+  join ShippingFleetItem t3 on t3.IdCiplItem = t0.Id      
+  where t0.IsDelete = 0 And t3.IdShippingFleet = @IdShippingFleet and t0.IdCipl In    
+  (SELECT part FROM [SDF_SplitString](@IdCipl,','))  And t0.Id In      
+  (select IdCiplItem from ShippingFleetItem t2 where t2.IdCipl In     
+  (SELECT part FROM [SDF_SplitString](@IdCipl,',')) And t2.IdShippingFleet = @IdShippingFleet)     
+  end 
+  
+  Go
+  
+  create procedure [dbo].[SP_GetCiplItemInShippingFleetItem]
+(
+@IdCipl nvarchar(100),
+@IdGr nvarchar(100)
+)
+as 
+begin 
+select count(IdCiplItem) from ShippingFleetItem
+where IdCipl = @IdCipl and IdGr = @IdGr
+end
+
+Go
+
+create procedure [dbo].[SP_GetCiplId]
+(@DoNo nvarchar(max))
+as
+begin
+select * from Cipl
+where EdoNo In (select * from [SDF_SplitString](@DoNo,','))
+end
+
+Go
+
+ALTER PROCEDURE [dbo].[SP_ArmadaDocumentUpdateFile]
+(
+	@Id BIGINT,
+	@Filename NVARCHAR(MAX) = ''
+)
+AS
+BEGIN
+ 
+	UPDATE dbo.ShippingFleet
+	SET [FileName] = @Filename	
+	WHERE Id = @Id;
+
+END
+
+Go
+
+ ALTER procedure [dbo].[sp_addShippingFleetItem]      
+ (      
+  @Id nvarchar(15),      
+  @IdShippingFleet nvarchar(15),      
+  @IdGr nvarchar(15),      
+  @IdCipl nvarchar(15),      
+  @IdCiplItem nvarchar(15)      
+      
+ )      
+ AS      
+BEGIN      
+IF @Id = 0 
+Begin
+set @IdCipl = (select c.IdCipl from CiplItem c
+where c.Id = @IdCiplItem) 
+ insert into ShippingFleetItem (IdShippingFleet,IdGr,IdCipl,IdCiplItem)      
+ values(@IdShippingFleet,@IdGr,@IdCipl,@IdCiplItem)      
+ Set @Id = SCOPE_IDENTITY()  
+ select * from ShippingFleetItem    
+ where Id = @Id 
+END
+else
+Begin
+select * from ShippingFleet
+where Id = @Id
+End
+End
+
+Go
+
+ALTER PROCEDURE [dbo].[sp_AddArmada]
+(
+	@Id nvarchar(100),
+	@IdCipl nvarchar(100),
+	@IdGr nvarchar(100),
+	@DoNo nvarchar(100),
+	@DaNo nvarchar(100),
+	@PicName		nvarchar(100),
+    @PhoneNumber	nvarchar(100),
+    @KtpNumber		nvarchar(100),
+	@SimNumber		nvarchar(100),
+    @SimExpiryDate 	nvarchar(100),
+    @KirNumber  	nvarchar(100),	
+    @KirExpire  	nvarchar(100),
+    @NopolNumber	nvarchar(100),	
+    @StnkNumber  	nvarchar(100),
+    @EstimationTimePickup	nvarchar(100),
+    @Apar			nvarchar(100),
+    @Apd			nvarchar(100)
+
+)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	IF @Id = 0
+
+	BEGIN
+		
+		INSERT INTO [dbo].[ShippingFleet]
+           ([IdGr],[IdCipl],[DoNo],[DaNo],[PicName],PhoneNumber,KtpNumber,SimNumber,SimExpiryDate,KirNumber,KirExpire,NopolNumber,StnkNumber,EstimationTimePickup,Apar,Apd)
+		VALUES
+           (@IdGr, @IdCipl, @DoNo, @DaNo, @PicName, @PhoneNumber, @KtpNumber, @SimNumber, @SimExpiryDate, @KirNumber,@KirExpire,@NopolNumber,@StnkNumber,@EstimationTimePickup,@Apar,@Apd)
+		   SET @Id = SCOPE_IDENTITY()	
+	END
+	ELSE 
+	BEGIN
+		UPDATE [dbo].[ShippingFleet] SET 
+				IdGr = @IdGr
+			  , IdCipl = @IdCipl
+			  , DoNo = @DoNo
+			  , DaNo = @DaNo
+			  ,PicName= @PicName		
+			  ,PhoneNumber = @PhoneNumber	
+			  ,KtpNumber= @KtpNumber		
+			  ,SimNumber= @SimNumber		
+			  ,SimExpiryDate = @SimExpiryDate 	
+			  ,KirNumber = @KirNumber  	
+			  ,KirExpire = @KirExpire  	
+			  ,NopolNumber = @NopolNumber	
+			  ,StnkNumber = @StnkNumber  	
+			  ,EstimationTimePickup	= @EstimationTimePickup
+			  ,Apar = @Apar			
+			  ,Apd = @Apd			
+		WHERE Id = @Id
+declare @EdoNo nvarchar(max)
+set @EdoNo = (select DoNo From  ShippingFleet where Id = @Id)
+delete from ShippingFleetItem
+where IdCipl not In (select id from Cipl
+where EdoNo IN (select * from [SDF_SplitString](@EdoNo ,','))) and IdGr = @IdGr and IdShippingFleet = @Id
+	END
+	SELECT CAST(@Id as bigint) as Id
+END
+
+Go
+
+
+  ALTER procedure [dbo].[sp_get_shippingfleet_gr]
+  (
+  @Id nvarchar(100)
+  )
+  as
+  begin
+  select * from ShippingFleet
+  where IdGr = @Id
+  End
+  
+  Go
+  
+  ALTER PROCEDURE [dbo].[sp_get_gr_document_list] 
+(
+	@IdGr NVARCHAR(10),
+	@IsTotal bit = 0,
+	@sort nvarchar(100) = 'Id',
+	@order nvarchar(100) = 'ASC',
+	@offset nvarchar(100) = '0',
+	@limit nvarchar(100) = '10'
+)	
+AS
+BEGIN
+	DECLARE @sql nvarchar(max);  
+	SET @sql = 'SELECT ';
+	SET @sort = 't0.'+@sort;
+
+	IF (@IsTotal <> 0)
+	BEGIN
+		SET @sql += 'count(*) total'
+	END 
+	ELSE
+	BEGIN
+		SET @sql += 't0.Id
+					 , t0.IdGr
+					 , t0.DocumentDate
+					 , t0.DocumentName
+					 , t0.[Filename]
+					 , t0.CreateBy
+					 , t0.CreateDate
+					 , t0.UpdateBy
+					 , t0.UpdateDate
+					 , t0.IsDelete
+					 , '''' as PIC '
+	END
+	SET @sql +=' FROM GoodsReceiveDocument t0   
+	WHERE  IsDelete = 0 AND t0.IdGr = '+@IdGr;
+	EXECUTE(@sql);
+	--select @sql;
+END
+
+Go
+
+ALTER procedure [dbo].[sp_get_armada_document]
+(
+	@Id NVARCHAR(10)
+)	
+AS
+BEGIN
+	select * from ShippingFleet
+	where Id = @Id
+	
+END
+
+Go
+
+ALTER procedure [dbo].[SP_GetCiplItem]
+(
+@IdCipl nvarchar(100)
+)
+as 
+begin 
+select count(Id) from CiplItem
+where IdCipl = @IdCipl and IsDelete = 0
+end
+
+Go
+
+ ALTER procedure [dbo].[SP_GetCiplItemCount]  
+(  
+@IdCipl nvarchar(100),  
+@IdGr nvarchar(100),
+@IdShippingFleet nvarchar(100)
+)  
+as  
+begin  
+If(@IdCipl != 0)  
+begin  
+select count(*) from CiplItem  
+where IdCipl In(SELECT splitdata FROM [fnSplitString](@IdCipl, ',')) and IsDelete = 0  
+end  
+Else If(@IdGr != 0)
+begin  
+select count(*) from ShippingFleetItem  
+where IdGr =  @IdGr  
+end  
+Else
+begin
+select count(*) from ShippingFleetItem
+where IdShippingFleet = @IdShippingFleet
+end
+end
+

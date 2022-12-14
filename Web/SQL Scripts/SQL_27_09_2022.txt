@@ -1,0 +1,633 @@
+﻿alter table Cargo
+add TotalPackageBy nvarchar(max) null
+
+Go
+
+update Cargo
+set TotalPackageBy = 'CaseNo'
+where IsDelete <> 1
+
+Go
+
+
+--DROP PROCEDURE [dbo].[sp_CargoInsert]  
+alter PROCEDURE [dbo].[sp_insert_update_cargo]  
+(  
+ @CargoID BIGINT,  
+ @Consignee NVARCHAR(200),  
+ @NotifyParty NVARCHAR(200),  
+ @ExportType NVARCHAR(200),  
+ @Category NVARCHAR(200),  
+ @Incoterms NVARCHAR(200),  
+ @StuffingDateStarted datetime = NULL,--='02-02-2019',  
+ @StuffingDateFinished datetime = NULL,--='12-12-2019',  
+ @ETA datetime = NULL,--='02-02-2019',  
+ @ETD datetime = NULL,--='12-12-2019',  
+ @TotalPackageBy nvarchar(max),
+ @VesselFlight NVARCHAR(30),--='vessel',  
+ @ConnectingVesselFlight NVARCHAR(30),--='con vessel',  
+ @VoyageVesselFlight NVARCHAR(30),--='voy vessel',  
+ @VoyageConnectingVessel NVARCHAR(30),--='voy con',  
+ @PortOfLoading NVARCHAR(30),--='start',  
+ @PortOfDestination NVARCHAR(30),--='end',  
+ @SailingSchedule datetime = NULL,--='09-09-2019',  
+ @ArrivalDestination datetime = NULL,--='10-10-2019',  
+ @BookingNumber NVARCHAR(20) = '',--='1122',  
+ @BookingDate datetime = NULL,--='11-11-2019',  
+ @Liner NVARCHAR(20) = '',--='linear'  
+ @Status NVARCHAR(20) = '',  
+ @ActionBy NVARCHAR(20) = '',  
+ @Referrence NVARCHAR(MAX) = '',  
+ @CargoType NVARCHAR(50) = '',  
+ @ShippingMethod NVARCHAR(50) = ''  
+)  
+AS  
+BEGIN  
+   
+ declare @ID BIGINT;  
+   
+ IF @CargoID <= 0  
+ BEGIN     
+  INSERT INTO [dbo].[Cargo]  
+           ([Consignee],  
+      [NotifyParty],  
+   [ExportType],  
+   [Category],  
+   [Incoterms],  
+   [StuffingDateStarted],  
+   [StuffingDateFinished],  
+   [ETA],  
+   [ETD],  
+   TotalPackageBy,
+   [VesselFlight],  
+   [ConnectingVesselFlight],  
+   [VoyageVesselFlight],  
+   [VoyageConnectingVessel],  
+   [PortOfLoading],  
+   [PortOfDestination],  
+   [SailingSchedule],  
+   [ArrivalDestination],  
+   [BookingNumber],  
+   [BookingDate],  
+   [Liner],  
+   [Status],  
+   [CreateBy]  
+           ,[CreateDate]  
+           ,[UpdateBy]  
+           ,[UpdateDate]  
+           ,[IsDelete]  
+     ,[Referrence]  
+     ,[ShippingMethod]  
+     ,[CargoType]  
+           )  
+     VALUES  
+           (@Consignee,  
+      @NotifyParty,  
+   @ExportType,  
+   @Category,  
+   @Incoterms,  
+   @StuffingDateStarted,  
+   @StuffingDateFinished,  
+   @ETA,  
+   @ETD,  
+   @TotalPackageBy,
+   @VesselFlight,  
+   @ConnectingVesselFlight,  
+   @VoyageVesselFlight,  
+   @VoyageConnectingVessel,  
+   @PortOfLoading,  
+   @PortOfDestination,  
+   @SailingSchedule,  
+   @ArrivalDestination,  
+   @BookingNumber,  
+   @BookingDate,  
+   @Liner,  
+   0  
+           ,@ActionBy  
+           ,GETDATE()  
+           ,@ActionBy  
+           ,GETDATE()  
+           ,0  
+     ,@Referrence  
+     ,@ShippingMethod  
+     ,@CargoType)  
+  
+  SET @ID = CAST(SCOPE_IDENTITY() as bigint);  
+  
+  IF (ISNULL(@Referrence, '') <> '')  
+  BEGIN  
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)  
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete    
+   from fnSplitString(@Referrence, ',') t0  
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;  
+  END  
+  
+  EXEC [dbo].[GenerateCargoNumber] @ID;  
+  EXEC sp_insert_request_data @ID, 'CL', '', @Status, 'Create';  
+  EXEC [sp_update_request_cl] @ID , @ActionBy, @Status
+  
+ END  
+ ELSE  
+ BEGIN  
+  UPDATE [dbo].[Cargo]  
+  SET [Consignee] = @Consignee  
+   ,[NotifyParty] = @NotifyParty  
+   ,[ExportType] = @ExportType  
+   ,[Category] = @Category  
+   ,[Incoterms] = @Incoterms  
+   ,[StuffingDateStarted] = @StuffingDateStarted  
+   ,[StuffingDateFinished] = @StuffingDateFinished  
+   ,[ETA] = @ETA  
+   ,[ETD] = @ETD  
+   ,[TotalPackageBy] =@TotalPackageBy
+   ,[VesselFlight] = @VesselFlight  
+   ,[ConnectingVesselFlight] = @ConnectingVesselFlight  
+   ,[VoyageVesselFlight] = @VoyageVesselFlight  
+   ,[VoyageConnectingVessel] = @VoyageConnectingVessel  
+   ,[PortOfLoading] = @PortOfLoading  
+   ,[PortOfDestination] = @PortOfDestination  
+  ,[SailingSchedule] = @SailingSchedule  
+   ,[ArrivalDestination] = @ArrivalDestination  
+   ,[BookingNumber] = @BookingNumber  
+   ,[BookingDate] = @BookingDate  
+   ,[Liner] = @Liner  
+   ,[UpdateDate] = GETDATE()  
+   ,[UpdateBy] = @ActionBy  
+   ,[Referrence] = @Referrence  
+   ,[ShippingMethod] = @ShippingMethod  
+   ,[CargoType] = @CargoType  
+  WHERE Id = @CargoID  
+  
+  SET @ID = @CargoID  
+  
+  IF (ISNULL(@Referrence, '') <> '')  
+  BEGIN  
+   DELETE FROM dbo.CargoCipl WHERE IdCargo = @ID;  
+  
+   INSERT INTO dbo.CargoCipl (IdCargo, IdCipl, EdoNumber, CreateBy, CreateDate, UpdateBy, UpdateDate, IsDelete)  
+   SELECT @ID IdCargo, splitdata as IdCipl, t1.EdoNo, @ActionBy CreateBy, GETDATE() CreateDate, @ActionBy UpdateBy, GETDATE() UpdateDate, 0 IsDelete    
+   from fnSplitString(@Referrence, ',') t0  
+   JOIN dbo.Cipl t1 on t1.id = t0.splitdata AND t1.IsDelete = 0;  
+  END  
+  
+  EXEC [sp_update_request_cl] @ID, @ActionBy, @Status  
+ END  
+  
+ SELECT CAST(@ID as BIGINT) as ID  
+  
+END 
+
+Go
+
+
+alter PROCEDURE [dbo].[sp_get_cargo_data] -- sp_get_cargo_data 1
+(
+	@Id bigint
+)
+AS
+BEGIN
+	--DECLARE @Id bigint = 2;
+	SELECT 
+		t0.Id        
+		, t0.ClNo        
+		, t0.Consignee        
+		, t0.NotifyParty        
+		, t0.ExportType        
+		, t0.Category        
+		, t0.IncoTerms
+		, CONCAT(t0.IncoTerms, ' - ', t6.[Name]) [IncotermsDesc]        
+		, t0.StuffingDateStarted        
+		, t0.StuffingDateFinished     
+		, t0.TotalPackageBy
+		, t0.VesselFlight        
+		, t0.ConnectingVesselFlight        
+		, t0.VoyageVesselFlight        
+		, t0.VoyageConnectingVessel        
+		, t0.PortOfLoading        
+		, t0.PortOfDestination        
+		, t0.SailingSchedule        
+		, t0.ArrivalDestination        
+		, t0.BookingNumber        
+		, t0.BookingDate        
+		, t0.Liner        
+		, t0.ETA        
+		, t0.ETD
+		, t0.Referrence
+		, t0.CreateDate
+		, t0.CreateBy
+		, t0.UpdateDate
+		, t0.UpdateBy
+		, CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Employee_Name ELSE t3.FullName END PreparedBy
+		, CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Email ELSE t3.Email END Email
+		, t4.Step
+		, t5.[Status]
+		, t5.ViewByUser [StatusViewByUser]
+		, t0.CargoType
+		, t0.ShippingMethod		
+		, t7.[Name] CargoTypeName
+		, STUFF((SELECT ', '+ISNULL(tx1.EdoNo, '-')
+			FROM dbo.CargoItem tx0
+			JOIN dbo.Cipl tx1 on tx1.id = tx0.IdCipl
+			WHERE tx0.IdCargo = @Id
+			GROUP BY tx1.EdoNo
+			FOR XML PATH(''),type).value('.','nvarchar(max)'),1,1,'') [RefEdo]
+		, t8.SlNo Si_No
+		, t8.[Description] Si_Description
+		, t8.DocumentRequired Si_DocumentRequired
+		, t8.SpecialInstruction Si_SpecialInstruction
+	FROM Cargo t0      
+	JOIN dbo.RequestCl as t1 on t1.IdCl = t0.Id
+	JOIN PartsInformationSystem.dbo.[UserAccess] t3 on t3.UserID = t0.CreateBy
+	LEFT JOIN employee t2 on t2.AD_User = t0.CreateBy
+	JOIN dbo.FlowStep t4 on t4.Id = t1.IdStep
+	JOIN dbo.FlowStatus t5 on t5.[Status] = t1.[Status] AND t5.IdStep = t1.IdStep
+	LEFT JOIN dbo.MasterIncoTerms t6 on t6.Number = t0.Incoterms
+	LEFT JOIN dbo.MasterParameter t7 on t7.[Group] = 'CargoType' AND t7.Value = ISNULL(t0.CargoType,0)
+	LEFT JOIN dbo.ShippingInstruction t8 on t8.IdCL = t0.Id
+	WHERE 1=1 AND t0.Id = @Id;
+END
+
+go
+
+
+alter PROCEDURE [dbo].[sp_send_email_for_single](                
+                @subject nvarchar(max),                
+                @to nvarchar(max),                
+                @content nvarchar(max),                
+    @Email nvarchar(max) = ''                
+)                
+AS                
+BEGIN                
+                SET NOCOUNT ON                
+                
+                -- Send Email to User Here                
+                IF (@to <> '' AND @Email = '')                
+    BEGIN                
+     SELECT @Email = Email                 
+     FROM dbo.fn_get_employee_internal_ckb()                 
+     WHERE AD_User = @to;                
+    END                
+                                
+                EXEC msdb.dbo.sp_send_dbmail                 
+                                --@recipients = @Email, @copy_recipients = 'projectsupport@mkindo.com',    
+								@recipients = 'projectsupport@mkindo.com', @copy_recipients = 'projectsupport@mkindo.com',    
+                                @subject = @subject,                
+                                @body = @content,                
+                                @body_format = 'HTML',                
+                                @profile_name = 'EMCS';                
+                
+                insert into dbo.Test_Email_Log ([To], Content, [Subject], CreateDate) values (@Email, @Content, @subject, GETDATE());                
+                
+END
+
+
+go
+
+
+alter PROCEDURE [dbo].[sp_insert_update_cargo_item]     
+(    
+ @Id nvarchar(100),    
+ @ItemId nvarchar(100),    
+ @IdCargo nvarchar(100),    
+ @ContainerNumber nvarchar(100),    
+ @ContainerType nvarchar(100),    
+ @ContainerSealNumber nvarchar(100),    
+ @ActionBy nvarchar(100),    
+ @Length nvarchar(100) = '0',    
+ @Width nvarchar(100) = '0',    
+ @Height nvarchar(100) = '0',    
+ @GrossWeight nvarchar(100) = '0',    
+ @NetWeight nvarchar(100) = '0',    
+ @isDelete bit = 0    
+)    
+AS    
+BEGIN    
+ SET NOCOUNT ON;    
+    
+ IF ISNULL(@Id, 0) = 0     
+ BEGIN    
+  INSERT INTO [dbo].[CargoItem]    
+         ([ContainerNumber]    
+         ,[ContainerType]    
+         ,[ContainerSealNumber]    
+         ,[IdCipl]    
+         ,[IdCargo]    
+      ,[IdCiplItem]    
+         ,[InBoundDa]    
+         ,[Length]    
+         ,[Width]    
+         ,[Height]    
+         ,[Net]    
+         ,[Gross]    
+         ,[CreateBy]    
+         ,[CreateDate]    
+         ,[UpdateBy]    
+         ,[UpdateDate]    
+         ,[isDelete])    
+   select  top 1
+   @ContainerNumber    
+   , @ContainerType    
+   , @ContainerSealNumber    
+   , t0.IdCipl    
+   , @IdCargo    
+   , t0.Id    
+   , null as DaNo    
+   , t0.[Length]    
+   , t0.Width    
+   , t0.Height    
+   , t0.NetWeight    
+   , t0.GrossWeight    
+   , @ActionBy CreateBy    
+   , GETDATE()    
+   , @ActionBy UpdateBy    
+   , GETDATE(), 0    
+   from dbo.ciplItem t0     
+   join dbo.Cipl t1 on t1.id = t0.IdCipl     
+   --join dbo.GoodsReceiveItem t2 on t2.DoNo = t1.EdoNo AND t2.IsDelete = 0    
+   join dbo.ShippingFleetRefrence t2 on  t2.DoNo = t1.EdoNo  
+   where t0.id = @ItemId;    
+ END     
+ ELSE     
+ BEGIN    
+      
+  DECLARE @OldLength decimal(20, 2);    
+  DECLARE @OldWidth decimal(20, 2);    
+  DECLARE @OldHeight decimal(20, 2);    
+  DECLARE @OldGrossWeight decimal(20, 2);    
+  DECLARE @OldNetWeight decimal(20, 2);    
+  DECLARE @NewLength decimal(20, 2);    
+  DECLARE @NewWidth decimal(20, 2);    
+  DECLARE @NewHeight decimal(20, 2);    
+  DECLARE @NewGrossWeight decimal(20, 2);    
+  DECLARE @NewNetWeight decimal(20, 2);    
+      
+  SELECT     
+  @OldLength = [Length],     
+  @OldWidth = Width,     
+  @OldHeight = Height,     
+  @OldGrossWeight = Gross,     
+  @OldNetWeight = Net,    
+  @NewLength = ISNULL([NewLength], 0.00),    
+  @NewWidth = ISNULL([NewWidth], 0.00),    
+  @NewHeight = ISNULL([NewHeight], 0.00),    
+  @NewGrossWeight = ISNULL([NewGross], 0.00),    
+  @NewNetWeight = ISNULL([NewNet], 0.00)    
+  FROM [dbo].[CargoItem] WHERE Id = @Id    
+      
+  IF @NewLength = 0.00    
+  BEGIN    
+   IF @OldLength = @Length     
+   BEGIN    
+    SET @Length = null    
+   END    
+  END    
+    
+  IF @NewWidth = 0.00    
+  BEGIN    
+   IF @OldWidth = @Width     
+   BEGIN    
+    SET @Width = null    
+   END    
+  END    
+    
+  IF @NewHeight = 0.00    
+  BEGIN    
+   IF @OldHeight = @Height     
+   BEGIN    
+    SET @Height = null    
+   END    
+  END    
+    
+  IF @NewHeight = 0.00    
+  BEGIN    
+   IF @OldHeight = @Height     
+   BEGIN    
+    SET @Height = null    
+   END    
+  END    
+    
+  IF @NewGrossWeight = 0.00    
+  BEGIN    
+   IF @OldGrossWeight = @GrossWeight     
+   BEGIN    
+    SET @GrossWeight = null    
+   END    
+  END    
+    
+  IF @NewNetWeight = 0.00    
+  BEGIN    
+   IF @OldNetWeight = @NetWeight     
+   BEGIN    
+    SET @NetWeight = null    
+   END    
+  END    
+    
+  UPDATE [dbo].[CargoItem]    
+  SET [NewLength] = @Length    
+   ,[ContainerNumber] = @ContainerNumber    
+   ,[ContainerType] = @ContainerType    
+   ,[ContainerSealNumber] = @ContainerSealNumber    
+      ,[NewHeight] = @Height    
+      ,[NewWidth] = @Width    
+      ,[NewNet] = @NetWeight    
+      ,[NewGross] = @GrossWeight    
+   ,[UpdateBy] = @ActionBy    
+   ,[UpdateDate] = GETDATE()    
+  WHERE Id = @Id    
+ END    
+    
+ SELECT CAST(@Id as bigint) as ID    
+END    
+    
+    
+    go
+
+
+    alter PROCEDURE [dbo].[sp_get_task_bl] -- [dbo].[sp_get_task_bl]'XUPJ21WDN'    
+(    
+ @Username nvarchar(100),    
+ @isTotal bit = 0,    
+ @sort nvarchar(100) = 'Id',    
+ @order nvarchar(100) = 'ASC',    
+ @offset nvarchar(100) = '0',    
+ @limit nvarchar(100) = '10'    
+)    
+AS    
+BEGIN    
+    SET NOCOUNT ON;    
+    DECLARE @sql nvarchar(max);  --select * from dbo.vw_container    
+ DECLARE @PicNpe nvarchar(100);    
+ DECLARE @GroupId nvarchar(100);    
+ DECLARE @UserType nvarchar(100);    
+ DECLARE @UserGroupNameExternal nvarchar(100) = '';    
+ DECLARE @Filter nvarchar(max);    
+    
+ SELECT @UserType = UserType, @UserGroupNameExternal = Cust_Group_No from PartsInformationSystem.dbo.UserAccess where UserID = @Username;    
+    
+ if @UserType <> 'internal'      
+ BEGIN    
+  SET @GroupId = 'CKB';    
+  SET @PicNpe = 'CKB';    
+  SET @Filter = 'AND (PicBlAwb = '''+@PicNpe+''' AND (IdNextStep != 30063 AND IdNextStep != 10022))'    
+ END    
+ ELSE    
+ BEGIN    
+  select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;    
+  if @GroupId = 'Import Export' OR @GroupId = 'Import Export Operation' OR @GroupId = 'Import Export Operation Mgmt.'    
+  BEGIN    
+   SET @GroupId = 'Import Export';    
+   SET @PicNpe = 'IMEX';    
+   SET @Filter = 'AND ((PicBlAwb = '''+@PicNpe+''' OR IdNextStep = 10022) AND IdNextStep != 30063)'    
+  END    
+ END    
+    
+    SET @sql = CASE     
+      WHEN @isTotal = 1     
+     THEN 'SELECT COUNT(*) as total'     
+      ELSE 'select tab0.* '    
+      END + ' FROM fn_get_BlAwb_request_list('''+@Username+''', '''+ISNULL(@GroupId, 0)+''', '''+@PicNpe+''') as tab0 WHERE IdStep IN (''10020'',''10021'',''10022'') '+ @Filter +' AND Status IN(''Approve'',''Submit'',''Revise'')'    
+ +    
+      CASE     
+     WHEN @isTotal = 0     
+     THEN ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY' ELSE '' END;    
+    
+ --select @sql;    
+ PRINT(@sql);    
+ EXECUTE(@sql);    
+END 
+
+Go
+
+Create FUNCTION [dbo].[fn_get_BlAwb_request_list] -- select * from [fn_get_BlAwb_request_list]('xupj21wdn', 'IMEX','xupj21wdn')         
+(         
+ -- Add the parameters for the function here        
+ @Username nvarchar(100),        
+ @GroupId nvarchar(100),        
+ @Pic nvarchar(100)        
+)        
+RETURNS TABLE         
+AS        
+RETURN         
+(        
+ -- Add the SELECT statement with parameter references here        
+ select * from (        
+   
+   select  distinct t0.IdCl         
+   ,t0.[Id]          
+   ,t0.[IdFlow]         
+   ,t0.[IdStep]         
+   ,t0.[Status]         
+   ,t0.[Pic]          
+   ,t0.[CreateBy]         
+   ,t0.[CreateDate]         
+   ,t0.[UpdateBy]          
+   ,t0.[UpdateDate]         
+   ,t0.[IsDelete]          
+   ,t12.IsCancelled      
+   ,CASE WHEN t12.Id Is null Then 0    
+   else t12.Id end AS IdNpePeb    
+   ,t3.Name FlowName        
+   ,t3.Type SubFlowType        
+   , CASE      
+    WHEN t0.[IdStep] = 30074 THEN 30075      
+ WHEN t0.[IdStep] = 30075 THEN 30076      
+ WHEN t0.[IdStep] = 30076 THEN Null      
+ WHEN t0.[IdStep] = 30070 THEN 30071 ELSE [dbo].[fn_get_next_step_id](        
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id        
+     ) END as IdNextStep         
+   , CASE WHEN t0.[IdStep] = 30069 THEN 'Approve draft NPE & PEB'         
+   WHEN t0.[IdStep] = 30070 THEN 'Create NPE'      
+ WHEN t0.[IdStep] = 30074 THEN 'waiting for beacukai approval'      
+ WHEN t0.[IdStep] = 30075 THEN 'Cancelled'      
+ WHEN t0.[IdStep] = 30076 THEN ''      
+    WHEN t0.[IdStep] = 30071 THEN 'Approve NPE' ELSE [dbo].[fn_get_step_name](        
+     [dbo].[fn_get_next_step_id](        
+      t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id        
+     )        
+     ) END as NextStepName        
+   , [dbo].[fn_get_next_assignment_type](t1.NextAssignType, t0.Pic, t1.IdNextStep, t0.Id) NextAssignType        
+   , CASE WHEN t0.[IdStep] = 30069 THEN 'Waiting approval draft PEB'         
+    WHEN (t0.[IdStep] = 30070 AND t0.[Status] = 'Approve') THEN 'Waiting NPE document'         
+    WHEN ((t0.[IdStep] = 30070 OR t0.[IdStep] = 30072) AND t0.[Status] = 'Revise') THEN 'Need revision review by imex'         
+    when t12.IsCancelled = 0 then 'Request Cancel Only PebNpe'      
+    when t12.IsCancelled = 1 then 'waiting for beacukai approval'      
+    when t12.IsCancelled = 2 then 'Cancelled'      
+    WHEN t0.[IdStep] = 30071 THEN 'Waiting approval NPE'      
+    WHEN t0.[IdStep] = 30074 THEN 'Request Cancel'      
+    WHEN t0.[IdStep] = 30075 THEN 'waiting for beacukai approval'      
+    WHEN t0.[IdStep] = 30076 THEN 'Cancelled'      
+    ELSE CASE WHEN t11.Step = 'System' THEN t8.ViewByUser ELSE t1.ViewByUser END END as StatusViewByUser        
+   , t1.CurrentStep        
+   , t2.ClNo        
+   , t2.BookingNumber        
+   , t2.BookingDate        
+   , t2.PortOfLoading        
+   , t2.PortOfDestination        
+   , t2.Liner        
+   , t2.SailingSchedule ETD        
+   , t2.ArrivalDestination ETA        
+   , t2.VesselFlight        
+   , t2.Consignee        
+   , t2.StuffingDateStarted        
+   , t2.StuffingDateFinished        
+   , t5.AD_User        
+   , t4.FullName        
+   , t5.Employee_Name        
+   , CASE WHEN ISNULL(t5.AD_User, '') <> '' THEN t4.FullName ELSE CASE WHEN ISNULL(t5.Employee_Name, '') <> '' THEN t5.Employee_Name ELSE t4.FullName END END PreparedBy         
+   , t7.AssignType as AssignmentType        
+   , CASE       
+  --WHEN (t0.[IdStep] = 30069 OR t0.[IdStep] = 30071 )       
+   -- THEN 'XUPJ21WDN'       
+    --WHEN (t0.[IdStep] = 30074)      
+    --then 'IMEX'      
+    WHEN (t0.[IdStep] = 30070)       
+     THEN t6.PicBlAwb      
+    when (((select RoleID from PartsInformationSystem.[dbo].UserAccess where UserID = @Username) = 8 and t0.[IdStep] = 30069 OR t0.[IdStep] = 30071 or t0.IdStep = 30074 or t0.IdStep = 30075 or t0.IdStep = 30076  or t12.IsCancelled = 0 or t12.IsCancelled =
+ 1 or t12.IsCancelled = 2) or      
+   ((select RoleID from PartsInformationSystem.[dbo].UserAccess where UserID = @Username) = 24 and t0.[IdStep] = 30069 OR t0.[IdStep] = 30071 or t0.IdStep = 30074 or t0.IdStep = 30075 or t0.IdStep = 30076 or t12.IsCancelled = 0 or t12.IsCancelled = 1 or  
+t12.IsCancelled = 2))      
+    then @Username      
+    ELSE       
+     [dbo].[fn_get_next_approval] (t7.AssignType, t0.Pic, t7.AssignTo, t0.CreateBy, t0.Id)       
+     END AS NextAssignTo      
+   --, t6.SpecialInstruction        
+   ,(select top 1 SlNo from  dbo.ShippingInstruction Where IdCL = t0.IdCl) As SlNo       
+   --, t6.Description        
+   , t6.DocumentRequired        
+   , t2.ShippingMethod        
+   , t12.AjuNumber as PebNumber        
+   , t2.SailingSchedule        
+   , t2.ArrivalDestination        
+   , t6.PicBlAwb        
+  from dbo.RequestCl t0        
+  left join (        
+   select         
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,         
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,         
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,        
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName        
+   from dbo.FlowNext nx        
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus        
+   join dbo.FlowStep np on np.Id = ns.IdStep        
+   join dbo.Flow nf on nf.Id = np.IdFlow        
+   join dbo.FlowStep nt on nt.Id = nx.IdStep        
+  ) as t1 on t1.IdFlow = t0.IdFlow AND t1.IdCurrentStep = t0.IdStep AND t1.Status = t0.Status        
+  inner join dbo.Cargo t2 on t2.id = t0.IdCl         
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow        
+  left join PartsInformationSystem.dbo.UserAccess t4 on t4.UserID = t2.CreateBy        
+  left join employee t5 on t5.AD_User = t2.CreateBy        
+  left join dbo.ShippingInstruction t6 on t6.IdCL = t0.IdCl          
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](        
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id        
+     ) and t7.IdFlow = t1.IdFlow        
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](        
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id        
+     )        
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep        
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id        
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep        
+  left join dbo.NpePeb t12 on t12.IdCl = t2.Id        
+  WHERE t0.CreateBy <> 'System' and t0.IsDelete = 0  and t2.CreateBy <> 'System'        
+ ) as tab0         
+ WHERE (tab0.NextAssignTo = @Username OR tab0.NextAssignTo = @GroupId OR tab0.PicBlAwb = @Pic) 
+) 

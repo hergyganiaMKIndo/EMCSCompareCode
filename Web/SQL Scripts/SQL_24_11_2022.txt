@@ -1,0 +1,349 @@
+﻿alter PROCEDURE [dbo].[SP_CargoForExport_Detail]  -- exec [SP_CargoForExport_Detail] 41784
+ @CargoID bigint  
+AS  
+BEGIN  
+  
+ SELECT   
+ CAST(ROW_NUMBER() over (order by a.CaseNumber) as varchar(5)) as ItemNo   
+ , a.ContainerNumber  
+ , a.SealNumber  
+ , a.ContainerType  
+ , CAST(ISNULL(COUNT(a.TotalCaseNumber), 0) as varchar(5)) AS TotalCaseNumber  
+ , a.CaseNumber  
+ , a.Do  
+ , a.InBoundDa  
+ , a.[Description]  
+ , CAST(FORMAT(ISNULL(SUM(a.NetWeight), 0), '#,0.00') as varchar(20))  AS NetWeight  
+ , CAST(FORMAT(ISNULL(SUM(GrossWeight), 0), '#,0.00') as varchar(20))  AS GrossWeight  
+ FROM  
+ ( select   
+   ISNULL(ci.ContainerNumber, '-') as ContainerNumber  
+   , ISNULL(ci.ContainerSealNumber, '-') as SealNumber  
+   , ISNULL(ct.Name, '-') as ContainerType  
+   , CAST(ISNULL(container.CaseNumber, 0) as varchar(5)) as TotalCaseNumber  
+   , cpi.CaseNumber  
+   , ISNULL(cp.EdoNo, '-') as Do  
+   , ISNULL(ci.InBoundDa, '-') as InBoundDa  
+   , ISNULL(cp.Category, '-') as Description  
+   , ISNULL(ci.NewNet, ci.Net) as NetWeight  
+  , ISNULL(ci.NewGross, ci.Gross) as GrossWeight  
+  from Cargo c   
+  --left join CargoContainer cc on c.Id = cc.CargoId  
+  left join CargoItem ci on c.Id = ci.IdCargo  
+  left join CiplItem cpi on ci.IdCiplItem = cpi.Id  
+  left join Cipl cp on cpi.IdCipl = cp.id  
+  left join (  
+   select c.Id as CargoID, cpi.IdCipl, count(ISNULL(cpi.CaseNumber, 0)) as CaseNumber  
+   from Cargo c   
+   left join CargoItem ci on c.Id = ci.IdCargo  
+   left join CiplItem cpi on ci.IdCiplItem = cpi.Id  
+   where ci.isDelete = 0 and cpi.IsDelete = 0  
+   group by c.Id, cpi.IdCipl  
+  ) container on c.Id = container.CargoID and cp.id = container.IdCipl  
+  left join (select Value, Name from MasterParameter where [Group] = 'ContainerType') ct on ci.ContainerType = ct.Value  
+  outer apply(  
+   select top 1 * from CargoHistory where IdCargo = c.id order by id desc  
+  ) ch  
+  where c.Id = @CargoID and ci.isDelete = 0 and cpi.IsDelete = 0  
+ ) a  
+ GROUP BY a.casenumber, a.ContainerNumber, a.SealNumber, a.ContainerType, a.Do, a.InBoundDa, a.[Description]  
+ order by a.CaseNumber  
+END  
+
+Go
+
+alter PROCEDURE [dbo].[sp_get_cargo_item_History_list] -- [dbo].[sp_get_cargo_item_History_list] 31617   
+(    
+ @IdCargo nvarchar(100),    
+ @isTotal bit = 0,    
+ @sort nvarchar(100) = 'Id',    
+ @order nvarchar(100) = 'ASC',    
+ @offset nvarchar(100) = '0',    
+ @limit nvarchar(100) = '10'    
+)    
+AS    
+BEGIN    
+ SET NOCOUNT ON;    
+ DECLARE @sql nvarchar(max);      
+ SET @sort = 't0.'+@sort;    
+    
+ SET @sql = 'SELECT ';    
+ IF (@isTotal <> 0)    
+  BEGIN    
+   SET @sql += 'count(*) total '    
+  END     
+ ELSE    
+  BEGIN    
+   SET @sql += 'ROW_NUMBER() OVER ( ORDER BY t0.Id ) RowNo    
+      ,t0.Id Id  
+   ,t0.IdCargo IdCargo  
+   ,t0.IdCargoItem   
+      ,t0.IdCipl   
+   ,t0.IdCiplItem  
+   ,t0.CreateBy  
+   ,t0.CreateDate  
+   ,t0.UpdateBy  
+   ,t0.UpdateDate  
+   ,t0.IsDelete  
+   ,t0.Status  
+   ,t2.Incoterms IncoTerm                     
+      ,t2.Incoterms IncoTermNumber    
+      ,t3.CiplNo                                       
+      ,t1.CaseNumber                     
+      ,t3.EdoNo                     
+      ,t6.DaNo InboundDa                     
+      ,ISNULL(t0.NewLength, t0.Length) Length                    
+      ,ISNULL(t0.NewWidth,t0.Width) Width                     
+      ,ISNULL(t0.NewHeight,t0.Height) Height                    
+      ,ISNULL(t0.NewNet,t0.Net) Net                
+      ,ISNULL(t0.NewGross,t0.Gross) Gross    
+      ,t0.NewLength                     
+      ,t0.NewWidth                     
+      ,t0.NewHeight                    
+      ,t0.NewNet NewNetWeight                  
+      ,t0.NewGross NewGrossWeight                   
+      ,t1.Sn            
+      ,t1.PartNumber            
+      ,t1.Quantity            
+      ,t1.Name ItemName            
+      ,t1.JCode            
+      ,t2.Category CargoDescription            
+      ,t0.ContainerNumber    
+      ,t0.ContainerType    
+      ,t0.ContainerSealNumber'    
+  END    
+   SET @sql +='    
+     FROM dbo.CargoItem_Change t0    
+     JOIN dbo.CiplItem t1 on t1.Id = t0.IdCiplItem AND t1.isdelete = 0    
+     JOIN dbo.Cargo t2 on t2.Id = t0.IdCargo AND t2.isdelete = 0    
+     JOIN dbo.Cipl t3 on t3.id = t1.IdCipl AND t3.isdelete = 0    
+    LEFT JOIN dbo.ShippingFleetRefrence t4 on t4.DoNo = t3.EdoNo  
+ Left JOIN dbo.ShippingFleet t6 on t6.Id = t4.IdShippingFleet  
+ -- LEFT JOIN dbo.GoodsReceiveItem t4 on t4.DoNo = t3.EdoNo AND t4.isdelete = 0    
+     LEFT JOIN dbo.MasterParameter t5 on t5.Value = t0.ContainerType AND t5.[Group] = ''ContainerType''    
+     WHERE t0.IdCargo='+@IdCargo+' ';    
+ --IF @isTotal = 0     
+ --BEGIN    
+ -- SET @sql += ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY';    
+ --END     
+ --select @sql;    
+ EXEC(@sql);    
+END 
+
+GO
+
+insert into	NotifikasiEmail (Id,IdFlow,IdStep,Status,SendType,SendTo,Name,Subject,Template)
+								values(216,4,30072,'Revise','Requestor','','NPE & PEB revised by imex','NPE & PEB For CL @RequestNo REVISED','<body style="font-family: verdana, helvetica, sans-serif;font-size: 10pt;">  <span>Dear @RequestorName,</span><br /><br />  <span>Your Export NPE & PEB Form has been requested for revision by your approver.</span><br /><br />  <table border = ''0'' style="font-family: verdana, helvetica, sans-serif;font-size: 10pt;">   <tr>    <td>Export CL Number&nbsp;&nbsp;</td>    <td>: @RequestNo</td>   </tr>   <tr>    <td>Export CL Date</td>    <td>: @CreatedDate</td>   </tr>    <tr>     <td>No Do</td>     <td>: @DO</td>    </tr>    <tr>     <td>No DA</td>     <td>: @DA</td>    </tr>    <tr>     <td>No Reference</td>     <td>: @NoReference</td>    </tr>    <tr>     <td>Branch</td>     <td>: @CIPLBranchName</td>    </tr>    <tr>     <td>CiplNo </td>     <td>: @CiplNo</td>    </tr>  </table><br />  <span>Kindly  please Log to:</span> <br /><br />  <ol type="a">   <li>By mobile/Smart phone (Internet connection) click <a href="@MobileLink">here</a> for further action   <li>By desktop click <a href="@DesktopLink">here</a> for further action  </ol><br />  <span>Best regards,</span><br /><span>EMCS Application</span>  <br /><br />  <span style="font-size: 9pt;"><i>Do not reply this email, this email is automatically generated by system</i></span>  </body>')
+insert into	NotifikasiEmail (Id,IdFlow,IdStep,Status,SendType,SendTo,Name,Subject,Template)
+								values(217,4,30072,'Revise','LastApprover','','NPE & PEB revised by imex','NPE & PEB For CL @RequestNo REVISED','<body style="font-family: verdana, helvetica, sans-serif;font-size: 10pt;">  <span>Dear @ApproverName,</span><br /><br />  <span>You have requested a revision on Export NPE & PEB form with details.</span><br /><br />  <table border = ''0'' style="font-family: verdana, helvetica, sans-serif;font-size: 10pt;">   <tr>    <td>Export CL Number&nbsp;&nbsp;</td>    <td>: @RequestNo</td>   </tr>   <tr>    <td>Export CL Date</td>    <td>: @CreatedDate</td>   </tr>    <tr>     <td>No Do</td>     <td>: @DO</td>    </tr>    <tr>     <td>No DA</td>     <td>: @DA</td>    </tr>    <tr>     <td>No Reference</td>     <td>: @NoReference</td>    </tr>    <tr>     <td>Branch</td>     <td>: @CIPLBranchName</td>    </tr>    <tr>     <td>CiplNo </td>     <td>: @CiplNo</td>    </tr>  </table><br />  <span>To check the progress, please Log to:</span> <br /><br />  <ol type="a">   <li>By mobile/Smart phone (Internet connection) click <a href="@MobileLink">here</a> for further action   <li>By desktop click <a href="@DesktopLink">here</a> for further action  </ol><br />  <span>Best regards,</span><br /><span>EMCS Application</span>  <br /><br />  <span style="font-size: 9pt;"><i>Do not reply this email, this email is automatically generated by system</i></span>  </body>')
+
+
+Go
+
+alter PROCEDURE [dbo].[sp_get_blawb_list] --exec [dbo].[sp_get_blawb_list] 'eko.suhartarto','' ,0         
+(          
+ @Username nvarchar(100),          
+ @Search nvarchar(100),          
+ @isTotal bit = 0,          
+ @sort nvarchar(100) = 'Id',          
+ @order nvarchar(100) = 'ASC',          
+ @offset nvarchar(100) = '0',          
+ @limit nvarchar(100) = '10'          
+)          
+AS          
+BEGIN          
+    SET NOCOUNT ON;          
+    DECLARE @sql nvarchar(max);            
+ DECLARE @WhereSql nvarchar(max) = '';          
+ DECLARE @GroupId nvarchar(100);          
+ DECLARE @RoleID bigint;          
+ DECLARE @area NVARCHAR(max);          
+ DECLARE @role NVARCHAR(max) = '';           
+ SET @sort = 'bl.'+@sort;          
+          
+ select @GroupId = Organization_Name from employee where Employee_Status = 'Active' AND AD_User = @Username;          
+          
+          
+ SELECT @area = U.Business_Area          
+  ,@role = U.[Role]          
+ FROM dbo.fn_get_employee_internal_ckb() U          
+ WHERE U.AD_User = @Username;          
+          
+ if @role !=''          
+ BEGIN                   
+ IF (@role !='EMCS IMEX' and @Username !='ict.bpm')          
+ BEGIN          
+  SET @WhereSql = ' AND t0.CreateBy='''+@Username+''' ';          
+ END          
+          
+ SET @sql = 'SELECT ';          
+ IF (@isTotal <> 0)          
+ BEGIN          
+  SET @sql += 'count(*) total '          
+ END           
+ ELSE          
+ BEGIN          
+           
+  SET @sql += ' bl.IdCl  
+       ,bl.Id   
+
+      , bl.Number          
+      , np.AjuNumber          
+      , bl.MasterBlDate          
+      , bl.HouseBlNumber          
+      , bl.HouseBlDate           
+      , bl.Publisher         
+   ,ISNULL((select TOP 1(Id) from RequestForChange WHERE FormId = bl.IdCl AND FormType = ''BlAwb'' AND [Status] = 0),0) AS PendingRFC        
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Employee_Name ELSE ua.FullName END PreparedBy          
+      , CASE WHEN t2.Employee_Name IS NOT NULL THEN t2.Email ELSE ua.Email END Email                 
+      , STUFF((SELECT '', ''+ISNULL(tx1.EdoNo, ''-'')          
+       FROM dbo.CargoItem tx0          
+       JOIN dbo.Cipl tx1 on tx1.id = tx0.IdCipl          
+       WHERE tx0.IdCargo = tx0.Id          
+       GROUP BY tx1.EdoNo          
+       FOR XML PATH(''''),type).value(''.'',''nvarchar(max)''),1,1,'''') [RefEdo]          
+      , c.ClNo          
+      , c.CargoType          
+      , CASE WHEN t0.[IdStep] = 30069 THEN ''Waiting approval draft PEB''           
+    WHEN (t0.[IdStep] = 30070 AND t0.[Status] = ''Approve'') THEN ''Waiting NPE document''           
+    WHEN ((t0.[IdStep] = 30070 OR t0.[IdStep] = 30072) AND t0.[Status] = ''Revise'') THEN ''Need revision review by imex''           
+    WHEN t0.[IdStep] = 30071 THEN ''Waiting approval NPE''       
+ WHEN t0.IdStep = 10020 THEN ''Approval''      
+    ELSE CASE WHEN t11.Step = ''System'' THEN t8.ViewByUser ELSE t1.ViewByUser END END as StatusViewByUser 
+	 ,'''+@role+''' as RoleName  '          
+ END          
+ SET @sql +='  FROM BlAwb bl          
+ join NpePeb np on np.IdCl = bl.IdCl          
+     JOIN dbo.Cargo c on c.Id = bl.IdCl          
+     left join RequestCl t0 on t0.IdCl = bl.IdCl          
+     left join (          
+   select           
+    nx.Id, nx.IdStep IdNextStep, nx.IdStatus, nx.IdStep NextStep,           
+    nf.Name, nf.Type, nf.Id IdFlow, np.Id IdCurrentStep,           
+    ns.Status, np.Step CurrentStep, np.AssignType, np.AssignTo, ns.ViewByUser,          
+    nt.AssignType NextAssignType, nt.AssignTo NextAssignTo, nt.Step NextStepName          
+   from dbo.FlowNext nx          
+   join dbo.FlowStatus ns on ns.Id = nx.IdStatus          
+   join dbo.FlowStep np on np.Id = ns.IdStep          
+   join dbo.Flow nf on nf.Id = np.IdFlow          
+   join dbo.FlowStep nt on nt.Id = nx.IdStep          
+  )as t1 on t1.IdFlow = t0.IdFlow AND t1.IdCurrentStep = t0.IdStep AND t1.Status = t0.Status          
+  inner join dbo.Flow t3 on t3.id = t0.IdFlow          
+  left join dbo.FlowStep t7 on t7.Id = [dbo].[fn_get_next_step_id](          
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id ) and t7.IdFlow = t1.IdFlow          
+  left join dbo.FlowStatus t8 on t8.[Status] = t0.[Status] AND t8.IdStep = [dbo].[fn_get_next_step_id](          
+    t1.NextAssignType, t0.Pic, t0.IdFlow, t1.IdNextStep, [dbo].fn_get_status_id(t0.IdStep, t0.[Status]), t0.Id )          
+  left join dbo.FlowStatus t9 on t9.[Status] = t0.[Status] AND t9.IdStep = t1.IdNextStep          
+  left join dbo.FlowNext t10 on t10.IdStatus = t9.Id          
+  left join dbo.FlowStep t11 on t11.Id = t10.IdStep          
+    JOIN PartsInformationSystem.dbo.[UserAccess] ua on ua.UserID = bl.CreateBy          
+    LEFT JOIN employee t2 on t2.AD_User = bl.CreateBy          
+    WHERE 1=1 AND bl.IsDelete = 0  AND c.CargoType != ''''' + @WhereSql+ ' AND (bl.Number like ''%'+@Search+'%'' OR bl.HouseBlNumber like ''%'+@Search+'%'')  
+  And bl.id = (SELECT top 1 (id)  FROM  BlAwb  where idcl = c.id)';          
+          
+ IF @isTotal = 0           
+ BEGIN          
+  SET @sql += ' ORDER BY '+@sort+' '+@order+' OFFSET '+@offset+' ROWS FETCH NEXT '+@limit+' ROWS ONLY';          
+ END           
+          
+ Print(@sql);          
+ EXECUTE(@sql);          
+ END          
+END
+
+GO
+
+
+alter PROCEDURE [dbo].[SP_CiplGetList]      
+(          
+ @ConsigneeName NVARCHAR(200),      
+ @CreateBy NVARCHAR(200)      
+)      
+AS      
+BEGIN      
+ DECLARE @Sql nvarchar(max);      
+ DECLARE @WhereSql nvarchar(max) = '';      
+ DECLARE @RoleID bigint;      
+ DECLARE @area NVARCHAR(max);      
+ DECLARE @role NVARCHAR(max);      
+ DECLARE @usertype NVARCHAR(max);      
+      
+ SELECT @area = U.Business_Area      
+  ,@role = U.[Role],@usertype = UserType      
+ FROM dbo.fn_get_employee_internal_ckb() U      
+ WHERE U.AD_User = @CreateBy;      
+      
+       
+ if @role !=''      
+ BEGIN      
+ IF (@role !='EMCS IMEX' and @CreateBy !='xupj21fig' and @CreateBy !='ict.bpm' and @usertype !='ext-imex' )      
+ BEGIN      
+  SET @WhereSql = ' AND c.CreateBy='''+@CreateBy+''' ';      
+ END      
+      
+ IF @ConsigneeName <> ''      
+ BEGIN      
+SET @WhereSql = ' AND (C.CiplNo LIKE ''%'+@ConsigneeName+'%'' OR C.ConsigneeName LIKE ''%'+@ConsigneeName+'%'' OR C.Id LIKE ''%'+@ConsigneeName+'%'')';   
+ END      
+ IF @usertype ='ext-imex'      
+ BEGIN      
+  SET @WhereSql = @WhereSql + ' AND ((fnReqCl.IdNextStep is NULL  AND RC.[Status]=''Approve'')  OR (fnReqCl.IdNextStep = 10021 AND RC.[Status]=''Approve'')) ';      
+ END      
+      
+ SET @sql = 'SELECT DISTINCT C.id,C.EdoNo      
+    , C.CiplNo      
+    , C.Category      
+    , C.ConsigneeName      
+    , C.ShippingMethod      
+    , CF.Forwader      
+    , C.CreateDate      
+    ,ISNULL((Select SUM(CI.GrossWeight) FROM dbo.CiplItem CI WHERE CI.idcipl = C.id),0) GrossWeight      
+    , RC.[Status]      
+    ,  CASE    
+ WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep = 30074)  
+ THEN ''Request Cancel''  
+ WHEN (fnReqCl.IdStep = 30075)  
+ THEN ''waiting for beacukai approval''  
+ WHEN (fnReqCl.IdStep = 30076)  
+ THEN ''Cancelled''  
+     WHEN fnreq.NextStatusViewByUser =''Pickup Goods''      
+      THEN      
+        CASE WHEN       
+        (fnReqGr.Status=''DRAFT'') OR (fnReq.Status=''APPROVE'' AND (fnReqGr.Status is null OR fnReqGr.Status = ''Waiting Approval'') AND RC.Status =''APPROVE'')       
+        THEN ''Waiting for Pickup Goods''      
+       WHEN (fnReqGr.IdFlow = 14 AND (fnReqGr.Status =''Submit'' OR fnReqGr.Status =''APPROVE'' ) AND (fnReqCl.Status is Null OR (fnReqCl.Status=''Submit'' AND fnReqCl.IdStep != 10017)))      
+        THEN ''On process Pickup Goods''      
+       WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep not in (10022))      
+        THEN ''Preparing for export''      
+       WHEN (fnReqCl.IdFlow = 4 AND fnReqCl.IdStep = 10022)      
+        THEN ''Finish''       
+       END         
+       WHEN fnReq.Status =''Reject''      
+       THEN ''Reject''      
+     WHEN fnReq.NextStatusViewByUser = ''Waiting for superior approval''      
+      THEN fnReq.NextStatusViewByUser +'' (''+ emp.Employee_Name +'')''      
+     WHEN fnReq.Status =''Reject''      
+     THEN ''Reject''      
+     ELSE fnReq.NextStatusViewByUser      
+      END AS [StatusViewByUser]
+	  ,'''+@role+''' As RoleName
+  FROM dbo.Cipl C        
+  INNER JOIN dbo.RequestCipl RC ON RC.IdCipl = C.id      
+  INNER JOIN dbo.CiplForwader CF ON CF.IdCipl = C.id      
+  INNER JOIN dbo.FlowStatus FS on FS.IdStep = RC.IdStep AND FS.[Status] = RC.Status      
+  INNER JOIN PartsInformationSystem.dbo.UserAccess PIS on PIS.UserID = c.CreateBy      
+  INNER JOIN dbo.[fn_get_cipl_request_list_all]() as fnReq on fnReq.Id = rc.Id       
+  --LEFT JOIN GoodsReceiveItem as GR on GR.IdCipl = C.id AND GR.isdelete = 0      
+  LEFT JOIN ShippingFleetRefrence as sfr on sfr.IdCipl = C.id      
+  LEFT JOIN CargoCipl as CC on CC.IdCipl = C.id AND CC.Isdelete = 0      
+  LEFT JOIN dbo.[fn_get_gr_request_list_all]() as fnReqGr on fnReqGr.IdGr = sfr.IdGr      
+  LEFT JOIN dbo.[fn_get_cl_request_list_all]() as fnReqCl on fnReqCl.IdCl = CC.IdCargo      
+  left join employee emp on emp.AD_User = fnReq.NextAssignTo      
+  WHERE 1=1 '+@WhereSql+'      
+  AND C.IsDelete = 0       
+  ORDER BY C.id DESC';      
+  print (@WhereSql);      
+  print (@sql);      
+ exec(@sql);       
+ END      
+END
