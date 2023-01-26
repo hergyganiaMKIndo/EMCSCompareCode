@@ -1,5 +1,4 @@
 ﻿function deletepopup(d) {
-    debugger;
     Swal.fire({
         title: 'Success',
         text: 'Data Updated SuccessFully',

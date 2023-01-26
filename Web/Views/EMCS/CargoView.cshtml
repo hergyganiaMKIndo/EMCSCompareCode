@@ -359,7 +359,6 @@
         $(document).ready(function () {
                 var IdCargo = $("#CargoID").val();
              $.get(myApp.fullPath + "EMCS/GetTotalDataCargo?Id=" + IdCargo + "&selectvalue=" + $('#TotalBy').val(), function (resp) {
-                debugger;
                     var data = {};
                     $.map(resp.data, function (value, key) {
                         data[value.Key] = value.Value;

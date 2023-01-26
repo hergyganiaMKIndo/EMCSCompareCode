@@ -473,7 +473,6 @@ $(function () {
                 class: 'text-nowrap',
                 align: "center",
                 //formatter: function (data) {
-                //    debugger;
                 //    if (data != null) {
                 //        return data;
                 //    }
@@ -766,7 +765,6 @@ $(function () {
             //});
         },
         onRefresh: function () {
-            debugger;
             searchDataReport(null, null, null, null, null, false);
         },
         formatNoMatches: function () {

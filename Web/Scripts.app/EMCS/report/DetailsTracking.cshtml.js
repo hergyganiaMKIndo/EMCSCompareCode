@@ -70,9 +70,9 @@ $(function () {
         $('#inp-start-date').focus();
     });
     $('#inp-start-date').focus().datepicker({
-        format: "mm/yyyy",
-        viewMode: "months",
-        minViewMode: "months",
+        format: "dd/mm/yyyy",
+        viewMode: "date",
+        minViewMode: "date",
         //autoclose: true
     }).on('changeMonth', function (e) {
     //    $('#inp-end-date').datepicker('setDate', '');
@@ -84,9 +84,9 @@ $(function () {
         $('#inp-end-date').focus();
     });
     $('#inp-end-date').focus().datepicker({
-        format: "mm/yyyy",
-        viewMode: "months",
-        minViewMode: "months",
+        format: "dd/mm/yyyy",
+        viewMode: "date",
+        minViewMode: "date",
         //autoclose: true
     }).on('changeMonth', function (e) {
         //$('#inp-start-date').datepicker('setEndDate', moment(e.date).format('MM/YYYY'));
@@ -99,7 +99,7 @@ $(function () {
             rowspan: 3,
             valign: "middle",
             align: "center",
-            width: '200px'
+            class: "text-nowrap"
         }, {
             field: "RowNumber",
             title: "NO",
@@ -1389,11 +1389,11 @@ function searchDataReport() {
     var keynum ='';
     if ($('#inp-start-date').val() !== undefined && $('#inp-start-date').val() !== null && $('#inp-start-date').val() !== '') {
         var date = $('#inp-start-date').val().split('/');
-        startDate = date[1] + '-' + date[0] + '-' + '01';
+        startDate = date[2] + '-' + date[1] + '-' + date[0];
     }
     if ($('#inp-end-date').val() !== undefined && $('#inp-end-date').val() !== null && $('#inp-end-date').val() !== '') {
         var date = $('#inp-end-date').val().split('/');
-        endDate = date[1] + '-' + date[0] + '-' + '01';
+        endDate = date[2] + '-' + date[1] + '-' + date[0];
     }
     if ($('#category').val() !== undefined && $('#category').val() !== null && $('#category').val() !== '') {
         paramName = $('#category').val();

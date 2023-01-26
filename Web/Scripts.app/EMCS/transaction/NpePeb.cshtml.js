@@ -159,7 +159,6 @@ operateFormatter.DEFAULTS = {
 
 window.operateEvents = {
     'click .info': function (e, data, row, index) {
-        
         //var page = "cargo";
         //location.href = "/EMCS/ShowNpePeb?page=" + page + "&Id=" + row.IdCl;
         location.href = "/EMCS/ViewPebNpe?Id=" + parseInt(row.IdCl) + "&IdNpePeb=" + row.Id;

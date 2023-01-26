@@ -128,7 +128,6 @@ var columnList = [
 function bindForm(dialog) {
     $("form", dialog).submit(function () {
         console.log($(this).serialize());
-        debugger;
         $("#progress").show();
         $.ajax({
             url: this.action,

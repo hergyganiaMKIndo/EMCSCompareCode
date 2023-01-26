@@ -889,6 +889,8 @@ namespace App.Web.Controllers.EMCS
             string message = "";
             string value = "";
             string messagedesc = "";
+            int netWeight = 0;
+            int grossWeight = 0;
             try
             {
 
@@ -920,8 +922,30 @@ namespace App.Web.Controllers.EMCS
 
                         if (isDecimal(value))
                         {
-                            message = "success";
-                            messagedesc = "";
+                            if (cellNum == 18)
+                            {
+                                netWeight = Int32.Parse(sheet.GetRow(numRow).GetCell(17).StringCellValue.Replace(".", ""));
+                                grossWeight = Int32.Parse(sheet.GetRow(numRow).GetCell(18).StringCellValue.Replace(".", ""));
+                            }
+
+                            if (netWeight > 0 && grossWeight > 0)
+                            {
+                                if (netWeight > grossWeight)
+                                {
+                                    message = "failed";
+                                    messagedesc = "Net Weight Can't Bigger Than Gross Weight";
+                                }
+                                else
+                                {
+                                    message = "success";
+                                    messagedesc = "";
+                                }
+                            } else
+                            {
+                                message = "success";
+                                messagedesc = "";
+                            }
+                            
                         }
                         // It's a decimal
                         else

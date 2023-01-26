@@ -74,7 +74,6 @@ else
             var prev = $(this).data('val');
             var current = $(this).val();
             if (prev != undefined && prev != "" && current != undefined && current != "") {
-                debugger;
                 if (prev != current) {
                     if (requestForChange.filter(e => e.FieldName === this.dataset.name).length > 0) {
                         objIndex = requestForChange.findIndex((obj => obj.FieldName == this.dataset.name));

@@ -24,7 +24,6 @@
     }
 
     function showPreviewDocument(Url, downloadLink = "") {
-        debugger;
         var ext = get_extension_file(Url).toLowerCase();
         if (ext === "jpeg" || ext === "jpg" || ext === "png" || ext === "gif") {
             $(".imgPreview").show();

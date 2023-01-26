@@ -135,7 +135,6 @@ $(function () {
             smartDisplay: false,
             pageSize: '5',
             queryParams: function (params) {
-                debugger;
                 params.term = $("#mySearch input[name=searchText]").val();
                 return params;
             },
@@ -159,14 +158,12 @@ $(function () {
 
 
 function operateFormatter(options) {
-    debugger;
     var btnEdit = "";
     var btnPreview = "";
     
     //if (options.Add == true)
     //    btn.push('<button type="button" class="btn btn-success new" title="Add"><i class="fa fa-plus"></i></button>')
     if (options.Data.StatusViewByUser != null && options.Data.StatusViewByUser != '') {
-        debugger;
         if (options.Data.PendingRFC == 0 && (options.Data.StatusViewByUser.replace(/\s/g, '') == "Finish" || options.Data.StatusViewByUser.replace(/\s/g, '') == "Approval" || options.Data.StatusViewByUser.replace(/\s/g, '') == "WaitingforBLorAWB") && options.Data.RoleName.replace(/\s/g, '') != 'EMCSPPJK' )
             btnEdit = '<button type="button" class="btn btn-xs btn-primary edit" title="Edit"><i class="fa fa-edit"></i></button>'
     }

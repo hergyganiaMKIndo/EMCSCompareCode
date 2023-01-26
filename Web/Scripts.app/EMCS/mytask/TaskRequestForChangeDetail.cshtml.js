@@ -2096,7 +2096,6 @@ $(function () {
             return '<span class="noMatches">Not Data Found</span>';
         },
         responseHandler: function (resp) {
-            debugger;
             //var data = {};
             //$.map(resp, function (value, key) {
             //    data[value.Key] = value.Value;

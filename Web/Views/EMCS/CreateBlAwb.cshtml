@@ -517,7 +517,6 @@
                 });
             },
             'click .savehistoryfordelete': function (e, value, row, index) {
-                debugger;
                 Swal.fire({
                     title: "Are you sure want to delete this data?",
                     type: "warning",
@@ -712,7 +711,6 @@
                                 order: '',
                             },
                             success: function (data) {
-                                debugger
                                 var FileName = true;
                                 if (data != null) {
 
@@ -791,7 +789,6 @@
                     order: '',
                 },
                 success: function (data) {
-                    debugger;
                     var FileName = true;
                     if (data != null) {
 
@@ -826,7 +823,6 @@
                                     },
                                     showCancelButton: false
                                 }).then((result) => {
-                                    debugger;
                                     var Notes = result.value;
                                     var Status = "Approve";
                                     var Id = $('#CargoID').val();

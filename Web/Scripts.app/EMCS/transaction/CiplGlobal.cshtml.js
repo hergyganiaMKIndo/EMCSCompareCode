@@ -432,6 +432,7 @@ function load_data() {
             $("#consigneeNameCipl").val("Caterpillar S.A.R.L Singapore Branch ( Core )");
             $("#consigneeAddressCipl").val("5 Tukang Innovation Grove\nSingapore 618304");
             $("#consigneeCountryCipl").val("Attn : Chee Kwong Kwan");
+            $("#select2-consigneeCountryCipl-container").text("Singapore");
             $("#consigneeTelpCipl").val("-");
             $("#consigneeFaxCipl").val("-");
             $("#consigneePicCipl").val("Mr Chee kwong kwan");
@@ -440,6 +441,7 @@ function load_data() {
             $("#notifyNameCipl").val("DHL Global Forwarding (S) Pte Ltd");
             $("#notifyAddressCipl").val("No. 1 Changi South Street 2\n4th Floor, DHL Distribution Centre\nSingapore 486760");
             $("#notifyCountryCipl").val("Singapore");
+            $("#select2-notifyCountryCipl-container").text("Singapore");
             $("#notifyTelpCipl").val("-");
             $("#notifyFaxCipl").val("-");
             $("#notifyPicCipl").val("Jing Kang");
@@ -451,6 +453,7 @@ function load_data() {
             $("#consigneeNameCipl").val("Caterpillar S.A.R.L Singapore Branch");
             $("#consigneeAddressCipl").val("14 Tractor road Singapore 627973");
             $("#consigneeCountryCipl").val("Singapore");
+            $("#select2-consigneeCountryCipl-container").text("Singapore");
             $("#consigneeTelpCipl").val("+65 68293195 / +65 68293192 / +65 68293018");
             $("#consigneeFaxCipl").val("+65 68200667");
             $("#consigneePicCipl").val("Nithya / Lim Beng Hwa / Jeffrey Wong (Freight management team)");
@@ -459,6 +462,7 @@ function load_data() {
             $("#notifyNameCipl").val("DHL Global Forwarding (S) Pte Ltd");
             $("#notifyAddressCipl").val("DHL Global Forwarding (S) Pte Ltd\n4th Floor, DHL Distribution Centre\nSingapore 486760");
             $("#notifyCountryCipl").val("Singapore");
+            $("#select2-notifyCountryCipl-container").text("Singapore");
             $("#notifyTelpCipl").val("+65 63186888");
             $("#notifyFaxCipl").val("+65 65429972");
             $("#notifyPicCipl").val("Import Ocean Team");
@@ -780,7 +784,9 @@ function load_data() {
                 $('#IdCustomerItemCipl').val(row.IdCustomer);
                 $('#TypeItemCipl').val(row.Type);
             } else {
-                CiplItemGetByIdReference(row.IdReference);
+                if (row.IdReference > 0) {
+                    CiplItemGetByIdReference(row.IdReference);
+                }
                 $('.btnAddReference, .btnUpdateReference, .btnAddMisc, #FormOldCore').hide();
                 $('#UnitCaseItemCipl').prop("disabled", true);
                 if ($(this).val() === 'Add') {
@@ -1829,7 +1835,6 @@ function load_data() {
 }
 
 $('#forwaderCipl').on('change', function () {
-    debugger;
     if ($('#forwaderCipl').val() == 'Non CKB') {
         $(".forwaderVendorCipl").removeClass("hidden");
     }
@@ -1849,7 +1854,6 @@ $('#forwaderVendorCipl').select2({
             return query;
         },
         processResults: function (data) {
-            debugger;
             return {
                 results: $.map(data.data, function (item) {
                     return {
@@ -1928,7 +1932,6 @@ function ValidateAddReference() {
 }
 // ====================== TABLE ======================
 $('#btnAddReference').on('click', function (e) {
-    debugger;
     e.stopPropagation();
     var UnitName = $('#NameItemCipl').valid();
     var Unit = ValidateAddReference();
@@ -2040,7 +2043,6 @@ function ajaxInsertUpdateDocument() {
 }
 
 function ajaxInsertUpdateReference() {
-    debugger;
     $("#RequestForChangeHistoryCIPLItems").val()
     var json = new Array();
     var Quantity = parseInt($('#MaxQuantityItemCipl').val()) - parseInt($('#QuantityItemCipl').val());
@@ -2118,7 +2120,6 @@ function ajaxInsertUpdateReference() {
     })
 }
 function InsertReference(Status) {
-    debugger;
     $("#RequestForChangeHistoryCIPLItems").val()
     var json = new Array();
     var Quantity = parseInt($('#MaxQuantityItemCipl').val()) - parseInt($('#QuantityItemCipl').val());
@@ -3797,7 +3798,6 @@ function ConvertCurrency(data) {
 
 
 function post_insert_cipl_item(id) {
-    debugger;
     var Status = 'Created'
     var Category = GetCategoryUsed();
     if (Category === 'MISCELLANEOUS' || $('#idCategoryReference').val() === 'Other') {
@@ -3843,7 +3843,6 @@ function post_insert_cipl_item(id) {
 
 
 function post_update_cipl_item(id, status) {
-    debugger;
     event.preventDefault();
     var data = ConvertCurrency(get_used_table_cipl_item().bootstrapTable('getData'));
     $.ajax({

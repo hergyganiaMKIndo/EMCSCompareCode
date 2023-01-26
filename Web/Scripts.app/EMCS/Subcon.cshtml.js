@@ -1,7 +1,6 @@
 ﻿var $table = $('#tableSubcon');
 
 $(function () {
-    debugger;
    var  columns= [{
         field: 'Id',
         title: 'Action',
@@ -158,7 +157,6 @@ function deleteThis(id) {
 };
 
 $(function () {
-    debugger;
     $.ajaxSetup({ cache: false });
     $("a[data-modal]").on("click", function (e) {
         $('#myModalContent').load(this.href, function () {
@@ -177,7 +175,6 @@ $(function () {
 function bindForm(dialog) {
     $('form', dialog).submit(function () {
         $('#progress').show();
-        debugger;
         $.ajax({
             url: this.action,
             type: this.method,
@@ -199,7 +196,6 @@ function bindForm(dialog) {
     });
 };
 $('#Add').on('click', function () {
-    debugger;
     var Id = $('#Id').val();
     if (Id == undefined || Id == null || Id == "") {
         Id = 0;
@@ -213,7 +209,6 @@ $('#Add').on('click', function () {
             subconmodel
         },
         success: function (data) {
-            debugger;
             swal.fire({
                 type: 'success',
                 title: 'Sucess',
@@ -227,7 +222,6 @@ $('#Add').on('click', function () {
 
 })
 $('#Update').on('click', function () {
-    debugger;
     var Id = $('#Id').val();
     if (Id == undefined || Id == null || Id == "") {
         Id = 0;
@@ -242,7 +236,6 @@ $('#Update').on('click', function () {
             subconmodel
         },
         success: function (data) {
-            debugger;
             swal.fire({
                 type: 'success',
                 title: 'Sucess',

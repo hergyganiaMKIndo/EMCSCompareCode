@@ -353,7 +353,6 @@
                         return '<span class="noMatches">-</span>';
                     },
                     responseHandler: function (resp) {
-                        debugger;
                         var data = {};
                         $.map(resp.row, function (value, key) {
                             data[value.Key] = value.Value;
@@ -386,7 +385,6 @@
                     //    };
                     //},
                     //responseHandler: function (resp) {
-                    //    debugger;
                     //    //var data = {};
                     //    //$.map(resp, function (value, key) {
                     //    //    data[value.Key] = value.Value;

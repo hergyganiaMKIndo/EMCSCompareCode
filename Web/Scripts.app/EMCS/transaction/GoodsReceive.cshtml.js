@@ -68,7 +68,6 @@ function formatterGR(data, row, index) {
         btnDelete = "<button class='btn delete btn-xs btn-danger remove'><i class='fa fa-times'></i></button>";
     }
     else if (row.Status === "Approve" && row.PendingRFC == 0) {
-              debugger;
                 if (row.RoleID == 26 || row.RoleID == 15) {
                     btnEdit = "";
                 }

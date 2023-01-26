@@ -185,7 +185,7 @@
             for (i = 0; i < steps.length; i++) {
                 steps.eq(currentIDX - i).removeClass().prev().removeClass().addClass('active');
             }
-            for (i = 0; i < wizardState; i++) {
+            for (i = 0; i < wizardState + 1; i++) {
                 steps.eq(currentIDX + i).removeClass().addClass('done').next().removeClass().addClass('active');
             }
         });
@@ -218,7 +218,6 @@
                     window.location.href = url;
                     break;
                 case "4":
-                    debugger;
                     var page = "@(!string.IsNullOrEmpty(ViewBag.Page) ? ViewBag.Page : "cargo")";
                     var url = "/EMCS/ShowSs?page=" + page + "&Id=" + id;
                     window.location.href = url;

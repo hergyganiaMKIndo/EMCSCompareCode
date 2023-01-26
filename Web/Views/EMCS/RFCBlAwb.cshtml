@@ -522,7 +522,6 @@
                     sortable: true,
                     width: "125",
                     formatter: function (data, row, index) {
-                        debugger;
                         if (row.Status == 'Created') {
                             var btnUpload = '<div><button type="button" class="btn btn-primary btn-xs uploadDocument" data-toggle="modal" data-target="#myModalUploadPlaceForRFC" title="Upload"><i class="fa fa-upload"></i></button></div>'
                             return btnUpload;
@@ -637,7 +636,6 @@
                     return '<span class="noMatches">Not Data Found</span>';
                 },
                 responseHandler: function (resp) {
-                    debugger;
                     //var data = {};
                     //$.map(resp, function (value, key) {
                     //    data[value.Key] = value.Value;
@@ -719,7 +717,6 @@
         };
 
         function RemoveBlAwb(id) {
-            debugger;
             if (IsRFC = "True") {
                 SaveRFCBlAwbData('Deleted');
             }
@@ -798,7 +795,6 @@
             },
         });
         function SaveRFCBlAwbData(Status) {
-            debugger;
             $.ajax({
                 url: '/EMCS/DraftRFCBlAwb',
                 type: 'POST',
@@ -886,7 +882,6 @@
                                     },
                                     showCancelButton: false
                                 }).then((result1) => {
-                                    debugger;
                                     if (result1.value !== '') {
                                         //var model = {
                                         //    FormType: "BlAwb",
@@ -926,7 +921,6 @@
         })
                                         
     function RequestForChangeBlAwb(model) {
-        debugger;
         $.ajax({
             url: '/EMCS/RequestForChangeBl',
             type: 'POST',
@@ -981,7 +975,6 @@
         });
 
         myDropzoneDocument1.on("sending", function (file, xhr, formData) {
-            debugger;
             formData.append("form.Id", $("#BLAWBID").val());
             //formData.append("IdCl", $("#CargoID").val());
             //formData.append("Number", $("#Number").val());
@@ -995,7 +988,6 @@
         });
 
         myDropzoneDocument1.on("complete", function (resp) {
-            debugger;
             if (resp.status === "success") {
                 $("#actions .delete").prop("disabled", false);
                 if (resp.size >= 9785 && resp.size <= 9800) {

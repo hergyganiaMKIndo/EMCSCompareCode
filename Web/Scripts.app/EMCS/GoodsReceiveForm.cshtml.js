@@ -139,11 +139,9 @@ window.operateEventRight = {
         location.href = "/EMCS/DownloadArmadaDocumentForRFC?FileName=" + row.FileName ;
     },
     'click .showDocumentarmadadocForRFC': function (e, value, row) {
-        debugger;
         $.ajax({
             url: '/EMCS/GetRFCitemDataById?Id=' + row.Id + '',
             success: function (data) {
-                debugger;
                 document.getElementById('framePreview').src = myApp.fullPath + "Upload/EMCS/GoodsReceive/" + data.FileName;
 
             }
@@ -829,9 +827,30 @@ $(document).ready(function () {
                     item.BAreaName = obj.BAreaName;
                     options.push(item);
                 });
-                return {
-                    results: options
-                };
+
+                var reduced = options.reduce(function (filtered, option) {
+                    var comp = $("#PickupPoint").data("select2").dropdown.$search;
+                    if (comp != undefined) {
+                        var term = $("#PickupPoint").data("select2").dropdown.$search.val();
+                        if (option.text.toLowerCase().includes(term)) {
+                            var newVal = { id: option.id, text: option.text, BAreaCode: option.BAreaCode, BAreaName: option.BAreaName }
+                            filtered.push(newVal);
+                        }
+                        return filtered;
+                    } else {
+                        return reduced = [];
+                    }
+                }, []);
+
+                if (reduced.length > 0) {
+                    return {
+                        results: reduced
+                    };
+                } else {
+                    return {
+                        results: options
+                    };
+                }
             }
         }
     });
@@ -862,9 +881,30 @@ $(document).ready(function () {
                     item.BAreaName = obj.BAreaName;
                     options.push(item);
                 });
-                return {
-                    results: options
-                };
+
+                var reduced = options.reduce(function (filtered, option) {
+                    var comp = $("#PickupPic").data("select2").dropdown.$search;
+                    if (comp != undefined) {
+                        var term = $("#PickupPic").data("select2").dropdown.$search.val();
+                        if (option.text.toLowerCase().includes(term)) {
+                            var newVal = { id: option.id, text: option.text, PickUpArea: option.PickUpArea, BAreaName: option.BAreaName }
+                            filtered.push(newVal);
+                        }
+                        return filtered;
+                    } else {
+                        return reduced = [];
+                    }
+                }, []);
+
+                if (reduced.length > 0) {
+                    return {
+                        results: reduced
+                    };
+                } else {
+                    return {
+                        results: options
+                    };
+                }
             }
         }
     });

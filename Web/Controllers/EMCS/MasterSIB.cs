@@ -217,6 +217,9 @@ namespace App.Web.Controllers.EMCS
                 dt.Columns.Add("Currency");
                 dt.Columns.Add("CreateBy");
                 dt.Columns.Add("CreateDate");
+                dt.Columns.Add("UpdateBy");
+                dt.Columns.Add("UpdateDate");
+                dt.Columns.Add("Qty");
 
                 for (var i = 1; i <= sheet.LastRowNum; i++)
                 {
@@ -251,6 +254,9 @@ namespace App.Web.Controllers.EMCS
             dataRow["Currency"] = GetStringVal(sheet, i, 9, 0);
             dataRow["CreateBy"] = SiteConfiguration.UserName;
             dataRow["CreateDate"] = DateTime.Now;
+            dataRow["UpdateBy"] = SiteConfiguration.UserName;
+            dataRow["UpdateDate"] = DateTime.Now;
+            dataRow["Qty"] = GetStringVal(sheet, i, 10, 0);
 
             if (!String.IsNullOrEmpty(reqNumber))
             {
@@ -275,6 +281,9 @@ namespace App.Web.Controllers.EMCS
             header.Add("Currency");
             header.Add("CreateBy");
             header.Add("CreateDate");
+            header.Add("UpdateBy");
+            header.Add("UpdateDate");
+            header.Add("Qty");
             return header;
         }
 
@@ -283,7 +292,8 @@ namespace App.Web.Controllers.EMCS
             try
             {
                 string val;
-                val = sheet.GetRow(numRow).GetCell(cellNum).StringCellValue;
+                DataFormatter formatter = new DataFormatter();
+                val = formatter.FormatCellValue(sheet.GetRow(numRow).GetCell(cellNum));
                 return val;
             }
             catch (Exception)

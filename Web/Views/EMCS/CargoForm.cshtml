@@ -554,7 +554,6 @@
         getTotalData(value);
     })
     function getTotalData(value) {
-        debugger;
         $('#TotalPackage option[value='+value+']').prop('selected',true)
         var IdCargo = $("#CargoID").val();
         $.get(myApp.fullPath + "EMCS/GetTotalDataCargo?Id=" + IdCargo + "&selectvalue=" + value, function (resp) {

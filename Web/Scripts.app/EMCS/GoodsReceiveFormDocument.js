@@ -94,7 +94,6 @@ $tablegrdocument.bootstrapTable({
 });
 //window.operateEventRight = {
 //    'click .downloaddoc': function (e, value, row) {
-//        debugger;
 //        location.href = "/EMCS/DownloadArmadaDocument/" + row.Id;
 //    },
 //    'click .showDocumentdoc': function (e, value, row) {

@@ -147,14 +147,21 @@ namespace App.Web.Controllers.EMCS
         public ActionResult ShowNpePeb(string page, long id)
         {
             var dataCargo = Service.EMCS.SvcWizard.GetCargoByPage(page, id);
+            var dataNpePeb = Service.EMCS.SvcWizard.GetNpeByPage(page, id);
             if (dataCargo.Count == 1)
             {
                 var first = dataCargo.FirstOrDefault();
 
                 var idCipl = id;
+                long idNpePeb = 0;
+
+                if (dataNpePeb.Count == 1)
+                {
+                    idNpePeb = dataNpePeb[0].Id;
+                }
 
                 if (first != null) id = first.Id;
-                return RedirectToAction("ViewPebNpe", "Emcs", new { Id = id, IdCipl = idCipl });
+                return RedirectToAction("ViewPebNpe", "Emcs", new { Id = id, IdCipl = idCipl, IdNpePeb = idNpePeb });
             }
             else
             {

@@ -266,11 +266,9 @@ $("#btnAddDocument").on("click", function () {
 //******************************************Get For Only View Document*********************************************//
 window.operateEventRightForView = {
     'click .download': function (e, value, row) {
-        debugger;
         location.href = "/EMCS/DownloadCargoDocument/" + row.Id;
     },
     'click .showDocument': function (e, value, row) {
-        debugger;
         document.getElementById('framePreview').src = myApp.fullPath + "Upload/EMCS/Cargo/" + row.Id + '/' + row.Filename;
     }
 };

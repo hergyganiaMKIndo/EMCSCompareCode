@@ -200,7 +200,6 @@ operateFormatter.DEFAULTS = {
 
 window.operateEvents = {
     'click .info': function (e, value, row, index) {
-        debugger;
         var string = "si";
         var cargoid = row.Id;
         window.location.href = '/EMCS/ShippingSummaryView?cargoid=' + cargoid;

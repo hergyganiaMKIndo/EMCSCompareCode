@@ -366,7 +366,6 @@
         })
 
         function ReviseProblem(Status, IdRequest, Notes, statusName) {
-            debugger;
             $.ajax({
                 url: myApp.fullPath + "EMCS/NpePebApproval",
                 type: "Post",
@@ -408,7 +407,6 @@
                 success: function (resp) {
                     var result = resp.result;
                     status = true;
-                    debugger;
                     ReviseProblem(result.Status, result.IdRequest, result.Comment, statusName);
                 },
                 error: function (resp) {
