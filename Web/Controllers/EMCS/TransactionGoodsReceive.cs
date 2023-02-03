@@ -877,7 +877,7 @@ namespace App.Web.Controllers.EMCS
                             var data = Service.EMCS.SvcGoodsReceiveItem.GetArmadaById(id);
                             var obj = new ShippingFleet();
                             obj.Id = data.Id;
-                            obj.IdCipl = "0";
+                            obj.IdCipl = 0;
                             obj.IdGr = data.IdGr;
                             obj.DoNo = data.DoNo ?? "";
                             obj.DaNo = data.DaNo ?? "";

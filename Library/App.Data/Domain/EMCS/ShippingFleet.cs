@@ -11,7 +11,7 @@
         [Key]
         public long Id { get; set; }
         public long IdGr { get; set; }
-        public string IdCipl { get; set; }
+        public long IdCipl { get; set; }
         //public string EdoNo { get; set; }
         public string DoNo { get; set; }
         public string PicName { get; set; }

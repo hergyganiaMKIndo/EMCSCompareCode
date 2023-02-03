@@ -245,7 +245,11 @@ namespace App.Service.EMCS
                     }
                     else
                     {
-                        var resultcipl = db.GoodsReceiveItem.Where(a => a.IdCipl == id && a.IsDelete == false).Select(a => new { a.IdGr }).ToList();
+                        //prev
+                        //var resultcipl = db.GoodsReceiveItem.Where(a => a.IdCipl == id && a.IsDelete == false).Select(a => new { a.IdGr }).ToList();
+
+                        //new
+                        var resultcipl = db.ShippingFleetRefrence.Where(a => a.IdCipl == id).Select(a => new { a.IdGr }).ToList();
                         foreach (var itemcipl in resultcipl)
                         {
                             newIds.Add(Convert.ToInt64(itemcipl.IdGr));

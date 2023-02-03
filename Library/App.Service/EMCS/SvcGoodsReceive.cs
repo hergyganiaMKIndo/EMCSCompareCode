@@ -126,7 +126,7 @@ namespace App.Service.EMCS
             {
                 using (var db = new Data.EmcsContext())
                 {
-                    var sql = @"[dbo].[sp_get_shippingfleet_gr] @Id='" + id + "'";
+                    var sql = @"[dbo].[sp_get_shippingfleet_gr] @Id='"+ id + "'";
                     var tb = db.Database.SqlQuery<Data.Domain.EMCS.ShippingFleet>(sql).ToList();
                     return tb;
                 }

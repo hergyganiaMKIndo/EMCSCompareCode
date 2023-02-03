@@ -454,6 +454,7 @@ function load_data() {
             $("#consigneeAddressCipl").val("14 Tractor road Singapore 627973");
             $("#consigneeCountryCipl").val("Singapore");
             $("#select2-consigneeCountryCipl-container").text("Singapore");
+            GetDestinationPort();
             $("#consigneeTelpCipl").val("+65 68293195 / +65 68293192 / +65 68293018");
             $("#consigneeFaxCipl").val("+65 68200667");
             $("#consigneePicCipl").val("Nithya / Lim Beng Hwa / Jeffrey Wong (Freight management team)");
@@ -2800,6 +2801,7 @@ $('#QuantityItemCipl, #UnitItemCipl').keyup(function () {
     $('#ExtendedItemCipl').val(formatCurrency(ExtendedValue, ".", ",", 2));
 })
 function GetDestinationPort() {
+    debugger;
     var country = $("#consigneeCountryCipl").val();
 
     $('#destinationCipl').select2({
