@@ -437,7 +437,6 @@ function load_data() {
             $("#consigneeFaxCipl").val("-");
             $("#consigneePicCipl").val("Mr Chee kwong kwan");
             $("#consigneeEmailCipl").val("kwan_chee_kwong@cat.com>;Choo_Tien_Tean@cat.com");
-
             $("#notifyNameCipl").val("DHL Global Forwarding (S) Pte Ltd");
             $("#notifyAddressCipl").val("No. 1 Changi South Street 2\n4th Floor, DHL Distribution Centre\nSingapore 486760");
             $("#notifyCountryCipl").val("Singapore");
@@ -446,6 +445,7 @@ function load_data() {
             $("#notifyFaxCipl").val("-");
             $("#notifyPicCipl").val("Jing Kang");
             $("#notifyEmailCipl").val("edgsg-dgf-catofrimport@dhl.com");
+            GetDestinationPort();
 
         } else if ($(this).val() === 'PRA') {
             $("#soldConsigneeCipl").val("Consignee").trigger('change');;
@@ -454,7 +454,6 @@ function load_data() {
             $("#consigneeAddressCipl").val("14 Tractor road Singapore 627973");
             $("#consigneeCountryCipl").val("Singapore");
             $("#select2-consigneeCountryCipl-container").text("Singapore");
-            GetDestinationPort();
             $("#consigneeTelpCipl").val("+65 68293195 / +65 68293192 / +65 68293018");
             $("#consigneeFaxCipl").val("+65 68200667");
             $("#consigneePicCipl").val("Nithya / Lim Beng Hwa / Jeffrey Wong (Freight management team)");
@@ -468,6 +467,7 @@ function load_data() {
             $("#notifyFaxCipl").val("+65 65429972");
             $("#notifyPicCipl").val("Import Ocean Team");
             $("#notifyEmailCipl").val("edgsg-dgf-catofrimport@dhl.com");
+            GetDestinationPort();
         } else {
             $('#exportCipl').val(null).trigger('change').prop('disabled', false);
         }
@@ -2801,8 +2801,10 @@ $('#QuantityItemCipl, #UnitItemCipl').keyup(function () {
     $('#ExtendedItemCipl').val(formatCurrency(ExtendedValue, ".", ",", 2));
 })
 function GetDestinationPort() {
-    debugger;
     var country = $("#consigneeCountryCipl").val();
+    if (country == null) {
+        country = $("#select2-consigneeCountryCipl-container").text();
+    }
 
     $('#destinationCipl').select2({
         placeholder: "Select Destination Port",

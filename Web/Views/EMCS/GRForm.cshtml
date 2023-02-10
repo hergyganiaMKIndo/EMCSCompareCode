@@ -253,7 +253,7 @@
                                                                 <div class="form-group">
                                                                     <label class="control-label col-md-3 col-xs-12">DO Reference</label>
                                                                     <div class="col-md-8">
-                                                                        @Html.TextBoxFor(m => m.ShippingFleet.DaNo, new { @class = "form-control", @id = "DaNo", placeholder = "DO Reference/ DA Number" })
+                                                                        @Html.TextBoxFor(m => m.ShippingFleet.DaNo, new { @class = "form-control", @id = "DaNo", placeholder = "DO Reference/ DA Number", data_role = "tagsinput", autocomplete = "off" })
                                                                         <div>@Html.ValidationMessageFor(m => m.ShippingFleet.DaNo)</div>
                                                                     </div>
                                                                 </div>

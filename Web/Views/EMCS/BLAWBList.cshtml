@@ -18,7 +18,18 @@
     {
         <input type="hidden" name="AllowUpdate" id="AllowUpdate" class="form-control" value="True">
     }
-
+    if (ViewBag.IsImexUser)
+    {
+        <input type="hidden" name="IsImexUser" id="IsImexUser" class="form-control" value=true>
+    }
+    if (ViewBag.IsCKB)
+    {
+        <input type="hidden" name="IsCKB" id="IsCKB" class="form-control" value=true>
+    }
+    else
+    {
+        <input type="hidden" name="IsCKB" id="IsCKB" class="form-control" value=false>
+    }
 
 }
 
@@ -49,7 +60,7 @@
 
 @section scripts
 {
-    
+
     <script src="@Url.Content("~/Scripts.app/EMCS/transaction/BLAWBList.cshtml.js")"></script>
     <script src="@Url.Content("~/Scripts.app/EMCS/Custom.js")"></script>
 

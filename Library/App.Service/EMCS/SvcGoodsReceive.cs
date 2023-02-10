@@ -137,6 +137,23 @@ namespace App.Service.EMCS
             }
         }
 
+        public static List<Data.Domain.EMCS.ShippingFleetRefrence> GetShippingFleetReference(long id)
+        {
+            try
+            {
+                using (var db = new Data.EmcsContext())
+                {
+                    var sql = @"[dbo].[sp_get_shippingfleet_gr_reference] @Id='" + id + "'";
+                    var tb = db.Database.SqlQuery<Data.Domain.EMCS.ShippingFleetRefrence>(sql).ToList();
+                    return tb;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public static int Crud(Data.Domain.EMCS.GoodsReceive itm, string dml)
         {
             if (dml == "I")
@@ -153,6 +170,26 @@ namespace App.Service.EMCS
             using (var db = new Data.RepositoryFactory(new Data.EmcsContext()))
             {
                 return db.CreateRepository<Data.Domain.EMCS.GoodsReceive>().CRUD(dml, itm);
+            }
+        }
+
+        public static int CrudShippingFleet(Data.Domain.EMCS.ShippingFleet itm, string dml)
+        {
+            CacheManager.Remove(CacheName);
+
+            using (var db = new Data.RepositoryFactory(new Data.EmcsContext()))
+            {
+                return db.CreateRepository<Data.Domain.EMCS.ShippingFleet>().CRUD(dml, itm);
+            }
+        }
+
+        public static int CrudShippingFleetReference(Data.Domain.EMCS.ShippingFleetRefrence itm, string dml)
+        {
+            CacheManager.Remove(CacheName);
+
+            using (var db = new Data.RepositoryFactory(new Data.EmcsContext()))
+            {
+                return db.CreateRepository<Data.Domain.EMCS.ShippingFleetRefrence>().CRUD(dml, itm);
             }
         }
 

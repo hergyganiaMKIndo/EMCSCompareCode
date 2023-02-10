@@ -97,6 +97,19 @@ namespace App.Web.Controllers.EMCS
         public ActionResult GrList()
         {
             ApplicationTitle();
+            ViewBag.AllowRead = AuthorizeAcces.AllowRead;
+            ViewBag.AllowCreate = AuthorizeAcces.AllowCreated;
+            ViewBag.AllowUpdate = AuthorizeAcces.AllowUpdated;
+            ViewBag.AllowDelete = AuthorizeAcces.AllowDeleted;
+            string userRoles = User.Identity.GetUserRoles();
+            if (userRoles.Contains("EMCSImex") || userRoles.Contains("Administrator") || userRoles.Contains("Imex"))
+                ViewBag.IsImexUser = true;
+            else
+                ViewBag.IsImexUser = false;
+            if (User.Identity.Name == "eko.suhartarto")
+                ViewBag.IsCKB = true;
+            else
+                ViewBag.IsCKB = false;
             PaginatorBoot.Remove("SessionTRN");
             return View();
         }
@@ -520,7 +533,9 @@ namespace App.Web.Controllers.EMCS
                 var gr = Service.EMCS.SvcGoodsReceive.GetData(id);
                 string Action = "U";
                 var grRequest = Service.EMCS.SvcRequestGr.GetRequestById(id);
-                var grItem = Service.EMCS.SvcGoodsReceiveItem.GetByGrId(id);
+                //var grItem = Service.EMCS.SvcGoodsReceiveItem.GetByGrId(id);
+                var grItem = Service.EMCS.SvcGoodsReceive.GetShippingFleet(id);
+                var shippingFleetRefItem = Service.EMCS.SvcGoodsReceive.GetShippingFleetReference(id);
                 gr.IsDelete = true;
                 grRequest.IsDelete = true;
                 DeleteArmada(id);
@@ -529,8 +544,13 @@ namespace App.Web.Controllers.EMCS
 
                 foreach (var items in grItem)
                 {
-                    items.IsDelete = true;
-                    Service.EMCS.SvcGoodsReceiveItem.Crud(items, Action);
+                    //items.IsDelete = true;
+                    Service.EMCS.SvcGoodsReceive.CrudShippingFleet(items, "D");
+                }
+
+                foreach (var items2 in shippingFleetRefItem)
+                {
+                    Service.EMCS.SvcGoodsReceive.CrudShippingFleetReference(items2, "D");
                 }
 
                 return JsonCRUDMessage(Action, gr);

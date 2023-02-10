@@ -135,17 +135,20 @@ $(function () {
 
 function operateFormatter(options) {
     
-    var btn = [];
-    btn.push('<div class="btn-group">');
+    var btnEdit = "";
+    var btnPreview = "";
+    //btn.push('<div class="btn-group">');
     if (options.Data.StatusViewByUser != null && options.Data.StatusViewByUser != '') {
         if (options.Edit == true && options.Data.PendingRFC == 0 && (options.Data.StatusViewByUser.replace(/\s/g, '') == "WaitingforNPE&PEB" || options.Data.StatusViewByUser.replace(/\s/g, '') == "WaitingNPE&PEBapproval" || options.Data.StatusViewByUser.replace(/\s/g, '') == "WaitingapprovaldraftPEB"
             || options.Data.StatusViewByUser.replace(/\s/g, '') == "Finish" || options.Data.StatusViewByUser.replace(/\s/g, '') == "WaitingforBLorAWB" || options.Data.StatusViewByUser.replace(/\s/g, '') == "BLorAWBneedrevision"))
-            btn.push('<a type="button" class="btn btn-xs btn-primary edit" title="Edit"><i class="fa fa-edit"></i></a>');
+            if (Boolean($("#IsImexUser").val()) == true) {
+                btnEdit = '<button type="button" class="btn btn-xs btn-primary edit" title="Edit RFC"><i class="fa fa-edit"></i></button>'
+            }
     }
-    btn.push('<a type="button"  class="btn btn-xs btn-info info" title="Info"><i class="fa fa-search""></i></a>')
-    btn.push('</div>');
-
-    return btn.join('');
+    btnPreview = '<button type="button" class="btn btn-xs btn-info info" title="Info"><i class="fa fa-search""></i></button>'
+    //btn.push('</div>');
+    return ['<div>', btnEdit, btnPreview, "</div>"].join(" ");
+    //return btn.join('');
 }
 
 operateFormatter.DEFAULTS = {

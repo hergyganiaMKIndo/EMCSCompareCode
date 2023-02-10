@@ -187,6 +187,7 @@ namespace App.Web.Controllers.EMCS
 
                 if (System.IO.File.Exists(fullPath))
                 {
+                    System.IO.File.SetAttributes(fullPath, FileAttributes.Normal);
                     System.IO.File.Delete(fullPath);
                 }
 

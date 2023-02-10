@@ -64,21 +64,23 @@ function formatterGR(data, row, index) {
     var btnDelete = "";
     var btnPreview = "";
     if (row.Status === "Draft" || row.Status === "Revise") {
-        btnEdit = "<button class='btn edit btn-xs btn-primary'><i class='fa fa-edit'></i></button>";
-        btnDelete = "<button class='btn delete btn-xs btn-danger remove'><i class='fa fa-times'></i></button>";
+        btnEdit = "<button class='btn edit btn-xs btn-primary' title='Edit'><i class='fa fa-edit'></i></button>";
+        btnDelete = "<button class='btn delete btn-xs btn-danger remove' title='Delete'><i class='fa fa-times'></i></button>";
     }
     else if (row.Status === "Approve" && row.PendingRFC == 0) {
-                if (row.RoleID == 26 || row.RoleID == 15) {
-                    btnEdit = "";
-                }
-                else {
-                    btnEdit = "<button class='btn edit btn-xs btn-primary' value='rfc'><i class='fa fa-edit'></i></button>";
-                }
+        if (row.RoleID == 26 || row.RoleID == 15) {
+            btnEdit = "";
+        }
+        else {
+            if (Boolean($("#IsImexUser").val()) == true) {
+                btnEdit = "<button class='btn edit btn-xs btn-primary' value='rfc' title='Edit RFC'><i class='fa fa-edit'></i></button>";
+            }
+        }
         
-        btnPreview = "<button class='btn preview btn-xs btn-default'><i class='fa fa-search'></i></button>";
+        btnPreview = "<button class='btn preview btn-xs btn-default' title='Preview'><i class='fa fa-search'></i></button>";
     }
     else {
-        btnPreview = "<button class='btn preview btn-xs btn-default'><i class='fa fa-search'></i></button>";
+        btnPreview = "<button class='btn preview btn-xs btn-default' title='Preview'><i class='fa fa-search'></i></button>";
     }
     return ['<div>', btnEdit, btnDelete, btnPreview, '</div>'].join(' ');
 

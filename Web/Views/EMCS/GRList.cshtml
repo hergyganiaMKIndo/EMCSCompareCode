@@ -3,6 +3,31 @@
     ViewBag.Title = "Receipt Goods List";
 }
 @*@Styles.Render("~/Content/EMCS/SweetAlert/sweetalert2.min.css")*@
+
+@{
+    if (ViewBag.AllowDelete)
+    {
+        <input type="hidden" name="AllowDelete" id="AllowDelete" class="form-control" value="True">
+    }
+
+    if (ViewBag.AllowUpdate)
+    {
+        <input type="hidden" name="AllowUpdate" id="AllowUpdate" class="form-control" value="True">
+    }
+    if (ViewBag.IsImexUser)
+    {
+        <input type="hidden" name="IsImexUser" id="IsImexUser" class="form-control" value=true>
+    }
+    if (ViewBag.IsCKB)
+    {
+        <input type="hidden" name="IsCKB" id="IsCKB" class="form-control" value=true>
+    }
+    else
+    {
+        <input type="hidden" name="IsCKB" id="IsCKB" class="form-control" value=false>
+    }
+}
+
 <div class="row">
     <div class="col-md-12">
         <div class="box box-warning">
@@ -20,16 +45,7 @@
         </div>
     </div>
 </div>
-@{     
-    @*if (ViewBag.IsImexUser)
-    {
-<input type="hidden" name="IsImexUser" id="IsImexUser" class="form-control" value=true>
-    }
-    if (ViewBag.IsCKB)
-    {
-<input type="hidden" name="IsCKB" id="IsCKB" class="form-control" value=true>
-        }*@
-    }
+
 @section Scripts{
     @*<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>*@
     @*@Scripts.Render("~/Content/Post/SweetAlert/sweetalert2.min.js")*@

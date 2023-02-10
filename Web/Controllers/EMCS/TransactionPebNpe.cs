@@ -25,6 +25,15 @@ namespace App.Web.Controllers.EMCS
             ViewBag.AllowCreate = AuthorizeAcces.AllowCreated;
             ViewBag.AllowUpdate = AuthorizeAcces.AllowUpdated;
             ViewBag.AllowDelete = AuthorizeAcces.AllowDeleted;
+            string userRoles = User.Identity.GetUserRoles();
+            if (userRoles.Contains("EMCSImex") || userRoles.Contains("Administrator") || userRoles.Contains("Imex"))
+                ViewBag.IsImexUser = true;
+            else
+                ViewBag.IsImexUser = false;
+            if (User.Identity.Name == "eko.suhartarto")
+                ViewBag.IsCKB = true;
+            else
+                ViewBag.IsCKB = false;
             PaginatorBoot.Remove("SessionTRN");
             return View();
         }

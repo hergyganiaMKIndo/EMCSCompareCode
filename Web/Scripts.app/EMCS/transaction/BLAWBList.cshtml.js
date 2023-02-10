@@ -164,8 +164,10 @@ function operateFormatter(options) {
     //if (options.Add == true)
     //    btn.push('<button type="button" class="btn btn-success new" title="Add"><i class="fa fa-plus"></i></button>')
     if (options.Data.StatusViewByUser != null && options.Data.StatusViewByUser != '') {
-        if (options.Data.PendingRFC == 0 && (options.Data.StatusViewByUser.replace(/\s/g, '') == "Finish" || options.Data.StatusViewByUser.replace(/\s/g, '') == "Approval" || options.Data.StatusViewByUser.replace(/\s/g, '') == "WaitingforBLorAWB") && options.Data.RoleName.replace(/\s/g, '') != 'EMCSPPJK' )
-            btnEdit = '<button type="button" class="btn btn-xs btn-primary edit" title="Edit"><i class="fa fa-edit"></i></button>'
+        if (options.Data.PendingRFC == 0 && (options.Data.StatusViewByUser.replace(/\s/g, '') == "Finish" || options.Data.StatusViewByUser.replace(/\s/g, '') == "Approval" || options.Data.StatusViewByUser.replace(/\s/g, '') == "WaitingforBLorAWB") && options.Data.RoleName.replace(/\s/g, '') != 'EMCSPPJK')
+            if (Boolean($("#IsImexUser").val()) == true) {
+                btnEdit = '<button type="button" class="btn btn-xs btn-primary edit" title="Edit RFC"><i class="fa fa-edit"></i></button>'
+            }
     }
     
     //if (options.Delete == true && options.Data.status === 'Draft')
